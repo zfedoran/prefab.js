@@ -48,25 +48,25 @@ define([
                 }
                 gl.clear(options);
             },
-            createShader: function(source, type) {
-                var shader = gl.createShader(type);
-                gl.shaderSource(shader, source);
-                gl.compileShader(shader);
+            compileShader: function(vsource, fsource) {
+                var vshader = gl.createShader(gl.VERTEX_SHADER);
+                var fshader = gl.createShader(gl.FRAGMENT_SHADER);
+                var program = gl.createProgram();
 
-                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                    throw gl.getShaderInfoLog(shader);
+                gl.shaderSource(vshader, vsource);
+                gl.compileShader(vshader);
+
+                if (!gl.getShaderParameter(vshader, gl.COMPILE_STATUS)) {
+                    throw gl.getShaderInfoLog(vshader);
                 }
 
-                return shader;
-            },
-            createVertexShader: function(source) {
-                return this.createShader(source, gl.VERTEX_SHADER);
-            },
-            createFragmentShader: function(source) {
-                return this.createShader(source, gl.FRAGMENT_SHADER);
-            },
-            createProgram: function(vshader, fshader) {
-                var program = gl.createProgram();
+                gl.shaderSource(fshader, fsource);
+                gl.compileShader(fshader);
+
+                if (!gl.getShaderParameter(fshader, gl.COMPILE_STATUS)) {
+                    throw gl.getShaderInfoLog(fshader);
+                }
+
                 gl.attachShader(program, vshader);
                 gl.attachShader(program, fshader);
                 gl.linkProgram(program);
@@ -77,15 +77,43 @@ define([
 
                 return program;
             },
+            bindShader: function(program, vertexDeclaration) {
+                gl.useProgram(program);
+
+                var i, ve, attribute;
+                for (i = 0; i < vertexDeclaration.length; i++) {
+                    ve = vertexDeclaration.elements[i];
+                    attribute = gl.getAttribLocation(program, ve.attributeName);
+                    gl.enableVertexAttribArray(attribute);
+                    gl.vertexAttribPointer(attribute, ve.numElem, gl.FLOAT, false, vertexDeclaration.stride, ve.offset);
+                }
+
+            },
+            getAttributeLocation: function(program, attribute) {
+                return gl.getAttributeLocation(program, attribute);
+            },
+            getUniformLocation: function(program, uniform) {
+                return gl.getUniformLocation(program, uniform);
+            },
+            setUniformData: function(uniform, data) {
+                gl.uniformMatrix4fv(uniform, false, data);
+            },
             createBuffer: function() {
                 return gl.createBuffer();
             },
-            bindBuffer: function(buffer) {
+            bindVertexBuffer: function(buffer) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
             },
-            setBufferData: function(buffer, data) {
+            setVertexBufferData: function(buffer, data) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-                gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);
+                gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+            },
+            bindIndexBuffer: function(buffer) {
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
+            },
+            setIndexBufferData: function(buffer, data) {
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, data, gl.STATIC_DRAW);
             },
             setSize: function(width, height) {
                 this.canvas.width = width;
