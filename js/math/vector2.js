@@ -11,8 +11,14 @@ define([
         Vector2.prototype = {
             constructor: Vector2,
 
+            set: function(x, y) {
+                this.x = x || 0;
+                this.y = y || 0;
+                return this;
+            },
+
             length: function () {
-                return Math.sqrt( this.x * this.x + this.y * this.y );
+                return Math.sqrt(this.x * this.x + this.y * this.y);
             },
 
             lengthSquared: function () {
@@ -23,10 +29,11 @@ define([
                 var length = this.length();
                 this.x = this.x / length;
                 this.y = this.y / length;
+                return this;
             },
 
             equals: function( v ) {
-                return (( v.x === this.x ) && ( v.y === this.y ));
+                return ((v.x === this.x) && (v.y === this.y));
             },
 
             clone: function() {
@@ -76,18 +83,18 @@ define([
         };
 
         Vector2.subtractScalar = function(v, s, result) {
-            result.x = a.x - s;
-            result.y = a.y - s;
+            result.x = v.x - s;
+            result.y = v.y - s;
         };
 
         Vector2.multiplyScalar = function(v, s, result) {
-            result.x = a.x * s;
-            result.y = a.y * s;
+            result.x = v.x * s;
+            result.y = v.y * s;
         };
 
         Vector2.divideScalar = function(v, s, result) {
-            result.x = a.x / s;
-            result.y = a.y / s;
+            result.x = v.x / s;
+            result.y = v.y / s;
         };
 
         Vector2.min = function(a, b, result) {

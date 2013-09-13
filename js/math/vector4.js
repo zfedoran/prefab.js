@@ -13,33 +13,54 @@ define([
         Vector4.prototype = {
             constructor: Vector4,
 
-            length: function () {
+            set: function(x, y, z, w) {
+                this.x = x || 0;
+                this.y = y || 0;
+                this.z = z || 0;
+                this.w = w || 0;
+                return this;
+            },
+
+            length: function() {
                 return Math.sqrt( this.x * this.x 
                                 + this.y * this.y
                                 + this.z * this.z
                                 + this.w * this.w );
             },
 
-            lengthSquared: function () {
+            lengthSquared: function() {
                 return this.x * this.x 
                      + this.y * this.y
                      + this.z * this.z
                      + this.w * this.w;
             },
 
-            normalize: function () {
+            normalize: function() {
                 var length = this.length();
                 this.x = this.x / length;
                 this.y = this.y / length;
                 this.z = this.z / length;
                 this.w = this.w / length;
+                return this;
             },
 
-            equals: function( v ) {
-                return (( v.x === this.x ) 
-                     && ( v.y === this.y )
-                     && ( v.z === this.z )
-                     && ( v.w === this.w ));
+            transform: function(matrix) {
+                var e = matrix.elements;
+                var x = this.x; var y = this.y; var z = this.z; var w = this.w;
+
+                this.x = e[0] * x + e[4] * y + e[8] * z + e[12] * w;
+                this.y = e[1] * x + e[5] * y + e[9] * z + e[13] * w;
+                this.z = e[2] * x + e[6] * y + e[10] * z + e[14] * w;
+                this.w = e[3] * x + e[7] * y + e[11] * z + e[15] * w;
+
+                return this;
+            },
+
+            equals: function(v) {
+                return ((v.x === this.x)
+                     && (v.y === this.y)
+                     && (v.z === this.z)
+                     && (v.w === this.w));
             },
 
             clone: function() {
@@ -102,24 +123,24 @@ define([
         };
 
         Vector4.subtractScalar = function(v, s, result) {
-            result.x = a.x - s;
-            result.y = a.y - s;
-            result.z = a.z - s;
-            result.w = a.w - s;
+            result.x = v.x - s;
+            result.y = v.y - s;
+            result.z = v.z - s;
+            result.w = v.w - s;
         };
 
         Vector4.multiplyScalar = function(v, s, result) {
-            result.x = a.x * s;
-            result.y = a.y * s;
-            result.z = a.z * s;
-            result.w = a.w * s;
+            result.x = v.x * s;
+            result.y = v.y * s;
+            result.z = v.z * s;
+            result.w = v.w * s;
         };
 
         Vector4.divideScalar = function(v, s, result) {
-            result.x = a.x / s;
-            result.y = a.y / s;
-            result.z = a.z / s;
-            result.w = a.w / s;
+            result.x = v.x / s;
+            result.y = v.y / s;
+            result.z = v.z / s;
+            result.w = v.w / s;
         };
 
         Vector4.min = function(a, b, result) {

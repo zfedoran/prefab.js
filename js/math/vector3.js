@@ -12,29 +12,48 @@ define([
         Vector3.prototype = {
             constructor: Vector3,
 
-            length: function () {
+            set: function(x, y, z) {
+                this.x = x || 0;
+                this.y = y || 0;
+                this.z = z || 0;
+                return this;
+            },
+
+            length: function() {
                 return Math.sqrt( this.x * this.x 
                                 + this.y * this.y
                                 + this.z * this.z );
             },
 
-            lengthSquared: function () {
+            lengthSquared: function() {
                 return this.x * this.x 
                      + this.y * this.y
                      + this.z * this.z;
             },
 
-            normalize: function () {
+            normalize: function() {
                 var length = this.length();
                 this.x = this.x / length;
                 this.y = this.y / length;
                 this.z = this.z / length;
+                return this;
+            },
+
+            transform: function(matrix) {
+                var e = matrix.elements;
+                var x = this.x, y = this.y, z = this.z;
+
+                this.x = e[0] * x + e[4] * y + e[8]  * z + e[12];
+                this.y = e[1] * x + e[5] * y + e[9]  * z + e[13];
+                this.z = e[2] * x + e[6] * y + e[10] * z + e[14];
+
+                return this;
             },
 
             equals: function( v ) {
-                return (( v.x === this.x ) 
-                     && ( v.y === this.y )
-                     && ( v.z === this.z ));
+                return ((v.x === this.x)
+                     && (v.y === this.y)
+                     && (v.z === this.z));
             },
 
             clone: function() {
@@ -91,21 +110,21 @@ define([
         };
 
         Vector3.subtractScalar = function(v, s, result) {
-            result.x = a.x - s;
-            result.y = a.y - s;
-            result.z = a.z - s;
+            result.x = v.x - s;
+            result.y = v.y - s;
+            result.z = v.z - s;
         };
 
         Vector3.multiplyScalar = function(v, s, result) {
-            result.x = a.x * s;
-            result.y = a.y * s;
-            result.z = a.z * s;
+            result.x = v.x * s;
+            result.y = v.y * s;
+            result.z = v.z * s;
         };
 
         Vector3.divideScalar = function(v, s, result) {
-            result.x = a.x / s;
-            result.y = a.y / s;
-            result.z = a.z / s;
+            result.x = v.x / s;
+            result.y = v.y / s;
+            result.z = v.z / s;
         };
 
         Vector3.min = function(a, b, result) {

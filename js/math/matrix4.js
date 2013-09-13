@@ -1,8 +1,14 @@
 define([
-        'math/helper'
+        'math/helper',
+        'math/vector3',
+        'math/vector4',
+        'math/quaternion',
     ],
     function(
-        MathHelper
+        MathHelper,
+        Vector3,
+        Vector4,
+        Quaternion
     ) {
 
         var Matrix4 = function( n11, n12, n13, n14, n21, n22, n23, n24, n31, n32, n33, n34, n41, n42, n43, n44 ) {
@@ -24,6 +30,7 @@ define([
                 te[1] = n21; te[5] = n22; te[9] = n23; te[13] = n24;
                 te[2] = n31; te[6] = n32; te[10] = n33; te[14] = n34;
                 te[3] = n41; te[7] = n42; te[11] = n43; te[15] = n44;
+                return this;
             },
 
             transpose: function() {
@@ -37,6 +44,7 @@ define([
                 tmp = te[3]; te[3] = te[12]; te[12] = tmp;
                 tmp = te[7]; te[7] = te[13]; te[13] = tmp;
                 tmp = te[11]; te[11] = te[14]; te[14] = tmp;
+                return this;
             },
 
             compose: function(position, quaternion, scale) {
@@ -72,9 +80,49 @@ define([
                 re[12] = position.x;
                 re[13] = position.y;
                 re[14] = position.z;
+                return this;
             },
 
-            decompose: function() {
+            decompose: function(position, quaternion, scale) {
+                var te = this.elements;
+
+                var vector = new Vector3();
+                var matrix = new Matrix4();
+
+                var sx = vector.set(te[0], te[1], te[2]).length();
+                var sy = vector.set(te[4], te[5], te[6]).length();
+                var sz = vector.set(te[8], te[9], te[10]).length();
+
+                position.x = te[12];
+                position.y = te[13];
+                position.z = te[14];
+
+                // scale the rotation
+                matrix.elements.set(this.elements);
+
+                var invSX = 1 / sx;
+                var invSY = 1 / sy;
+                var invSZ = 1 / sz;
+
+                matrix.elements[0] *= invSX;
+                matrix.elements[1] *= invSX;
+                matrix.elements[2] *= invSX;
+
+                matrix.elements[4] *= invSY;
+                matrix.elements[5] *= invSY;
+                matrix.elements[6] *= invSY;
+
+                matrix.elements[8] *= invSZ;
+                matrix.elements[9] *= invSZ;
+                matrix.elements[10] *= invSZ;
+
+                Quaternion.createFromRotationMatrix(matrix, /*out*/ quaternion);
+
+                scale.x = sx;
+                scale.y = sy;
+                scale.z = sz;
+
+                return this;
             },
 
             isValid: function() {
@@ -206,7 +254,7 @@ define([
             if (det === 0) {
                 throw new Error("Matrix4.getInverse(): can't invert matrix, determinant is 0"); 
             } else {
-                Matrix4.multiplyScalar(m, 1 / det, m);
+                Matrix4.multiplyScalar(m, 1 / det, /*out*/  m);
             }
         };
 
@@ -312,7 +360,7 @@ define([
             var xmin = ymin * aspect;
             var xmax = ymax * aspect;
 
-            Matrix4.createFrustum(xmin, xmax, ymin, ymax, near, far, result);
+            Matrix4.createFrustum(xmin, xmax, ymin, ymax, near, far, /*out*/ result);
         };
 
         Matrix4.createOrthographic = function(left, right, top, bottom, near, far, result) {
@@ -331,5 +379,35 @@ define([
             re[3] = 0;   re[7] = 0;   re[11] = 0;   re[15] = 1;
         };
 
+        Matrix4.createLookAt = function(eye, target, up, result) {
+            var x = new Vector3();
+            var y = new Vector3();
+            var z = new Vector3();
+
+            Vector3.subtract(eye, target, /*out*/ z);
+            z.normalize();
+
+            if (z.length() === 0) {
+                z.z = 1;
+            }
+
+            Vector3.cross(up, z, /*out*/ x);
+            x.normalize();
+
+            if (x.length() === 0) {
+                z.x += 0.0001;
+                Vector3.cross(up, z, /*out*/ x);
+                x.normalize();
+            }
+
+            Vector3.cross(z, x, /*out*/ z);
+
+            var re = result.elements;
+            re[0] = x.x; re[4] = y.x; re[8] = z.x;
+            re[1] = x.y; re[5] = y.y; re[9] = z.y;
+            re[2] = x.z; re[6] = y.z; re[10] = z.z;
+        };
+
+        return Matrix4;
     }
 );
