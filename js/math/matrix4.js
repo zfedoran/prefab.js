@@ -11,7 +11,7 @@ define([
         Quaternion
     ) {
 
-        var Matrix4 = function( n11, n12, n13, n14, n21, n22, n23, n24, n31, n32, n33, n34, n41, n42, n43, n44 ) {
+        var Matrix4 = function(n11, n21, n31, n41, n12, n22, n32, n42, n13, n23, n33, n43, n14, n24, n34, n44) {
             this.elements = new Float32Array(16);
 
             var te = this.elements;
@@ -180,7 +180,7 @@ define([
         Matrix4.multiply = function(a, b, result) {
             var ae = a.elements;
             var be = b.elements;
-            var te = result.elements;
+            var re = result.elements;
 
             a11 = ae[0]; a12 = ae[4]; a13 = ae[8]; a14 = ae[12];
             a21 = ae[1]; a22 = ae[5]; a23 = ae[9]; a24 = ae[13];
@@ -379,33 +379,80 @@ define([
             re[3] = 0;   re[7] = 0;   re[11] = 0;   re[15] = 1;
         };
 
-        Matrix4.createLookAt = function(eye, target, up, result) {
-            var x = new Vector3();
-            var y = new Vector3();
-            var z = new Vector3();
+        Matrix4.createLookAt = function(eye, center, up, dest) {
+            var eyex = eye.x,
+                eyey = eye.y,
+                eyez = eye.z,
+                upx = up.x,
+                upy = up.y,
+                upz = up.z,
+                centerx = center.x,
+                centery = center.y,
+                centerz = center.z;
 
-            Vector3.subtract(eye, target, /*out*/ z);
-            z.normalize();
+        var z0,z1,z2,x0,x1,x2,y0,y1,y2,len;
+        
+        //vec3.direction(eye, center, z);
+        z0 = eyex - center.x;
+        z1 = eyey - center.x;
+        z2 = eyez - center.x;
+        
+        // normalize (no check needed for 0 because of early return)
+        len = 1/Math.sqrt(z0*z0 + z1*z1 + z2*z2);
+        z0 *= len;
+        z1 *= len;
+        z2 *= len;
+        
+        //vec3.normalize(vec3.cross(up, z, x));
+        x0 = upy*z2 - upz*z1;
+        x1 = upz*z0 - upx*z2;
+        x2 = upx*z1 - upy*z0;
+        len = Math.sqrt(x0*x0 + x1*x1 + x2*x2);
+        if (!len) {
+                x0 = 0;
+                x1 = 0;
+                x2 = 0;
+        } else {
+                len = 1/len;
+                x0 *= len;
+                x1 *= len;
+                x2 *= len;
+        }
+        
+        //vec3.normalize(vec3.cross(z, x, y));
+        y0 = z1*x2 - z2*x1;
+        y1 = z2*x0 - z0*x2;
+        y2 = z0*x1 - z1*x0;
+        
+        len = Math.sqrt(y0*y0 + y1*y1 + y2*y2);
+        if (!len) {
+                y0 = 0;
+                y1 = 0;
+                y2 = 0;
+        } else {
+                len = 1/len;
+                y0 *= len;
+                y1 *= len;
+                y2 *= len;
+        }
+        
+        dest.elements[0] = x0;
+        dest.elements[1] = y0;
+        dest.elements[2] = z0;
+        dest.elements[3] = 0;
+        dest.elements[4] = x1;
+        dest.elements[5] = y1;
+        dest.elements[6] = z1;
+        dest.elements[7] = 0;
+        dest.elements[8] = x2;
+        dest.elements[9] = y2;
+        dest.elements[10] = z2;
+        dest.elements[11] = 0;
+        dest.elements[12] = -(x0*eyex + x1*eyey + x2*eyez);
+        dest.elements[13] = -(y0*eyex + y1*eyey + y2*eyez);
+        dest.elements[14] = -(z0*eyex + z1*eyey + z2*eyez);
+        dest.elements[15] = 1;        
 
-            if (z.length() === 0) {
-                z.z = 1;
-            }
-
-            Vector3.cross(up, z, /*out*/ x);
-            x.normalize();
-
-            if (x.length() === 0) {
-                z.x += 0.0001;
-                Vector3.cross(up, z, /*out*/ x);
-                x.normalize();
-            }
-
-            Vector3.cross(z, x, /*out*/ z);
-
-            var re = result.elements;
-            re[0] = x.x; re[4] = y.x; re[8] = z.x;
-            re[1] = x.y; re[5] = y.y; re[9] = z.y;
-            re[2] = x.z; re[6] = y.z; re[10] = z.z;
         };
 
         return Matrix4;

@@ -27,62 +27,105 @@ define([
 
             this.shader = this.device.compileShader(textVertexSource, textFragmentSource);
             this.vertexDeclaration = new VertexDeclaration(
-                new VertexElement(0, VertexElement.Vector3, "aPosition")
-               //new VertexElement(4*3, VertexElement.Vector3, "aNormal"),
+                new VertexElement(0, VertexElement.Vector3, "aVertexPosition"),
+                new VertexElement(4*3, VertexElement.Vector4, "aVertexColor")
                //new VertexElement(4*6, VertexElement.Vector2, "aTextureCoord")
             );
 
             var vertices = new Float32Array([
-                1.0,  1.0,  0.0,
-                -1.0, 1.0,  0.0,
-                1.0,  -1.0, 0.0,
-                -1.0, -1.0, 0.0
+                // Front face
+                -1.0, -1.0,  1.0, 1.0, 0.0, 0.0, 1.0,
+                 1.0, -1.0,  1.0, 1.0, 0.0, 0.0, 1.0,
+                 1.0,  1.0,  1.0, 1.0, 0.0, 0.0, 1.0,
+                -1.0,  1.0,  1.0, 1.0, 0.0, 0.0, 1.0,
+
+                // Back face
+                -1.0, -1.0, -1.0, 0.0, 1.0, 0.0, 1.0,
+                -1.0,  1.0, -1.0, 0.0, 1.0, 0.0, 1.0,
+                 1.0,  1.0, -1.0, 0.0, 1.0, 0.0, 1.0,
+                 1.0, -1.0, -1.0, 0.0, 1.0, 0.0, 1.0,
+
+                // Top face
+                -1.0,  1.0, -1.0, 0.0, 0.0, 1.0, 1.0,
+                -1.0,  1.0,  1.0, 0.0, 0.0, 1.0, 1.0,
+                 1.0,  1.0,  1.0, 0.0, 0.0, 1.0, 1.0,
+                 1.0,  1.0, -1.0, 0.0, 0.0, 1.0, 1.0,
+
+                // Bottom face
+                -1.0, -1.0, -1.0, 0.5, 0.0, 0.0, 1.0,
+                 1.0, -1.0, -1.0, 0.5, 0.0, 0.0, 1.0,
+                 1.0, -1.0,  1.0, 0.5, 0.0, 0.0, 1.0,
+                -1.0, -1.0,  1.0, 0.5, 0.0, 0.0, 1.0,
+                                                     
+                // Right face                        
+                 1.0, -1.0, -1.0, 0.0, 0.5, 0.0, 1.0,
+                 1.0,  1.0, -1.0, 0.0, 0.5, 0.0, 1.0,
+                 1.0,  1.0,  1.0, 0.0, 0.5, 0.0, 1.0,
+                 1.0, -1.0,  1.0, 0.0, 0.5, 0.0, 1.0,
+                                                     
+                // Left face                         
+                -1.0, -1.0, -1.0, 0.0, 0.0, 0.5, 1.0,
+                -1.0, -1.0,  1.0, 0.0, 0.0, 0.5, 1.0,
+                -1.0,  1.0,  1.0, 0.0, 0.0, 0.5, 1.0,
+                -1.0,  1.0, -1.0, 0.0, 0.0, 0.5, 1.0,
             ]);
             this.vertexBuffer = this.device.createBuffer();
             this.device.setVertexBufferData(this.vertexBuffer, vertices);
+
+            var indices = new Uint16Array([
+                0,  1,  2,      0,  2,  3,    // front
+                4,  5,  6,      4,  6,  7,    // back
+                8,  9,  10,     8,  10, 11,   // top
+                12, 13, 14,     12, 14, 15,   // bottom
+                16, 17, 18,     16, 18, 19,   // right
+                20, 21, 22,     20, 22, 23    // left
+            ]);
+            this.indexBuffer = this.device.createBuffer();
+            this.device.setIndexBufferData(this.indexBuffer, indices);
 
             this.device.initDefaultState();
 
             this.initEvents();
             this.onResize();
 
-            this.draw();
+            var _this = this;
+            this.delta = 0;
+            setInterval(function(){_this.draw();},100);
         };
 
         Application.prototype = {
             constructor: Application,
             draw: function() {
-                this.device.setViewport(0, 0, this.height, this.width);
+                //this.device.setViewport(0, 0, this.height, this.width);
                 this.device.clear(this.backgroundColor);
 
-                var fov = 1;
-                var aspect = 640.0 / 480.0;
+                var fov = 45;
+                var aspect = this.width / this.height;
                 var near = 0.1;
                 var far = 100;
                 
-                var position = new Vector3(0, 0, -6);
+                this.delta += 0.1;
+
+                var position = new Vector3(Math.sin(this.delta)*4, Math.sin(this.delta)*2+1, Math.cos(this.delta)*4);
                 var target = new Vector3(0, 0, 0);
                 
                 var view = new Matrix4();
                 var proj = new Matrix4();
 
-                //Matrix4.createOrthographic(10, -10, 10, -10, 0.1, 100, /*out*/ proj);
                 Matrix4.createPerspective(fov, aspect, near, far, /*out*/ proj);
                 Matrix4.createLookAt(position, target, Vector3.UP, /*out*/ view);
 
                 this.device.bindShader(this.shader, this.vertexDeclaration);
-                this.device.bindVertexBuffer(this.vertexBuffer);
-
                 var uView = this.device.getUniformLocation(this.shader, 'uMVMatrix');
                 var uProj = this.device.getUniformLocation(this.shader, 'uPMatrix');
 
                 this.device.setUniformData(uView, view.elements);
                 this.device.setUniformData(uProj, proj.elements);
 
-                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                this.device.bindVertexBuffer(this.vertexBuffer);
+                this.device.bindIndexBuffer(this.indexBuffer);
 
-                console.log(view.toString());
-                console.log(proj.toString());
+                gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
             },
             initEvents: function() {
                 $(window).on('resize', $.proxy(this.onResize, this));
@@ -91,9 +134,10 @@ define([
                 $(window).off('resize');
             },
             onResize: function(evt) {
-                var width = $(window).width();
-                var height = $(window).height();
-                this.device.setSize(width, height);
+                this.width = $(window).width();
+                this.height = $(window).height();
+                this.device.setSize(this.width, this.height);
+                this.draw();
             }
         };
 
