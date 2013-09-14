@@ -18,6 +18,11 @@ define([
         textVertexSource,
         textFragmentSource
     ) {
+        var requestAnimationFrame = window.requestAnimationFrame 
+                                 || window.mozRequestAnimationFrame 
+                                 || window.webkitRequestAnimationFrame 
+                                 || window.msRequestAnimationFrame;
+
         var Application = function() {
             this.width = 720;
             this.height = 480;
@@ -89,13 +94,16 @@ define([
             this.onResize();
 
             var _this = this;
-            this.delta = 0;
-            setInterval(function(){_this.draw();},100);
+            function loop(time) {
+                requestAnimationFrame(loop);
+                _this.draw(time);
+            }
+            loop(0);
         };
 
         Application.prototype = {
             constructor: Application,
-            draw: function() {
+            draw: function(delta) {
                 //this.device.setViewport(0, 0, this.height, this.width);
                 this.device.clear(this.backgroundColor);
 
@@ -104,9 +112,8 @@ define([
                 var near = 0.1;
                 var far = 100;
                 
-                this.delta += 0.1;
-
-                var position = new Vector3(Math.sin(this.delta)*4, Math.sin(this.delta)*2+1, Math.cos(this.delta)*4);
+                delta *= 0.001;
+                var position = new Vector3(Math.sin(delta)*4, Math.sin(delta)*2+1, Math.cos(delta)*4);
                 var target = new Vector3(0, 0, 0);
                 
                 var view = new Matrix4();
