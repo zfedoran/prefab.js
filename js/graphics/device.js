@@ -1,6 +1,14 @@
 define([
+        'math/vector2',
+        'math/vector3',
+        'math/vector4',
+        'math/matrix4'
     ],
     function(
+        Vector2,
+        Vector3,
+        Vector4,
+        Matrix4
     ) {
 
         var GraphicsDevice = function(width, height) {
@@ -87,7 +95,6 @@ define([
                     gl.enableVertexAttribArray(attribute);
                     gl.vertexAttribPointer(attribute, ve.numElem, gl.FLOAT, false, vertexDeclaration.stride, ve.offset);
                 }
-
             },
             getAttributeLocation: function(program, attribute) {
                 return gl.getAttributeLocation(program, attribute);
@@ -96,7 +103,17 @@ define([
                 return gl.getUniformLocation(program, uniform);
             },
             setUniformData: function(uniform, data) {
-                gl.uniformMatrix4fv(uniform, false, data);
+                if (data instanceof Vector2) {
+                    gl.uniform2f(uniform, false, data.x, data.y);
+                } else if (data instanceof Vector3) {
+                    gl.uniform3f(uniform, false, data.x, data.y, data.z);
+                } else if (data instanceof Vector4) {
+                    gl.uniform4f(uniform, false, data.x, data.y, data.z, data.w);
+                } else if (data instanceof Matrix4) {
+                    gl.uniformMatrix4fv(uniform, false, data.elements);
+                } else if (typeof data === 'number') {
+                    gl.uniform1f(uniform, false, data);
+                }
             },
             createBuffer: function() {
                 return gl.createBuffer();
@@ -107,6 +124,7 @@ define([
             setVertexBufferData: function(buffer, data) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
                 gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+                buffer.length = data.length;
             },
             bindIndexBuffer: function(buffer) {
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
@@ -114,6 +132,7 @@ define([
             setIndexBufferData: function(buffer, data) {
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
                 gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, data, gl.STATIC_DRAW);
+                buffer.length = data.length;
             },
             setSize: function(width, height) {
                 this.canvas.width = width;

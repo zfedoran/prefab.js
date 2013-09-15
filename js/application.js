@@ -18,10 +18,6 @@ define([
         textVertexSource,
         textFragmentSource
     ) {
-        var requestAnimationFrame = window.requestAnimationFrame 
-                                 || window.mozRequestAnimationFrame 
-                                 || window.webkitRequestAnimationFrame 
-                                 || window.msRequestAnimationFrame;
 
         var Application = function() {
             this.width = 720;
@@ -30,12 +26,15 @@ define([
 
             this.device = new GraphicsDevice(this.width, this.height);
 
-            this.shader = this.device.compileShader(textVertexSource, textFragmentSource);
+            this.effect = this.device.compileShader(textVertexSource, textFragmentSource);
             this.vertexDeclaration = new VertexDeclaration(
                 new VertexElement(0, VertexElement.Vector3, "aVertexPosition"),
                 new VertexElement(4*3, VertexElement.Vector4, "aVertexColor")
                //new VertexElement(4*6, VertexElement.Vector2, "aTextureCoord")
             );
+
+            this.uMVMatrix = this.device.getUniformLocation(this.effect, 'uMVMatrix');
+            this.uPMatrix = this.device.getUniformLocation(this.effect, 'uPMatrix');
 
             var vertices = new Float32Array([
                 // Front face
@@ -122,17 +121,16 @@ define([
                 Matrix4.createPerspective(fov, aspect, near, far, /*out*/ proj);
                 Matrix4.createLookAt(position, target, Vector3.UP, /*out*/ view);
 
-                this.device.bindShader(this.shader, this.vertexDeclaration);
-                var uView = this.device.getUniformLocation(this.shader, 'uMVMatrix');
-                var uProj = this.device.getUniformLocation(this.shader, 'uPMatrix');
+                this.device.bindShader(this.effect, this.vertexDeclaration);
 
-                this.device.setUniformData(uView, view.elements);
-                this.device.setUniformData(uProj, proj.elements);
+                this.device.setUniformData(this.uMVMatrix, view);
+                this.device.setUniformData(this.uPMatrix, proj);
 
                 this.device.bindVertexBuffer(this.vertexBuffer);
                 this.device.bindIndexBuffer(this.indexBuffer);
 
-                gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
+                //this.device.drawIndexedPrimitives(this.device.TRIANGLES, this.indexBuffer.length, );
+                gl.drawElements(gl.TRIANGLES, this.indexBuffer.length, gl.UNSIGNED_SHORT, 0);
             },
             initEvents: function() {
                 $(window).on('resize', $.proxy(this.onResize, this));

@@ -11,6 +11,14 @@ requirejs.config({
 });
 
 requirejs(['jquery', 'application'], function($, Application) {
+
+    var requestAnimationFrame = window.requestAnimationFrame
+                             || window.mozRequestAnimationFrame
+                             || window.webkitRequestAnimationFrame
+                             || window.msRequestAnimationFrame;
+
+    window.requestAnimationFrame = requestAnimationFrame;
+
     $(function() {
         var app = new Application();
     });
