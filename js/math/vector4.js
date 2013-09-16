@@ -88,62 +88,105 @@ define([
         };
 
         Vector4.add = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector4();
+            }
             result.x = a.x + b.x;
             result.y = a.y + b.y;
             result.z = a.z + b.z;
             result.w = a.w + b.w;
+
+            return result;
         };
 
         Vector4.subtract = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector4();
+            }
             result.x = a.x - b.x;
             result.y = a.y - b.y;
             result.z = a.z - b.z;
             result.w = a.w - b.w;
+
+            return result;
         };
 
         Vector4.multiply = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector4();
+            }
             result.x = a.x * b.x;
             result.y = a.y * b.y;
             result.z = a.z * b.z;
             result.w = a.w * b.w;
+
+            return result;
         };
 
         Vector4.divide = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector4();
+            }
             result.x = a.x / b.x;
             result.y = a.y / b.y;
             result.z = a.z / b.z;
             result.w = a.w / b.w;
+
+            return result;
         };
 
         Vector4.addScalar = function(v, s, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector4();
+            }
             result.x = v.x + s;
             result.y = v.y + s;
             result.z = v.z + s;
             result.w = v.w + s;
+
+            return result;
         };
 
         Vector4.subtractScalar = function(v, s, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector4();
+            }
             result.x = v.x - s;
             result.y = v.y - s;
             result.z = v.z - s;
             result.w = v.w - s;
+
+            return result;
         };
 
         Vector4.multiplyScalar = function(v, s, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector4();
+            }
             result.x = v.x * s;
             result.y = v.y * s;
             result.z = v.z * s;
             result.w = v.w * s;
+
+            return result;
         };
 
         Vector4.divideScalar = function(v, s, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector4();
+            }
             result.x = v.x / s;
             result.y = v.y / s;
             result.z = v.z / s;
             result.w = v.w / s;
+
+            return result;
         };
 
         Vector4.min = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector4();
+            }
             if (a.x < b.x) {
                 result.x = a.x;
             }
@@ -156,9 +199,14 @@ define([
             if (a.w < b.w) {
                 result.w = a.w;
             }
+
+            return result;
         };
 
         Vector4.max = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector4();
+            }
             if (a.x > b.x) {
                 result.x = a.x;
             }
@@ -171,9 +219,14 @@ define([
             if (a.w > b.w) {
                 result.w = a.w;
             }
+
+            return result;
         };
 
         Vector4.clamp = function(min, max, val, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector4();
+            }
             if ( val.x < min.x ) {
                 result.x = min.x;
             } else if ( val.x > max.x ) {
@@ -194,6 +247,8 @@ define([
             } else if ( val.w > max.w ) {
                 result.w = max.w;
             }
+
+            return result;
         };
 
         Vector4.dot = function(a, b) {
@@ -204,16 +259,26 @@ define([
         };
 
         Vector4.cross = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector4();
+            }
             result.x = a.y * b.z - a.z * b.y;
             result.y = a.z * b.x - a.x * b.z;
             result.z = a.x * b.y - a.y * b.x;
+
+            return result;
         };
 
         Vector4.lerp = function(a, b, amount, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector4();
+            }
             result.x = a.x + ( b.x - a.x ) * amount;
             result.y = a.y + ( b.y - a.y ) * amount;
             result.z = a.z + ( b.z - a.z ) * amount;
             result.w = a.w + ( b.w - a.w ) * amount;
+
+            return result;
         };
 
         Vector4.distanceSquared = function(a, b) {

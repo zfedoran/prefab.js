@@ -134,6 +134,9 @@ define([
                 gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, data, gl.STATIC_DRAW);
                 buffer.length = data.length;
             },
+            drawIndexedPrimitives: function(primitiveType, numIndices, dataType, offset) {
+                gl.drawElements(primitiveType, numIndices, dataType, offset);
+            },
             setSize: function(width, height) {
                 this.canvas.width = width;
                 this.canvas.height = height;
@@ -159,6 +162,24 @@ define([
                 }
             }
         };
+
+        /* PrimitiveType */
+        GraphicsDevice.POINTS                    = 0x0000;
+        GraphicsDevice.LINES                     = 0x0001;
+        GraphicsDevice.LINE_LOOP                 = 0x0002;
+        GraphicsDevice.LINE_STRIP                = 0x0003;
+        GraphicsDevice.TRIANGLES                 = 0x0004;
+        GraphicsDevice.TRIANGLE_STRIP            = 0x0005;
+        GraphicsDevice.TRIANGLE_FAN              = 0x0006;
+
+        /* DataType */
+        GraphicsDevice.BYTE                      = 0x1400;
+        GraphicsDevice.UNSIGNED_BYTE             = 0x1401;
+        GraphicsDevice.SHORT                     = 0x1402;
+        GraphicsDevice.UNSIGNED_SHORT            = 0x1403;
+        GraphicsDevice.INT                       = 0x1404;
+        GraphicsDevice.UNSIGNED_INT              = 0x1405;
+        GraphicsDevice.FLOAT                     = 0x1406;
 
         return GraphicsDevice;
     }

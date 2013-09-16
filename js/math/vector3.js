@@ -80,54 +80,97 @@ define([
         };
 
         Vector3.add = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector3();
+            }
             result.x = a.x + b.x;
             result.y = a.y + b.y;
             result.z = a.z + b.z;
+
+            return result;
         };
 
         Vector3.subtract = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector3();
+            }
             result.x = a.x - b.x;
             result.y = a.y - b.y;
             result.z = a.z - b.z;
+
+            return result;
         };
 
         Vector3.multiply = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector3();
+            }
             result.x = a.x * b.x;
             result.y = a.y * b.y;
             result.z = a.z * b.z;
+
+            return result;
         };
 
         Vector3.divide = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector3();
+            }
             result.x = a.x / b.x;
             result.y = a.y / b.y;
             result.z = a.z / b.z;
+
+            return result;
         };
 
         Vector3.addScalar = function(v, s, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector3();
+            }
             result.x = v.x + s;
             result.y = v.y + s;
             result.z = v.z + s;
+
+            return result;
         };
 
         Vector3.subtractScalar = function(v, s, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector3();
+            }
             result.x = v.x - s;
             result.y = v.y - s;
             result.z = v.z - s;
+
+            return result;
         };
 
         Vector3.multiplyScalar = function(v, s, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector3();
+            }
             result.x = v.x * s;
             result.y = v.y * s;
             result.z = v.z * s;
+
+            return result;
         };
 
         Vector3.divideScalar = function(v, s, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector3();
+            }
             result.x = v.x / s;
             result.y = v.y / s;
             result.z = v.z / s;
+
+            return result;
         };
 
         Vector3.min = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector3();
+            }
             if (a.x < b.x) {
                 result.x = a.x;
             }
@@ -137,9 +180,14 @@ define([
             if (a.z < b.z) {
                 result.z = a.z;
             }
+
+            return result;
         };
 
         Vector3.max = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector3();
+            }
             if (a.x > b.x) {
                 result.x = a.x;
             }
@@ -149,9 +197,14 @@ define([
             if (a.z > b.z) {
                 result.z = a.z;
             }
+
+            return result;
         };
 
         Vector3.clamp = function(min, max, val, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector3();
+            }
             if ( val.x < min.x ) {
                 result.x = min.x;
             } else if ( val.x > max.x ) {
@@ -167,6 +220,8 @@ define([
             } else if ( val.z > max.z ) {
                 result.z = max.z;
             }
+
+            return result;
         };
 
         Vector3.dot = function(a, b) {
@@ -176,15 +231,25 @@ define([
         };
 
         Vector3.cross = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector3();
+            }
             result.x = a.y * b.z - a.z * b.y;
             result.y = a.z * b.x - a.x * b.z;
             result.z = a.x * b.y - a.y * b.x;
+
+            return result;
         };
 
         Vector3.lerp = function(a, b, amount, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector3();
+            }
             result.x = a.x + ( b.x - a.x ) * amount;
             result.y = a.y + ( b.y - a.y ) * amount;
             result.z = a.z + ( b.z - a.z ) * amount;
+
+            return result;
         };
 
         Vector3.distanceSquared = function(a, b) {

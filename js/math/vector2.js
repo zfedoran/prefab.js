@@ -58,64 +58,117 @@ define([
         };
 
         Vector2.add = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector2();
+            }
             result.x = a.x + b.x;
             result.y = a.y + b.y;
+
+            return result;
         };
 
         Vector2.subtract = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector2();
+            }
             result.x = a.x - b.x;
             result.y = a.y - b.y;
+
+            return result;
         };
 
         Vector2.multiply = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector2();
+            }
             result.x = a.x * b.x;
             result.y = a.y * b.y;
+
+            return result;
         };
 
         Vector2.divide = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector2();
+            }
             result.x = a.x / b.x;
             result.y = a.y / b.y;
+
+            return result;
         };
 
         Vector2.addScalar = function(v, s, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector2();
+            }
             result.x = v.x + s;
             result.y = v.y + s;
+
+            return result;
         };
 
         Vector2.subtractScalar = function(v, s, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector2();
+            }
             result.x = v.x - s;
             result.y = v.y - s;
+
+            return result;
         };
 
         Vector2.multiplyScalar = function(v, s, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector2();
+            }
             result.x = v.x * s;
             result.y = v.y * s;
+
+            return result;
         };
 
         Vector2.divideScalar = function(v, s, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector2();
+            }
             result.x = v.x / s;
             result.y = v.y / s;
+
+            return result;
         };
 
         Vector2.min = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector2();
+            }
             if (a.x < b.x) {
                 result.x = a.x;
             }
             if (a.y < b.y) {
                 result.y = a.y;
             }
+
+            return result;
         };
 
         Vector2.max = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector2();
+            }
             if (a.x > b.x) {
                 result.x = a.x;
             }
             if (a.y > b.y) {
                 result.y = a.y;
             }
+
+            return result;
         };
 
         Vector2.clamp = function(min, max, val, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector2();
+            }
             if ( val.x < min.x ) {
                 result.x = min.x;
             } else if ( val.x > max.x ) {
@@ -126,6 +179,8 @@ define([
             } else if ( val.y > max.y ) {
                 result.y = max.y;
             }
+
+            return result;
         };
 
         Vector2.dot = function(a, b) {
@@ -133,8 +188,13 @@ define([
         };
 
         Vector2.lerp = function(a, b, amount, result) {
+            if (typeof result === 'undefined') {
+                result = new Vector2();
+            }
             result.x = a.x + ( b.x - a.x ) * amount;
             result.y = a.y + ( b.y - a.y ) * amount;
+
+            return result;
         };
 
         Vector2.distanceSquared = function(a, b) {

@@ -1,11 +1,13 @@
 define([
         'math/helper',
+        'math/vector2',
         'math/vector3',
         'math/vector4',
         'math/quaternion',
     ],
     function(
         MathHelper,
+        Vector2,
         Vector3,
         Vector4,
         Quaternion
@@ -33,7 +35,6 @@ define([
                 return this;
             },
 
-
             transpose: function() {
                 var te = this.elements;
                 var tmp;
@@ -46,6 +47,10 @@ define([
                 tmp = te[7]; te[7] = te[13]; te[13] = tmp;
                 tmp = te[11]; te[11] = te[14]; te[14] = tmp;
                 return this;
+            },
+
+            inverse: function() {
+                return Matrix4.inverse(this, this);
             },
 
             compose: function(position, quaternion, scale) {
@@ -146,10 +151,10 @@ define([
             clone: function() {
                 var te = this.elements;
                 return new Matrix4(
-                    te[0], te[4], te[8], te[12],
-                    te[1], te[5], te[9], te[13],
-                    te[2], te[6], te[10], te[14],
-                    te[3], te[7], te[11], te[15]
+                    te[0],  te[1],  te[2],  te[3],
+                    te[4],  te[5],  te[6],  te[7],
+                    te[8],  te[9],  te[10], te[11],
+                    te[12], te[13], te[14], te[15]
                 );
             },
 
@@ -179,6 +184,10 @@ define([
         var b11, b12, b13, b14, b21, b22, b23, b24, b31, b32, b33, b34, b41, b42, b43, b44;
 
         Matrix4.multiply = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Matrix4();
+            }
+
             var ae = a.elements;
             var be = b.elements;
             var re = result.elements;
@@ -212,18 +221,30 @@ define([
             re[7] = a41 * b12 + a42 * b22 + a43 * b32 + a44 * b42;
             re[11] = a41 * b13 + a42 * b23 + a43 * b33 + a44 * b43;
             re[15] = a41 * b14 + a42 * b24 + a43 * b34 + a44 * b44;
+
+            return result;
         };
 
         Matrix4.multiplyScalar = function(m, s, result) {
+            if (typeof result === 'undefined') {
+                result = new Matrix4();
+            }
+
             var me = m.elements;
 
             me[0] *= s; me[4] *= s; me[8] *= s; me[12] *= s;
             me[1] *= s; me[5] *= s; me[9] *= s; me[13] *= s;
             me[2] *= s; me[6] *= s; me[10] *= s; me[14] *= s;
             me[3] *= s; me[7] *= s; me[11] *= s; me[15] *= s;
+
+            return result;
         };
 
         Matrix4.inverse = function(m, result) {
+            if (typeof result === 'undefined') {
+                result = new Matrix4();
+            }
+
             // based on http://www.euclideanspace.com/maths/algebra/matrix/functions/inverse/fourD/index.htm
             var me = m.elements;
             var re = result.elements;
@@ -257,38 +278,62 @@ define([
             } else {
                 Matrix4.multiplyScalar(m, 1 / det, /*out*/  m);
             }
+
+            return result;
         };
 
         Matrix4.createTranslation = function(x, y, z, result) {
+            if (typeof result === 'undefined') {
+                result = new Matrix4();
+            }
+
             result.set(
                 1, 0, 0, x,
                 0, 1, 0, y,
                 0, 0, 1, z,
                 0, 0, 0, 1
             );
+
+            return result;
         };
 
         Matrix4.createRotationX = function(theta, result) {
+            if (typeof result === 'undefined') {
+                result = new Matrix4();
+            }
+
             var c = Math.cos(theta), s = Math.sin(theta);
             result.set(
                 1, 0,  0, 0,
                 0, c, -s, 0,
                 0, s,  c, 0,
                 0, 0,  0, 1
-           );
+            );
+
+            return result;
         };
 
         Matrix4.createRotationY = function(theta, result) {
+            if (typeof result === 'undefined') {
+                result = new Matrix4();
+            }
+
             var c = Math.cos(theta), s = Math.sin(theta);
             result.set(
                  c, 0, s, 0,
                  0, 1, 0, 0,
                 -s, 0, c, 0,
                  0, 0, 0, 1
-           );
+            );
+
+            return result;
         };
 
         Matrix4.createRotationZ = function(theta, result) {
+            if (typeof result === 'undefined') {
+                result = new Matrix4();
+            }
+
             var c = Math.cos(theta), s = Math.sin(theta);
             result.set(
                 c, -s, 0, 0,
@@ -296,9 +341,15 @@ define([
                 0,  0, 1, 0,
                 0,  0, 0, 1
             );
+
+            return result;
         };
 
         Matrix4.createScale = function(x, y, z, result) {
+            if (typeof result === 'undefined') {
+                result = new Matrix4();
+            }
+
             result.set(
                 x, 0, 0, 0,
                 0, y, 0, 0,
@@ -308,6 +359,10 @@ define([
         };
 
         Matrix4.createRotationFromQuaternion = function(q, result) {
+            if (typeof result === 'undefined') {
+                result = new Matrix4();
+            }
+
             var re = result.elements;
             var x = q.x, y = q.y, z = q.z, w = q.w;
             var x2 = x + x, y2 = y + y, z2 = z + z;
@@ -337,9 +392,15 @@ define([
             re[13] = 0;
             re[14] = 0;
             re[15] = 1;
+
+            return result;
         };
 
         Matrix4.createFrustum = function(left, right, bottom, top, near, far, result) {
+            if (typeof result === 'undefined') {
+                result = new Matrix4();
+            }
+
             var re = result.elements;
             var x = 2 * near / (right - left);
             var y = 2 * near / (top - bottom);
@@ -353,18 +414,30 @@ define([
             re[1] = 0; re[5] = y; re[9]  = b; re[13] = 0;
             re[2] = 0; re[6] = 0; re[10] = c; re[14] = d;
             re[3] = 0; re[7] = 0; re[11] =-1; re[15] = 0;
+
+            return result;
         };
 
         Matrix4.createPerspective = function(fov, aspect, near, far, result) {
-            var ymax = near * Math.tan(MathHelper.toRadians(fov * 0.5));
+            if (typeof result === 'undefined') {
+                result = new Matrix4();
+            }
+
+            var ymax = near * Math.tan(fov * Math.PI / 360);
             var ymin = - ymax;
             var xmin = ymin * aspect;
             var xmax = ymax * aspect;
 
             Matrix4.createFrustum(xmin, xmax, ymin, ymax, near, far, /*out*/ result);
+
+            return result;
         };
 
         Matrix4.createOrthographic = function(left, right, top, bottom, near, far, result) {
+            if (typeof result === 'undefined') {
+                result = new Matrix4();
+            }
+
             var re = result.elements;
             var w = right - left;
             var h = top - bottom;
@@ -378,88 +451,66 @@ define([
             re[1] = 0;   re[5] =2/h;  re[9]  = 0;   re[13] =-y;
             re[2] = 0;   re[6] = 0;   re[10] =-2/p; re[14] =-z;
             re[3] = 0;   re[7] = 0;   re[11] = 0;   re[15] = 1;
+
+            return result;
         };
 
         Matrix4.identity = function(result) {
+            if (typeof result === 'undefined') {
+                result = new Matrix4();
+            }
+
             var te = result.elements;
             te[0] = 1; te[4] = 0; te[8] = 0; te[12] = 0;
             te[1] = 0; te[5] = 1; te[9] = 0; te[13] = 0;
             te[2] = 0; te[6] = 0; te[10] = 1; te[14] = 0;
             te[3] = 0; te[7] = 0; te[11] = 0; te[15] = 1;
+
+            return result;
         };
 
-        Matrix4.createLookAt = function(eye, target, up, dest) {
-            var eyex = eye.x, eyey = eye.y, eyez = eye.z,
-                upx = up.x, upy = up.y, upz = up.z,
-                targetx = target.x, targety = target.y, targetz = target.z;
-
-            if (eyex === targetx && eyey === targety && eyez === targetz) {
-                return Matrix4.identity(dest);
+        Matrix4.createLookAt = function(eye, target, up, result) {
+            if (typeof result === 'undefined') {
+                result = new Matrix4();
             }
 
-            var z0,z1,z2,x0,x1,x2,y0,y1,y2,len;
-            
-            //vec3.direction(eye, target, z);
-            z0 = eyex - target.x;
-            z1 = eyey - target.x;
-            z2 = eyez - target.x;
-            
-            // normalize (no check needed for 0 because of early return)
-            len = 1/Math.sqrt(z0*z0 + z1*z1 + z2*z2);
-            z0 *= len;
-            z1 *= len;
-            z2 *= len;
-            
-            //vec3.normalize(vec3.cross(up, z, x));
-            x0 = upy*z2 - upz*z1;
-            x1 = upz*z0 - upx*z2;
-            x2 = upx*z1 - upy*z0;
-            len = Math.sqrt(x0*x0 + x1*x1 + x2*x2);
+            var te = result.elements;
 
-            if (!len) {
-                    x0 = 0;
-                    x1 = 0;
-                    x2 = 0;
-            } else {
-                    len = 1/len;
-                    x0 *= len;
-                    x1 *= len;
-                    x2 *= len;
+            var z = Vector3.subtract(eye, target);
+            z.normalize();
+
+            if (z.length() === 0) {
+                z.z = 1;
             }
-            
-            //vec3.normalize(vec3.cross(z, x, y));
-            y0 = z1*x2 - z2*x1;
-            y1 = z2*x0 - z0*x2;
-            y2 = z0*x1 - z1*x0;
-            
-            len = Math.sqrt(y0*y0 + y1*y1 + y2*y2);
-            if (!len) {
-                    y0 = 0;
-                    y1 = 0;
-                    y2 = 0;
-            } else {
-                    len = 1/len;
-                    y0 *= len;
-                    y1 *= len;
-                    y2 *= len;
+
+            var x = Vector3.cross(up, z);
+            x.normalize();
+
+            if (x.length() === 0) {
+                z.x += 0.0001;
+                x = Vector3.cross(up, z);
+                x.normalize();
             }
+
+            var y = Vector3.cross(z, x);
+
+            te[0] = x.x; te[4] = x.y; te[8] = x.z;
+            te[1] = y.x; te[5] = y.y; te[9] = y.z;
+            te[2] = z.x; te[6] = z.y; te[10] = z.z;
+
+            /*
+            te[12] = eye.x;
+            te[13] = eye.y;
+            te[14] = eye.z;
+
+            Matrix4.inverse(result, result);
+            */
             
-            dest.elements[0] = x0;
-            dest.elements[1] = y0;
-            dest.elements[2] = z0;
-            dest.elements[3] = 0;
-            dest.elements[4] = x1;
-            dest.elements[5] = y1;
-            dest.elements[6] = z1;
-            dest.elements[7] = 0;
-            dest.elements[8] = x2;
-            dest.elements[9] = y2;
-            dest.elements[10] = z2;
-            dest.elements[11] = 0;
-            dest.elements[12] = -(x0*eyex + x1*eyey + x2*eyez);
-            dest.elements[13] = -(y0*eyex + y1*eyey + y2*eyez);
-            dest.elements[14] = -(z0*eyex + z1*eyey + z2*eyez);
-            dest.elements[15] = 1;
+            te[12] = -(x.x*eye.x + x.y*eye.y + x.z*eye.z);
+            te[13] = -(y.x*eye.x + y.y*eye.y + y.z*eye.z);
+            te[14] = -(z.x*eye.x + z.y*eye.y + z.z*eye.z);
+
+            return result;
         };
 
         return Matrix4;
