@@ -3,6 +3,7 @@ define([
         'math/vector3',
         'math/vector4',
         'math/matrix4',
+        'core/camera',
         'graphics/device',
         'graphics/vertexDeclaration',
         'graphics/vertexElement',
@@ -14,6 +15,7 @@ define([
         Vector3,
         Vector4,
         Matrix4,
+        Camera,
         GraphicsDevice,
         VertexDeclaration,
         VertexElement,
@@ -93,51 +95,39 @@ define([
 
             this.device.initDefaultState();
 
+            this.camera = new Camera(75, this.width/this.height, 0.1, 100);
+
             this.initEvents();
             this.onResize();
 
             var _this = this;
             function loop(time) {
                 requestAnimationFrame(loop);
-                _this.draw(time);
+                _this.update(time);
             }
             loop(0);
         };
 
         Application.prototype = {
             constructor: Application,
-            draw: function(delta) {
-                //this.device.setViewport(0, 0, this.height, this.width);
+            update: function(time) {
+                this.elapsed = time - time.time;
+                this.time = time;
+
+                this.camera.position = new Vector3(Math.sin(-this.time*0.001)*20, 10, Math.cos(-this.time*0.001)*20);
+                this.camera.target = new Vector3(0, 5, 0);
+                this.camera.update(this.elapsed);
+
+                this.draw(this.elapsed);
+            },
+            draw: function(elapsed) {
                 this.device.clear(this.backgroundColor);
 
-                var fov = 75;
-                var aspect = this.width / this.height;
-                var near = 0.1;
-                var far = 100;
-                
-                delta *= 0.001;
-                var position = new Vector3(Math.sin(-delta)*20, 10, Math.cos(-delta)*20);
-                //var position = new Vector3(10, 10, 10);
-                var target = new Vector3(0, 5, 0);
-                
-                var view = new Matrix4();
-                var proj = new Matrix4();
-
-                Matrix4.createPerspective(fov, aspect, near, far, /*out*/ proj);
-                Matrix4.createLookAt(position, target, Vector3.UP, /*out*/ view);
-
-                if (!this.something) {
-                    this.something = 1;
-                    console.log(proj.toString());
-                    //proj = new Matrix4(1.8106601717798214, 0, 0, 0, 0, 2.4142135623730954, 0, 0, 0, 0, -1.002002002002002, -1, 0, 0, -0.20020020020020018, 0);
-                    //console.log(proj.toString());
-                }
-
                 var transform = Matrix4.createTranslation(0, 5, 0);
-                //Matrix4.multiply(transform, Matrix4.createRotationX(delta), transform);
-                //Matrix4.multiply(transform, Matrix4.createRotationY(delta), transform);
+                //Matrix4.multiply(transform, Matrix4.createRotationX(this.time * 0.001), transform);
+                //Matrix4.multiply(transform, Matrix4.createRotationY(this.time * 0.001), transform);
 
-                var normalMatrix = Matrix4.multiply(transform, view);
+                var normalMatrix = Matrix4.multiply(transform, this.camera.view);
 
                 normalMatrix.elements[3] = 0;
                 normalMatrix.elements[7] = 0;
@@ -152,8 +142,8 @@ define([
                 this.device.bindShader(this.effect, this.vertexDeclaration);
 
                 this.device.setUniformData(this.uMMatrix, transform);
-                this.device.setUniformData(this.uVMatrix, view);
-                this.device.setUniformData(this.uPMatrix, proj);
+                this.device.setUniformData(this.uVMatrix, this.camera.view);
+                this.device.setUniformData(this.uPMatrix, this.camera.proj);
                 this.device.setUniformData(this.uNMatrix, normalMatrix);
 
                 this.device.bindVertexBuffer(this.vertexBuffer);
@@ -176,7 +166,7 @@ define([
                 this.width = $(window).width();
                 this.height = $(window).height();
                 this.device.setSize(this.width, this.height);
-                this.draw();
+                this.camera.aspect = this.width/this.height;
             }
         };
 
