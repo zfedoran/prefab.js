@@ -134,6 +134,9 @@ define([
                 gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, data, gl.STATIC_DRAW);
                 buffer.length = data.length;
             },
+            drawPrimitives: function(primitiveType, numVertices, offset) {
+                gl.drawArrays(primitiveType, offset, numVertices);
+            },
             drawIndexedPrimitives: function(primitiveType, numIndices, dataType, offset) {
                 gl.drawElements(primitiveType, numIndices, dataType, offset);
             },

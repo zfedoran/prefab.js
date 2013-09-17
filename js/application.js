@@ -7,6 +7,7 @@ define([
         'graphics/device',
         'graphics/vertexDeclaration',
         'graphics/vertexElement',
+        'graphics/primitiveBatch',
         'text!shaders/vertex.shader',
         'text!shaders/fragment.shader',
     ],
@@ -19,6 +20,7 @@ define([
         GraphicsDevice,
         VertexDeclaration,
         VertexElement,
+        PrimitiveBatch,
         textVertexSource,
         textFragmentSource
     ) {
@@ -41,6 +43,8 @@ define([
             this.uVMatrix = this.device.getUniformLocation(this.effect, 'uVMatrix');
             this.uPMatrix = this.device.getUniformLocation(this.effect, 'uPMatrix');
             this.uNMatrix = this.device.getUniformLocation(this.effect, 'uNMatrix');
+
+            this.primitiveBatch = new PrimitiveBatch(this.device);
 
             var vertices = new Float32Array([
                 // Front face
@@ -114,7 +118,7 @@ define([
                 this.elapsed = time - time.time;
                 this.time = time;
 
-                this.camera.position = new Vector3(Math.sin(-this.time*0.001)*20, 10, Math.cos(-this.time*0.001)*20);
+                this.camera.position = new Vector3(Math.sin(-this.time*0.01)*5, Math.cos(-this.time*0.005)*5, Math.cos(-this.time*0.01)*5);
                 this.camera.target = new Vector3(0, 5, 0);
                 this.camera.update(this.elapsed);
 
@@ -154,7 +158,15 @@ define([
                 transform = Matrix4.createTranslation(0, 0, 0);
                 this.device.setUniformData(this.uMMatrix, transform);
 
-                this.device.drawIndexedPrimitives(GraphicsDevice.TRIANGLES, this.indexBuffer.length, GraphicsDevice.UNSIGNED_SHORT, 0);
+//                this.device.drawIndexedPrimitives(GraphicsDevice.TRIANGLES, this.indexBuffer.length, GraphicsDevice.UNSIGNED_SHORT, 0);
+
+                this.primitiveBatch.begin(GraphicsDevice.TRIANGLES, 10);
+
+                this.primitiveBatch.addVertex([ -1.0, -1.0,  1.0,   0.0, 0.0, 0.5, 1.0,   0.0, 0.0, 1.0 ]);
+                this.primitiveBatch.addVertex([ 1.0, 1.0,  1.0,   0.5, 0.0, 0.0, 1.0,   1.0, 0.0, 0.0 ]);
+                this.primitiveBatch.addVertex([ 1.0, -1.0,  1.0,   0.0, 0.5, 0.0, 1.0,   0.0, 1.0, 0.0 ]);
+
+                this.primitiveBatch.end();
             },
             initEvents: function() {
                 $(window).on('resize', $.proxy(this.onResize, this));
