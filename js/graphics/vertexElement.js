@@ -3,11 +3,11 @@ define([
     function(
     ) {
 
-        var VertexElement = function(offset, type, attributeName) {
+        var VertexElement = function(offset, type, attributeLocation) {
             this.offset = offset;
             this.size = VertexElement.getSize(type);
             this.numElem = VertexElement.getLength(type);
-            this.attributeName = attributeName;
+            this.attributeLocation = attributeLocation;
         };
 
         VertexElement.prototype = {

@@ -33,16 +33,21 @@ define([
             this.device = new GraphicsDevice(this.width, this.height);
 
             this.effect = this.device.compileShader(textVertexSource, textFragmentSource);
-            this.vertexDeclaration = new VertexDeclaration(
-                new VertexElement(0, VertexElement.Vector3, "aVertexPosition"),
-                new VertexElement(4*3, VertexElement.Vector4, "aVertexColor"),
-                new VertexElement(4*7, VertexElement.Vector3, "aVertexNormal")
-            );
 
             this.uMMatrix = this.device.getUniformLocation(this.effect, 'uMMatrix');
             this.uVMatrix = this.device.getUniformLocation(this.effect, 'uVMatrix');
             this.uPMatrix = this.device.getUniformLocation(this.effect, 'uPMatrix');
             this.uNMatrix = this.device.getUniformLocation(this.effect, 'uNMatrix');
+
+            this.aVertexPosition = this.device.getAttributeLocation(this.effect, 'aVertexPosition');
+            this.aVertexColor    = this.device.getAttributeLocation(this.effect, 'aVertexColor');
+            this.aVertexNormal   = this.device.getAttributeLocation(this.effect, 'aVertexNormal');
+
+            this.vertexDeclaration = new VertexDeclaration(
+                new VertexElement(0, VertexElement.Vector3, this.aVertexPosition),
+                new VertexElement(4*3, VertexElement.Vector4, this.aVertexColor),
+                new VertexElement(4*7, VertexElement.Vector3, this.aVertexNormal)
+            );
 
             this.primitiveBatch = new PrimitiveBatch(this.device);
 
@@ -118,7 +123,7 @@ define([
                 this.elapsed = time - time.time;
                 this.time = time;
 
-                this.camera.position = new Vector3(Math.sin(-this.time*0.01)*5, Math.cos(-this.time*0.005)*5, Math.cos(-this.time*0.01)*5);
+                this.camera.position = new Vector3(Math.sin(-this.time*0.001)*20, 10, Math.cos(-this.time*0.001)*20);
                 this.camera.target = new Vector3(0, 5, 0);
                 this.camera.update(this.elapsed);
 
@@ -143,7 +148,7 @@ define([
                 normalMatrix.inverse();
                 normalMatrix.transpose();
 
-                this.device.bindShader(this.effect, this.vertexDeclaration);
+                this.device.bindShader(this.effect);
 
                 this.device.setUniformData(this.uMMatrix, transform);
                 this.device.setUniformData(this.uVMatrix, this.camera.view);
@@ -151,20 +156,21 @@ define([
                 this.device.setUniformData(this.uNMatrix, normalMatrix);
 
                 this.device.bindVertexBuffer(this.vertexBuffer);
+                this.device.bindVertexDeclaration(this.vertexDeclaration);
+
                 this.device.bindIndexBuffer(this.indexBuffer);
 
                 this.device.drawIndexedPrimitives(GraphicsDevice.TRIANGLES, this.indexBuffer.length, GraphicsDevice.UNSIGNED_SHORT, 0);
 
-                transform = Matrix4.createTranslation(0, 0, 0);
-                this.device.setUniformData(this.uMMatrix, transform);
-
-//                this.device.drawIndexedPrimitives(GraphicsDevice.TRIANGLES, this.indexBuffer.length, GraphicsDevice.UNSIGNED_SHORT, 0);
+                transform = Matrix4.createTranslation(0, -5, 0);
 
                 this.primitiveBatch.begin(GraphicsDevice.TRIANGLES, 10);
 
-                this.primitiveBatch.addVertex([ -1.0, -1.0,  1.0,   0.0, 0.0, 0.5, 1.0,   0.0, 0.0, 1.0 ]);
-                this.primitiveBatch.addVertex([ 1.0, 1.0,  1.0,   0.5, 0.0, 0.0, 1.0,   1.0, 0.0, 0.0 ]);
-                this.primitiveBatch.addVertex([ 1.0, -1.0,  1.0,   0.0, 0.5, 0.0, 1.0,   0.0, 1.0, 0.0 ]);
+                this.device.bindVertexDeclaration(this.vertexDeclaration);
+
+                this.primitiveBatch.addVertex([ -5.0, -1.0,  1.0,   0.0, 0.0, 1, 1.0,   0.0, 0.0, 1.0 ]);
+                this.primitiveBatch.addVertex([ 1.0, 5.0,  -1.0,   1, 0.0, 0.0, 1.0,   1.0, 0.0, 0.0 ]);
+                this.primitiveBatch.addVertex([ 1.0, -1.0,  5.0,   0.0, 1, 0.0, 1.0,   0.0, 1.0, 0.0 ]);
 
                 this.primitiveBatch.end();
             },

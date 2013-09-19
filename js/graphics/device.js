@@ -2,13 +2,15 @@ define([
         'math/vector2',
         'math/vector3',
         'math/vector4',
-        'math/matrix4'
+        'math/matrix4',
+        'graphics/debugUtils'
     ],
     function(
         Vector2,
         Vector3,
         Vector4,
-        Matrix4
+        Matrix4,
+        __debugUtils
     ) {
 
         var GraphicsDevice = function(width, height) {
@@ -30,6 +32,16 @@ define([
             initWebGL: function() {
                 try {
                     gl = this.canvas.getContext('webgl') || this.canvas.getContext('experimental-webgl');
+
+                    var debug = true;
+                    if (debug) {
+                        var logGLCall = function(functionName, args) {
+                            console.log('gl.' + functionName + '(' 
+                                    + WebGLDebugUtils.glFunctionArgsToString(functionName, args) + ')');
+                        };
+
+                        gl = WebGLDebugUtils.makeDebugContext(gl, undefined, logGLCall);
+                    }
                 } catch (error) {
                     console.error(error);
                 }
@@ -85,19 +97,19 @@ define([
 
                 return program;
             },
-            bindShader: function(program, vertexDeclaration) {
+            bindShader: function(program) {
                 gl.useProgram(program);
-
-                var i, ve, attribute;
+            },
+            bindVertexDeclaration: function(vertexDeclaration) {
+                var i, ve;
                 for (i = 0; i < vertexDeclaration.length; i++) {
                     ve = vertexDeclaration.elements[i];
-                    attribute = gl.getAttribLocation(program, ve.attributeName);
-                    gl.enableVertexAttribArray(attribute);
-                    gl.vertexAttribPointer(attribute, ve.numElem, gl.FLOAT, false, vertexDeclaration.stride, ve.offset);
+                    gl.enableVertexAttribArray(ve.attributeLocation);
+                    gl.vertexAttribPointer(ve.attributeLocation, ve.numElem, gl.FLOAT, false, vertexDeclaration.stride, ve.offset);
                 }
             },
             getAttributeLocation: function(program, attribute) {
-                return gl.getAttributeLocation(program, attribute);
+                return gl.getAttribLocation(program, attribute);
             },
             getUniformLocation: function(program, uniform) {
                 return gl.getUniformLocation(program, uniform);

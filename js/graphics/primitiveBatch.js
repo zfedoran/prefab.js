@@ -6,9 +6,9 @@ define([
     ) {
 
         var PrimitiveBatch = function(device) {
-            this.vertexBuffer = device.createBuffer();
-            this.vertices = new Float32Array(1024);
             this.device = device;
+            this.vertexBuffer = this.device.createBuffer();
+            this.vertices = new Float32Array(1024);
         };
 
         PrimitiveBatch.prototype = {
@@ -32,6 +32,8 @@ define([
                     throw 'PrimitiveBatch: primitive type not supported';
                 }
 
+                this.device.bindVertexBuffer(this.vertexBuffer);
+
                 this.primitiveType = primitiveType;
                 this.stride = stride;
                 this.positionInBuffer = 0;
@@ -48,7 +50,6 @@ define([
                     throw 'PrimitiveBatch: flush called on 0 elements';
                 }
 
-                this.device.bindVertexBuffer(this.vertexBuffer);
                 this.device.setVertexBufferData(this.vertexBuffer, this.vertices);
 
                 this.device.drawPrimitives(this.primitiveType, this.positionInBuffer, 0);
@@ -69,9 +70,9 @@ define([
                     this.flush();
                 }
 
-                var i = vertexData.length-1;
-                for (i; i>=0; i--) {
-                    this.vertices[this.positionInBuffer + i] = vertexData[i];
+                var i = 0;
+                for (i; i<vertexData.length; i++) {
+                    this.vertices[(this.positionInBuffer * this.stride) + i] = vertexData[i];
                 }
 
                 this.positionInBuffer++;
