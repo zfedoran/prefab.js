@@ -3,6 +3,9 @@ define([
         'math/vector3',
         'math/vector4',
         'math/matrix4',
+        'graphics/state',
+        'graphics/shaderAttribute',
+        'graphics/shaderUniform',
         'graphics/debugUtils'
     ],
     function(
@@ -10,17 +13,20 @@ define([
         Vector3,
         Vector4,
         Matrix4,
+        GraphicsState,
+        ShaderAttribute,
+        ShaderUniform,
         __debugUtils
     ) {
 
         var GraphicsDevice = function(width, height) {
-                this.initCanvas();
-                this.initWebGL();
+            this.initCanvas();
+            this.initWebGL();
 
-                if (gl) {
-                    this.setSize(width, height);
-                    this.initDefaultState();
-                }
+            if (this.state.getContext()) {
+                this.setSize(width, height);
+                this.initDefaultState();
+            }
         };
 
         GraphicsDevice.prototype = {
@@ -31,9 +37,9 @@ define([
             },
             initWebGL: function() {
                 try {
-                    gl = this.canvas.getContext('webgl') || this.canvas.getContext('experimental-webgl');
+                    var gl = this.canvas.getContext('webgl') || this.canvas.getContext('experimental-webgl');
 
-                    var debug = true;
+                    var debug = false;
                     if (debug) {
                         var logGLCall = function(functionName, args) {
                             console.log('gl.' + functionName + '(' 
@@ -42,17 +48,23 @@ define([
 
                         gl = WebGLDebugUtils.makeDebugContext(gl, undefined, logGLCall);
                     }
+
+                    this.state = new GraphicsState(gl);
                 } catch (error) {
                     console.error(error);
                 }
             },
             initDefaultState: function() {
+                var gl = this.state.getContext();
+
                 gl.clearColor(0.0, 0.0, 0.0, 1.0);
                 gl.enable(gl.DEPTH_TEST);
                 gl.depthFunc(gl.LEQUAL);
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
             },
             clear: function(color, depth, stencil) {
+                var gl = this.state.getContext();
+
                 var options = 0;
                 if (color) {
                     gl.clearColor(color.x, color.y, color.z, color.w);
@@ -69,6 +81,8 @@ define([
                 gl.clear(options);
             },
             compileShader: function(vsource, fsource) {
+                var gl = this.state.getContext();
+
                 var vshader = gl.createShader(gl.VERTEX_SHADER);
                 var fshader = gl.createShader(gl.FRAGMENT_SHADER);
                 var program = gl.createProgram();
@@ -95,26 +109,49 @@ define([
                     throw gl.getProgramInfoLog(program);
                 }
 
+                program.device = this;
+                program.vsource = vsource;
+                program.fsource = fsource;
+                program.uniforms = {};
+                program.attributes = {};
+
+                var numUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+                var numAttributes = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
+
+                var i, info, index;
+                for (i = 0; i < numUniforms; i++) {
+                    info = gl.getActiveUniform(program, i);
+                    index = gl.getUniformLocation(program, info.name);
+                    program.uniforms[info.name] = new ShaderUniform(program, info.name, info.type, index);
+                }
+
+                for (i = 0; i < numAttributes; i++) {
+                    info = gl.getActiveAttrib(program, i);
+                    index = gl.getAttribLocation(program, info.name);
+                    program.attributes[info.name] = new ShaderAttribute(program, info.name, info.type, index);
+                }
+
                 return program;
             },
             bindShader: function(program) {
-                gl.useProgram(program);
+                this.state.setShader(program);
             },
             bindVertexDeclaration: function(vertexDeclaration) {
-                var i, ve;
-                for (i = 0; i < vertexDeclaration.length; i++) {
-                    ve = vertexDeclaration.elements[i];
-                    gl.enableVertexAttribArray(ve.attributeLocation);
-                    gl.vertexAttribPointer(ve.attributeLocation, ve.numElem, gl.FLOAT, false, vertexDeclaration.stride, ve.offset);
-                }
+                this.state.setVertexDeclaration(vertexDeclaration);
             },
             getAttributeLocation: function(program, attribute) {
+                var gl = this.state.getContext();
+
                 return gl.getAttribLocation(program, attribute);
             },
             getUniformLocation: function(program, uniform) {
+                var gl = this.state.getContext();
+
                 return gl.getUniformLocation(program, uniform);
             },
             setUniformData: function(uniform, data) {
+                var gl = this.state.getContext();
+
                 if (data instanceof Vector2) {
                     gl.uniform2f(uniform, false, data.x, data.y);
                 } else if (data instanceof Vector3) {
@@ -128,37 +165,52 @@ define([
                 }
             },
             createBuffer: function() {
+                var gl = this.state.getContext();
                 return gl.createBuffer();
             },
             bindVertexBuffer: function(buffer) {
-                gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+                this.state.setVertexBuffer(buffer);
             },
             setVertexBufferData: function(buffer, data) {
+                var gl = this.state.getContext();
+
                 gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
                 gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
                 buffer.length = data.length;
             },
             bindIndexBuffer: function(buffer) {
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
+                this.state.setIndexBuffer(buffer);
             },
             setIndexBufferData: function(buffer, data) {
+                var gl = this.state.getContext();
+
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
                 gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, data, gl.STATIC_DRAW);
                 buffer.length = data.length;
             },
             drawPrimitives: function(primitiveType, numVertices, offset) {
+                this.applyState();
+
+                var gl = this.state.getContext();
                 gl.drawArrays(primitiveType, offset, numVertices);
             },
             drawIndexedPrimitives: function(primitiveType, numIndices, dataType, offset) {
+                this.applyState();
+
+                var gl = this.state.getContext();
                 gl.drawElements(primitiveType, numIndices, dataType, offset);
             },
             setSize: function(width, height) {
+                var gl = this.state.getContext();
+
                 this.canvas.width = width;
                 this.canvas.height = height;
 
                 this.setViewport(0, 0, width, height);
             },
             setViewport: function(x, y, width, height) {
+                var gl = this.state.getContext();
+
                 this.viewportX = x !== undefined ? x : 0;
                 this.viewportY = y !== undefined ? y : 0;
                 this.viewportWidth = width !== undefined ? width : this.canvas.width;
@@ -167,14 +219,56 @@ define([
                 gl.viewport(this.viewportX, this.viewportY, this.viewportWidth, this.viewportHeight);
             },
             setScissor: function(x, y, width, height) {
+                var gl = this.state.getContext();
+
                 gl.scissor(x, y, width, height);
             },
             enableScissorTest: function(enable) {
+                var gl = this.state.getContext();
+
                 if (enable) {
                     gl.enable(gl.SCISSOR_TEST); 
                 } else {
                     gl.disable(gl.SCISSOR_TEST);
                 }
+            },
+            applyState: function() {
+                var gl = this.state.getContext();
+
+                //get current state
+                var currentShaderProgram      = this.state.getShader();
+                var currentVertexBuffer       = this.state.getVertexBuffer();
+                var currentVertexDeclaration  = this.state.getVertexDeclaration();
+                var currentIndexBuffer        = this.state.getIndexBuffer();
+
+                //set vertex buffer
+                gl.bindBuffer(gl.ARRAY_BUFFER, currentVertexBuffer);
+
+                //set vertex declaration
+                var i, al, ve, len = currentVertexDeclaration.length;
+                for (i = 0; i < len; i++) {
+                    ve = currentVertexDeclaration.elements[i];
+                    al = gl.getAttribLocation(currentShaderProgram, ve.attribute);
+                    gl.enableVertexAttribArray(al);
+                    gl.vertexAttribPointer(al, ve.numElem, gl.FLOAT, false, currentVertexDeclaration.stride, ve.offset);
+                }
+
+                //bind index buffer
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, currentIndexBuffer);
+
+                //set shader program
+                gl.useProgram(currentShaderProgram);
+
+                //apply shader uniforms
+                var o, uniform;
+                for (o in currentShaderProgram.uniforms) {
+                    if (currentShaderProgram.uniforms.hasOwnProperty(o)) {
+                        uniform = currentShaderProgram.uniforms[o];
+                        uniform.apply();
+                    }
+                }
+
+
             }
         };
 

@@ -32,8 +32,6 @@ define([
                     throw 'PrimitiveBatch: primitive type not supported';
                 }
 
-                this.device.bindVertexBuffer(this.vertexBuffer);
-
                 this.primitiveType = primitiveType;
                 this.stride = stride;
                 this.positionInBuffer = 0;
@@ -50,8 +48,8 @@ define([
                     throw 'PrimitiveBatch: flush called on 0 elements';
                 }
 
+                this.device.bindVertexBuffer(this.vertexBuffer);
                 this.device.setVertexBufferData(this.vertexBuffer, this.vertices);
-
                 this.device.drawPrimitives(this.primitiveType, this.positionInBuffer, 0);
                 this.positionInBuffer = 0;
             },

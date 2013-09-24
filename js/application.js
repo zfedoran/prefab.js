@@ -34,19 +34,15 @@ define([
 
             this.effect = this.device.compileShader(textVertexSource, textFragmentSource);
 
-            this.uMMatrix = this.device.getUniformLocation(this.effect, 'uMMatrix');
-            this.uVMatrix = this.device.getUniformLocation(this.effect, 'uVMatrix');
-            this.uPMatrix = this.device.getUniformLocation(this.effect, 'uPMatrix');
-            this.uNMatrix = this.device.getUniformLocation(this.effect, 'uNMatrix');
-
-            this.aVertexPosition = this.device.getAttributeLocation(this.effect, 'aVertexPosition');
-            this.aVertexColor    = this.device.getAttributeLocation(this.effect, 'aVertexColor');
-            this.aVertexNormal   = this.device.getAttributeLocation(this.effect, 'aVertexNormal');
+            this.uMMatrix = this.effect.uniforms.uMMatrix;
+            this.uVMatrix = this.effect.uniforms.uVMatrix;
+            this.uPMatrix = this.effect.uniforms.uPMatrix;
+            this.uNMatrix = this.effect.uniforms.uNMatrix;
 
             this.vertexDeclaration = new VertexDeclaration(
-                new VertexElement(0, VertexElement.Vector3, this.aVertexPosition),
-                new VertexElement(4*3, VertexElement.Vector4, this.aVertexColor),
-                new VertexElement(4*7, VertexElement.Vector3, this.aVertexNormal)
+                new VertexElement(0, VertexElement.Vector3, 'aVertexPosition'),
+                new VertexElement(4*3, VertexElement.Vector4, 'aVertexColor'),
+                new VertexElement(4*7, VertexElement.Vector3, 'aVertexNormal')
             );
 
             this.primitiveBatch = new PrimitiveBatch(this.device);
@@ -109,6 +105,7 @@ define([
             this.initEvents();
             this.onResize();
 
+            
             var _this = this;
             function loop(time) {
                 requestAnimationFrame(loop);
@@ -150,23 +147,21 @@ define([
 
                 this.device.bindShader(this.effect);
 
-                this.device.setUniformData(this.uMMatrix, transform);
-                this.device.setUniformData(this.uVMatrix, this.camera.view);
-                this.device.setUniformData(this.uPMatrix, this.camera.proj);
-                this.device.setUniformData(this.uNMatrix, normalMatrix);
+                this.uMMatrix.set(transform);
+                this.uVMatrix.set(this.camera.view);
+                this.uPMatrix.set(this.camera.proj);
+                this.uNMatrix.set(normalMatrix);
 
                 this.device.bindVertexBuffer(this.vertexBuffer);
                 this.device.bindVertexDeclaration(this.vertexDeclaration);
-
                 this.device.bindIndexBuffer(this.indexBuffer);
 
                 this.device.drawIndexedPrimitives(GraphicsDevice.TRIANGLES, this.indexBuffer.length, GraphicsDevice.UNSIGNED_SHORT, 0);
 
                 transform = Matrix4.createTranslation(0, -5, 0);
+                this.uMMatrix.set(transform);
 
                 this.primitiveBatch.begin(GraphicsDevice.TRIANGLES, 10);
-
-                this.device.bindVertexDeclaration(this.vertexDeclaration);
 
                 this.primitiveBatch.addVertex([ -5.0, -1.0,  1.0,   0.0, 0.0, 1, 1.0,   0.0, 0.0, 1.0 ]);
                 this.primitiveBatch.addVertex([ 1.0, 5.0,  -1.0,   1, 0.0, 0.0, 1.0,   1.0, 0.0, 0.0 ]);
