@@ -9,9 +9,10 @@
     "tests"
   ],
   "dependencies": {
-    "jquery"    : "*",
-    "requirejs" : "*",
-    "threejs"   : "*",
+    "jquery"         : "*",
+    "underscore"     : "*",
+    "requirejs"      : "*",
+    "threejs"        : "*",
     "requirejs-text" : "*"
   }
 }

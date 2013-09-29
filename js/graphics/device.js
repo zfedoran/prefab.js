@@ -139,31 +139,6 @@ define([
             bindVertexDeclaration: function(vertexDeclaration) {
                 this.state.setVertexDeclaration(vertexDeclaration);
             },
-            getAttributeLocation: function(program, attribute) {
-                var gl = this.state.getContext();
-
-                return gl.getAttribLocation(program, attribute);
-            },
-            getUniformLocation: function(program, uniform) {
-                var gl = this.state.getContext();
-
-                return gl.getUniformLocation(program, uniform);
-            },
-            setUniformData: function(uniform, data) {
-                var gl = this.state.getContext();
-
-                if (data instanceof Vector2) {
-                    gl.uniform2f(uniform, false, data.x, data.y);
-                } else if (data instanceof Vector3) {
-                    gl.uniform3f(uniform, false, data.x, data.y, data.z);
-                } else if (data instanceof Vector4) {
-                    gl.uniform4f(uniform, false, data.x, data.y, data.z, data.w);
-                } else if (data instanceof Matrix4) {
-                    gl.uniformMatrix4fv(uniform, false, data.elements);
-                } else if (typeof data === 'number') {
-                    gl.uniform1f(uniform, false, data);
-                }
-            },
             createBuffer: function() {
                 var gl = this.state.getContext();
                 return gl.createBuffer();
@@ -189,15 +164,15 @@ define([
                 buffer.length = data.length;
             },
             drawPrimitives: function(primitiveType, numVertices, offset) {
-                this.applyState();
-
                 var gl = this.state.getContext();
+
+                this.applyState();
                 gl.drawArrays(primitiveType, offset, numVertices);
             },
             drawIndexedPrimitives: function(primitiveType, numIndices, dataType, offset) {
-                this.applyState();
-
                 var gl = this.state.getContext();
+
+                this.applyState();
                 gl.drawElements(primitiveType, numIndices, dataType, offset);
             },
             setSize: function(width, height) {
@@ -267,8 +242,6 @@ define([
                         uniform.apply();
                     }
                 }
-
-
             }
         };
 

@@ -23,11 +23,11 @@ define([
                 }
 
                 if (primitiveType === GraphicsDevice.POINTS) {
-                    this.numVertsPerPrimitide = 2;
+                    this.numVertsPerPrimitive = 1;
                 } else if (primitiveType === GraphicsDevice.LINES) {
-                    this.numVertsPerPrimitide = 2;
+                    this.numVertsPerPrimitive = 2;
                 } else if (primitiveType === GraphicsDevice.TRIANGLES) {
-                    this.numVertsPerPrimitide = 3;
+                    this.numVertsPerPrimitive = 3;
                 } else {
                     throw 'PrimitiveBatch: primitive type not supported';
                 }
@@ -64,7 +64,7 @@ define([
 
                 // If this is a new primitive, and we do NOT have room for it, flush
                 if ((this.positionInBuffer % this.numVertsPerPrimitive) === 0 &&
-                    (this.positionInBuffer + this.numVertsPerPrimitide) >= (this.vertices.length/this.stride)) {
+                    (this.positionInBuffer + this.numVertsPerPrimitive) * this.stride >= this.vertices.length) {
                     this.flush();
                 }
 

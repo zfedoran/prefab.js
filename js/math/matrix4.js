@@ -276,8 +276,64 @@ define([
             if (det === 0) {
                 throw new Error("Matrix4.getInverse(): can't invert matrix, determinant is 0"); 
             } else {
-                Matrix4.multiplyScalar(m, 1 / det, /*out*/  m);
+                Matrix4.multiplyScalar(result, 1 / det, /*out*/  result);
             }
+
+            return result;
+        };
+
+        Matrix4.createNormalMatrix = function(modelView, result) {
+            if (typeof result === 'undefined') {
+                result = new Matrix4();
+            }
+            var a = modelView.elements;
+            var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
+                a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7],
+                a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11],
+                a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15],
+
+                b00 = a00 * a11 - a01 * a10,
+                b01 = a00 * a12 - a02 * a10,
+                b02 = a00 * a13 - a03 * a10,
+                b03 = a01 * a12 - a02 * a11,
+                b04 = a01 * a13 - a03 * a11,
+                b05 = a02 * a13 - a03 * a12,
+                b06 = a20 * a31 - a21 * a30,
+                b07 = a20 * a32 - a22 * a30,
+                b08 = a20 * a33 - a23 * a30,
+                b09 = a21 * a32 - a22 * a31,
+                b10 = a21 * a33 - a23 * a31,
+                b11 = a22 * a33 - a23 * a32,
+
+                // Calculate the determinant
+                det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+
+            if (!det) { 
+                return null; 
+            }
+            det = 1.0 / det;
+
+            var re = result.elements;
+            re[0] = (a11 * b11 - a12 * b10 + a13 * b09) * det;
+            re[1] = (a12 * b08 - a10 * b11 - a13 * b07) * det;
+            re[2] = (a10 * b10 - a11 * b08 + a13 * b06) * det;
+
+            re[4] = (a02 * b10 - a01 * b11 - a03 * b09) * det;
+            re[5] = (a00 * b11 - a02 * b08 + a03 * b07) * det;
+            re[6] = (a01 * b08 - a00 * b10 - a03 * b06) * det;
+
+            re[8] = (a31 * b05 - a32 * b04 + a33 * b03) * det;
+            re[9] = (a32 * b02 - a30 * b05 - a33 * b01) * det;
+            re[10] = (a30 * b04 - a31 * b02 + a33 * b00) * det;
+
+            re[3] = 0;
+            re[7] = 0;
+            re[11] = 0;
+
+            re[12] = 0;
+            re[13] = 0;
+            re[14] = 0;
+            re[15] = 0;
 
             return result;
         };
@@ -356,6 +412,8 @@ define([
                 0, 0, z, 0,
                 0, 0, 0, 1
             );
+
+            return result;
         };
 
         Matrix4.createRotationFromQuaternion = function(q, result) {
@@ -497,14 +555,6 @@ define([
             te[0] = x.x; te[4] = x.y; te[8] = x.z;
             te[1] = y.x; te[5] = y.y; te[9] = y.z;
             te[2] = z.x; te[6] = z.y; te[10] = z.z;
-
-            /*
-            te[12] = eye.x;
-            te[13] = eye.y;
-            te[14] = eye.z;
-
-            Matrix4.inverse(result, result);
-            */
             
             te[12] = -(x.x*eye.x + x.y*eye.y + x.z*eye.z);
             te[13] = -(y.x*eye.x + y.y*eye.y + y.z*eye.z);

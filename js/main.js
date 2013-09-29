@@ -1,10 +1,12 @@
 requirejs.config({
     baseUrl: 'js',
     shim: {
-        'three': { exports: 'THREE' }
+        'three': { exports: 'THREE' },
+        'underscore': { exports: '_' }
     },
     paths: {
         'jquery'        : '../bower_components/jquery/jquery',
+        'underscore'    : '../bower_components/underscore/underscore',
         'three'         : '../bower_components/threejs/build/three',
         'text'          : '../bower_components/requirejs-text/text'
     }
