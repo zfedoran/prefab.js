@@ -9,6 +9,7 @@ define([
         'graphics/vertexDeclaration',
         'graphics/vertexElement',
         'graphics/primitiveBatch',
+        'graphics/texture',
         'core/entity',
         'core/entityManager',
         'components/transform',
@@ -26,6 +27,7 @@ define([
         VertexDeclaration,
         VertexElement,
         PrimitiveBatch,
+        Texture,
         Entity,
         EntityManager,
         Transform,
@@ -46,11 +48,28 @@ define([
             this.uVMatrix = this.effect.uniforms.uVMatrix;
             this.uPMatrix = this.effect.uniforms.uPMatrix;
             this.uNMatrix = this.effect.uniforms.uNMatrix;
+            this.uSampler = this.effect.uniforms.uSampler;
+
+            var canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 128;
+            document.body.appendChild(canvas);
+
+            var ctx = canvas.getContext('2d');
+            ctx.fillStyle = "rgb(200,0,0)";
+            ctx.fillRect (10, 10, 55, 50);
+
+            ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
+            ctx.fillRect (30, 30, 55, 50);
+
+            var texture = new Texture(this.device, canvas);
+            texture.apply();
+            this.uSampler.set(texture);
 
             this.vertexDeclaration = new VertexDeclaration(
                 new VertexElement(0, VertexElement.Vector3, 'aVertexPosition'),
-                new VertexElement(4*3, VertexElement.Vector4, 'aVertexColor'),
-                new VertexElement(4*7, VertexElement.Vector3, 'aVertexNormal')
+                new VertexElement(4*3, VertexElement.Vector3, 'aVertexNormal'),
+                new VertexElement(4*6, VertexElement.Vector2, 'aTextureCoord')
             );
 
             this.primitiveBatch = new PrimitiveBatch(this.device);
@@ -60,6 +79,7 @@ define([
             this.camera3 = new PerspectiveCamera(75, this.width/this.height, 0.1, 100);
             this.camera2 = new OrthographicCamera(this.width, this.height, 0.1, 100, true);
 
+            /*
             this.entityManager = new EntityManager();
             this.entityManager.addFilter('transform', function(entity) {
                 return entity.hasComponent(Transform);
@@ -70,6 +90,7 @@ define([
             entity.addComponent(new Transform());
 
             this.entityManager.addEntity(entity);
+            */
 
             this.initEvents();
             this.onResize();
@@ -117,16 +138,18 @@ define([
                 this.device.bindVertexDeclaration(this.vertexDeclaration);
                 this.device.bindVertexBuffer(this.vertexBuffer);
 
-                drawSphereTmp(this.primitiveBatch);
-                /*
-                this.primitiveBatch.begin(GraphicsDevice.TRIANGLES, 10);
+                //drawSphereTmp(this.primitiveBatch);
+                this.primitiveBatch.begin(GraphicsDevice.TRIANGLES, 8);
 
-                this.primitiveBatch.addVertex([ -5.0, -1.0,  1.0,   0.0, 0.0, 1, 1.0,   0.0, 0.0, 1.0 ]);
-                this.primitiveBatch.addVertex([ 1.0, 5.0,  -1.0,   1, 0.0, 0.0, 1.0,   1.0, 0.0, 0.0 ]);
-                this.primitiveBatch.addVertex([ 1.0, -1.0,  5.0,   0.0, 1, 0.0, 1.0,   0.0, 1.0, 0.0 ]);
+                this.primitiveBatch.addVertex([ -1.0, -1.0,  1.0,    0.0, 0.0, 1.0,    0.0, 0.0]);
+                this.primitiveBatch.addVertex([ 1.0, -1.0,  1.0,     0.0, 0.0, 1.0,    1.0, 0.0]);
+                this.primitiveBatch.addVertex([ 1.0, 1.0,  1.0,      0.0, 0.0, 1.0,    1.0, 1.0]);
+
+                this.primitiveBatch.addVertex([ -1.0, -1.0,  1.0,    0.0, 0.0, 1.0,    0.0, 0.0]);
+                this.primitiveBatch.addVertex([ 1.0, 1.0,  1.0,      0.0, 0.0, 1.0,    1.0, 1.0]);
+                this.primitiveBatch.addVertex([ -1.0, 1.0,  1.0,     0.0, 0.0, 1.0,    0.0, 1.0]);
 
                 this.primitiveBatch.end();
-                */
             },
             initEvents: function() {
                 $(window).on('resize', $.proxy(this.onResize, this));

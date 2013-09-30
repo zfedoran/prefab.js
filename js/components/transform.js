@@ -1,6 +1,6 @@
 define([
-        'math/Vector3',
-        'math/Quaternion'
+        'math/vector3',
+        'math/quaternion'
     ],
     function(
         Vector3,

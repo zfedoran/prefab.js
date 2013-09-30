@@ -1,5 +1,5 @@
 define([
-        'core/EntityFilter'
+        'core/entityFilter'
     ],
     function(
         EntityFilter

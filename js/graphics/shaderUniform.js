@@ -3,12 +3,14 @@ define([
         'math/vector3',
         'math/vector4',
         'math/matrix4',
+        'graphics/texture',
     ],
     function(
         Vector2,
         Vector3,
         Vector4,
-        Matrix4
+        Matrix4,
+        Texture
     ) {
 
         var ShaderUniform = function(program, name, type, index) {
@@ -71,6 +73,16 @@ define([
                     throw 'ShaderUniform: data type does not match the uniform type';
                 }
             };
+            var _upload1i = function() { 
+                if (this.data instanceof Texture) {
+                    gl.activeTexture(gl.TEXTURE0);
+                    gl.bindTexture(gl.TEXTURE_2D, this.data.getTextureObject());
+                    gl.uniform1i(_index, 0); 
+                    _dirty = false;
+                } else {
+                    throw 'ShaderUniform: data type does not match the uniform type';
+                }
+            };
 
             if (_type === ShaderUniform.FLOAT_VEC2) {
                 this.upload = _upload2f;
@@ -82,6 +94,8 @@ define([
                 this.upload = _uploadMatrix4fv;
             } else if (_type === ShaderUniform.FLOAT) {
                 this.upload = _upload1f;
+            } else if (_type === ShaderUniform.SAMPLER_2D) {
+                this.upload = _upload1i;
             } else {
                 throw 'ShaderUniform: unsupported uniform type ' + _type.toString(16) + ' found in shader program';
             }

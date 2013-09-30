@@ -1,5 +1,5 @@
 define([
-        'math/Vector3',
+        'math/vector3',
         'math/matrix4'
     ],
     function(
