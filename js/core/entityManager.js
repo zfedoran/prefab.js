@@ -39,9 +39,11 @@ define([
             },
 
             addFilter: function(name, filterFunction) {
-                var filter = new EntityFilter(name, filterFunction, this.entities);
-                this.filters[name] = filter;
-                filter.update();
+                if (!this.filters[name]) {
+                    var filter = new EntityFilter(name, filterFunction, this.entities);
+                    this.filters[name] = filter;
+                    filter.update();
+                }
             },
 
             updateAllFilters: function() {

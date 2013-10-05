@@ -215,7 +215,7 @@ define([
                         this.setDirty(false);
                     }
                 }
-            },
+            }
         };
 
         function isPowerOf2(x) {

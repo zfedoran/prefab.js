@@ -13,6 +13,10 @@ define([
         'core/entity',
         'core/entityManager',
         'components/transform',
+        'components/projection',
+        'components/view',
+        'entities/camera',
+        'systems/cameraSystem',
         'text!shaders/vertex.shader',
         'text!shaders/fragment.shader',
     ],
@@ -31,6 +35,10 @@ define([
         Entity,
         EntityManager,
         Transform,
+        Projection,
+        View,
+        Camera,
+        CameraSystem,
         textVertexSource,
         textFragmentSource
     ) {
@@ -76,21 +84,10 @@ define([
 
             this.device.initDefaultState();
 
-            this.camera3 = new PerspectiveCamera(75, this.width/this.height, 0.1, 100);
-            this.camera2 = new OrthographicCamera(this.width, this.height, 0.1, 100, true);
-
-            /*
             this.entityManager = new EntityManager();
-            this.entityManager.addFilter('transform', function(entity) {
-                return entity.hasComponent(Transform);
-            });
-
-            var entity = new Entity();
-            entity.on('component.added', function(i) { console.log(i); }, this);
-            entity.addComponent(new Transform());
-
-            this.entityManager.addEntity(entity);
-            */
+            this.cameraSystem = new CameraSystem(this.entityManager);
+            this.camera = new Camera(this.width, this.height, 0.1, 100, 75);
+            this.entityManager.addEntity(this.camera);
 
             this.initEvents();
             this.onResize();
@@ -109,11 +106,17 @@ define([
                 this.elapsed = time - time.time;
                 this.time = time;
 
-                this.camera3.position = new Vector3(Math.sin(-this.time*0.001)*20, 2, Math.cos(-this.time*0.001)*20);
-                this.camera3.target = new Vector3(0, 0, 0);
-                this.camera3.update(this.elapsed);
+                var transform = this.camera.getComponent(Transform);
+                transform.localPosition.x = Math.cos(this.time*0.001)*20;
+                transform.localPosition.y = 5;
+                transform.localPosition.z = Math.sin(this.time*0.001)*20;
+                transform.setDirty(true);
 
-                this.camera2.update(this.elapsed);
+                var view = this.camera.getComponent(View);
+                view.target = new Vector3(0, 0, 0);
+                view.setDirty(true);
+
+                this.cameraSystem.update();
 
                 this.draw(this.elapsed);
             },
@@ -122,18 +125,17 @@ define([
 
                 var transform = Matrix4.createTranslation(0, 5, -10);
                 Matrix4.multiply(transform, Matrix4.createScale(5,5,5), transform);
-
-                var nm = Matrix4.multiply(this.camera3.view, transform);
-                nm.inverse();
-                nm.transpose();
-                //nm = Matrix4.createNormalMatrix(nm);
                 
                 this.device.bindShader(this.effect);
 
+                var proj, view;
+                proj = this.camera.getComponent(Projection);
+                view = this.camera.getComponent(View);
+
                 this.uMMatrix.set(transform);
-                this.uVMatrix.set(this.camera3.view);
-                this.uPMatrix.set(this.camera3.proj);
-                this.uNMatrix.set(nm);
+                this.uVMatrix.set(view._viewMatrix);
+                this.uPMatrix.set(proj._projectionMatrix);
+                this.uNMatrix.set(new Matrix4());
 
                 this.device.bindVertexDeclaration(this.vertexDeclaration);
                 this.device.bindVertexBuffer(this.vertexBuffer);
@@ -161,9 +163,6 @@ define([
                 this.width = $(window).width();
                 this.height = $(window).height();
                 this.device.setSize(this.width, this.height);
-                this.camera3.aspect = this.width/this.height;
-                this.camera2.width = this.width;
-                this.camera2.height = this.height;
             }
         };
 

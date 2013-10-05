@@ -1,9 +1,11 @@
 define([
         'underscore',
+        'core/component',
         'core/events'
     ],
     function(
         _,
+        Component,
         Events
     ) {
 
@@ -25,7 +27,7 @@ define([
             },
 
             addComponent: function(component) {
-                if (component) {
+                if (component instanceof Component) {
                     if (typeof component.constructor.__name__ === 'undefined') {
                         throw 'Entity: addComponent(), cannot add component with undefined constructor.__name__';
                     }

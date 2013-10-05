@@ -54,10 +54,13 @@ define([
             },
 
             compose: function(position, quaternion, scale) {
-                var re = result.elements;
+                var re = this.elements;
 
                 // Apply rotation
-                var x = q.x, y = q.y, z = q.z, w = q.w;
+                var x = quaternion.x, 
+                    y = quaternion.y, 
+                    z = quaternion.z, 
+                    w = quaternion.w;
                 var x2 = x + x, y2 = y + y, z2 = z + z;
                 var xx = x * x2, xy = x * y2, xz = x * z2;
                 var yy = y * y2, yz = y * z2, zz = z * z2;
@@ -151,20 +154,30 @@ define([
             clone: function() {
                 var te = this.elements;
                 return new Matrix4(
-                    te[0],  te[1],  te[2],  te[3],
-                    te[4],  te[5],  te[6],  te[7],
-                    te[8],  te[9],  te[10], te[11],
-                    te[12], te[13], te[14], te[15]
+                    me[0], me[4], me[8],  me[12],
+                    me[1], me[5], me[9],  me[13],
+                    me[2], me[6], me[10], me[14],
+                    me[3], me[7], me[11], me[15]
+                );
+            },
+
+            copy: function(matrix) {
+                var me = matrix.elements;
+                return this.set(
+                    me[0], me[4], me[8],  me[12],
+                    me[1], me[5], me[9],  me[13],
+                    me[2], me[6], me[10], me[14],
+                    me[3], me[7], me[11], me[15]
                 );
             },
 
             toArray: function () {
                 var te = this.elements;
                 return [
-                    te[0],  te[1],  te[2],  te[3],
-                    te[4],  te[5],  te[6],  te[7],
-                    te[8],  te[9],  te[10], te[11],
-                    te[12], te[13], te[14], te[15]
+                    me[0], me[4], me[8],  me[12],
+                    me[1], me[5], me[9],  me[13],
+                    me[2], me[6], me[10], me[14],
+                    me[3], me[7], me[11], me[15]
                 ];
             },
 

@@ -15,6 +15,7 @@ define([
 
         var ShaderUniform = function(program, name, type, index) {
             var _program = program, _name = name, _type = type, _index = index;
+            var _device = _program.device;
 
             // data accessors
             this.getName = function() { return _name; };
@@ -75,9 +76,10 @@ define([
             };
             var _upload1i = function() { 
                 if (this.data instanceof Texture) {
-                    gl.activeTexture(gl.TEXTURE0);
+                    var slot = _device.getTextureUnit();
+                    gl.activeTexture(gl.TEXTURE0 + slot);
                     gl.bindTexture(gl.TEXTURE_2D, this.data.getTextureObject());
-                    gl.uniform1i(_index, 0); 
+                    gl.uniform1i(_index, slot); 
                     _dirty = false;
                 } else {
                     throw 'ShaderUniform: data type does not match the uniform type';
@@ -97,7 +99,7 @@ define([
             } else if (_type === ShaderUniform.SAMPLER_2D) {
                 this.upload = _upload1i;
             } else {
-                throw 'ShaderUniform: unsupported uniform type ' + _type.toString(16) + ' found in shader program';
+                throw 'ShaderUniform: unsupported uniform type 0x' + _type.toString(16) + ' found in shader program';
             }
 
         };

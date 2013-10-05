@@ -26,6 +26,7 @@ define([
             if (this.state.getContext()) {
                 this.setSize(width, height);
                 this.initDefaultState();
+                this.initCapabilities();
             }
         };
 
@@ -54,12 +55,28 @@ define([
                     console.error(error);
                 }
             },
+            initCapabilities: function() {
+                var gl = this.state.getContext();
+
+                this._maxTextures               = gl.getParameter( gl.MAX_TEXTURE_IMAGE_UNITS );
+                this._maxVertexTextures         = gl.getParameter( gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS );
+                this._maxTextureSize            = gl.getParameter( gl.MAX_TEXTURE_SIZE );
+                this._maxCubemapSize            = gl.getParameter( gl.MAX_CUBE_MAP_TEXTURE_SIZE );
+                this._supportsVertexTextures    = ( this._maxVertexTextures > 0 );
+
+                this._usedTextureUnits = 0;
+            },
             initDefaultState: function() {
                 var gl = this.state.getContext();
 
                 gl.clearColor(0.0, 0.0, 0.0, 1.0);
                 gl.enable(gl.DEPTH_TEST);
                 gl.depthFunc(gl.LEQUAL);
+
+                gl.enable( gl.BLEND );
+                gl.blendEquation( gl.FUNC_ADD );
+                gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
             },
             clear: function(color, depth, stencil) {
@@ -207,6 +224,15 @@ define([
                     gl.disable(gl.SCISSOR_TEST);
                 }
             },
+            getTextureUnit: function() {
+                var currentTextureUnit = this._usedTextureUnits++;
+                if (currentTextureUnit >= this._maxTextures) {
+                    throw 'GraphicsDevice: trying to use ' + currentTextureUnit 
+                        + ' texture units while this GPU supports only ' 
+                        + this._maxTextures;
+                }
+                return currentTextureUnit;
+            },
             applyState: function() {
                 var gl = this.state.getContext();
 
@@ -242,6 +268,8 @@ define([
                         uniform.apply();
                     }
                 }
+
+                this._usedTextureUnits = 0;
             }
         };
 
