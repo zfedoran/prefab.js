@@ -1,42 +1,39 @@
 define([
-        'components/transform',
-        'components/projection',
-        'components/view',
         'math/matrix4'
     ],
     function(
-        Transform,
-        Projection,
-        View,
         Matrix4
     ) {
 
         var CameraSystem = function(entityManager) {
-            this.filter = 'has(transform,projection,view)';
+            this.filter = 'has(Transform,Projection,View)';
             this.entityManager = entityManager;
             this.entityManager.addFilter(this.filter, function(entity) {
-                return entity.hasComponent(Transform)
-                    && entity.hasComponent(Projection)
-                    && entity.hasComponent(View);
+                return entity.hasComponent('Transform')
+                    && entity.hasComponent('Projection')
+                    && entity.hasComponent('View');
             });
         };
 
         CameraSystem.prototype = {
             constructor: CameraSystem,
             updateProjectionMatrix: function(entity) {
-                var proj = entity.getComponent(Projection);
+                var proj = entity.getComponent('Projection');
+                var hasGUILayer = entity.hasComponent('GUILayer');
                 if (proj.isDirty()) {
                     proj.aspect = proj.width / proj.height;
-                    if (proj.isOrthographic()) {
+                    if (hasGUILayer) {
                         Matrix4.createOrthographic(0, proj.width, 0, proj.height, proj.near, proj.far, /*out*/ proj._projectionMatrix);
+                    } else if (proj.isOrthographic()){
+                        Matrix4.createOrthographic(-proj.width/2, proj.width/2, -proj.height/2, proj.height/2, proj.near, proj.far, /*out*/ proj._projectionMatrix);
                     } else {
                         Matrix4.createPerspective(proj.fov, proj.aspect, proj.near, proj.far, /*out*/ proj._projectionMatrix);
                     }
                 }
             },
             updateViewMatrix: function(entity) {
-                var view = entity.getComponent(View);
-                var transform = entity.getComponent(Transform);
+                var view = entity.getComponent('View');
+                var transform = entity.getComponent('Transform');
 
                 if (view.isDirty()) {
                     if (view.hasTarget()) {

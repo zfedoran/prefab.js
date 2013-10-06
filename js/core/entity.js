@@ -37,16 +37,27 @@ define([
             },
 
             getComponent: function(type) {
-                return this.components[type.__name__];
+                if (typeof type !== 'string') {
+                    type = type.__name__;
+                }
+                return this.components[type];
             },
 
             hasComponent: function(type) {
-                return typeof this.components[type.__name__] !== 'undefined';
+                if (typeof type !== 'string') {
+                    type = type.__name__;
+                }
+                return typeof this.components[type] !== 'undefined';
             },
 
             removeComponent: function(type) {
-                var component = this.components[type.__name__];
-                delete this.components[type.__name__];
+                if (typeof type !== 'string') {
+                    type = type.__name__;
+                }
+
+                var component = this.components[type];
+                delete this.components[type];
+
                 if (component) {
                     this.trigger('component.removed', component);
                 }

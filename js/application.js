@@ -12,9 +12,7 @@ define([
         'graphics/texture',
         'core/entity',
         'core/entityManager',
-        'components/transform',
-        'components/projection',
-        'components/view',
+        'entities/GUILayer',
         'entities/camera',
         'systems/cameraSystem',
         'text!shaders/vertex.shader',
@@ -34,9 +32,7 @@ define([
         Texture,
         Entity,
         EntityManager,
-        Transform,
-        Projection,
-        View,
+        GUILayer,
         Camera,
         CameraSystem,
         textVertexSource,
@@ -86,8 +82,12 @@ define([
 
             this.entityManager = new EntityManager();
             this.cameraSystem = new CameraSystem(this.entityManager);
+
             this.camera = new Camera(this.width, this.height, 0.1, 100, 75);
+            this.guiLayer = new GUILayer(this.width, this.height);
+
             this.entityManager.addEntity(this.camera);
+            this.entityManager.addEntity(this.guiLayer);
 
             this.initEvents();
             this.onResize();
@@ -106,13 +106,13 @@ define([
                 this.elapsed = time - time.time;
                 this.time = time;
 
-                var transform = this.camera.getComponent(Transform);
+                var transform = this.camera.getComponent('Transform');
                 transform.localPosition.x = Math.cos(this.time*0.001)*20;
                 transform.localPosition.y = 5;
                 transform.localPosition.z = Math.sin(this.time*0.001)*20;
                 transform.setDirty(true);
 
-                var view = this.camera.getComponent(View);
+                var view = this.camera.getComponent('View');
                 view.target = new Vector3(0, 0, 0);
                 view.setDirty(true);
 
@@ -123,14 +123,15 @@ define([
             draw: function(elapsed) {
                 this.device.clear(this.backgroundColor);
 
-                var transform = Matrix4.createTranslation(0, 5, -10);
-                Matrix4.multiply(transform, Matrix4.createScale(5,5,5), transform);
                 
                 this.device.bindShader(this.effect);
 
                 var proj, view;
-                proj = this.camera.getComponent(Projection);
-                view = this.camera.getComponent(View);
+                proj = this.camera.getComponent('Projection');
+                view = this.camera.getComponent('View');
+
+                var transform = Matrix4.createTranslation(0, 5, -10);
+                Matrix4.multiply(transform, Matrix4.createScale(5,5,5), transform);
 
                 this.uMMatrix.set(transform);
                 this.uVMatrix.set(view._viewMatrix);
@@ -138,9 +139,7 @@ define([
                 this.uNMatrix.set(new Matrix4());
 
                 this.device.bindVertexDeclaration(this.vertexDeclaration);
-                this.device.bindVertexBuffer(this.vertexBuffer);
 
-                //drawSphereTmp(this.primitiveBatch);
                 this.primitiveBatch.begin(GraphicsDevice.TRIANGLES, 8);
 
                 this.primitiveBatch.addVertex([ -1.0, -1.0,  1.0,    0.0, 0.0, 1.0,    0.0, 0.0]);
@@ -152,6 +151,31 @@ define([
                 this.primitiveBatch.addVertex([ -1.0, 1.0,  1.0,     0.0, 0.0, 1.0,    0.0, 1.0]);
 
                 this.primitiveBatch.end();
+
+
+                transform = Matrix4.createTranslation(200, 200, 0);
+                //Matrix4.multiply(transform, Matrix4.createRotationX(this.time*0.001), transform);
+                Matrix4.multiply(transform, Matrix4.createScale(200,200,1), transform);
+
+                proj = this.guiLayer.getComponent('Projection');
+                view = this.guiLayer.getComponent('View');
+
+                this.uMMatrix.set(transform);
+                this.uVMatrix.set(view._viewMatrix);
+                this.uPMatrix.set(proj._projectionMatrix);
+
+                this.primitiveBatch.begin(GraphicsDevice.TRIANGLES, 8);
+
+                this.primitiveBatch.addVertex([ -1.0, -1.0,  -1.0,    0.0, 0.0, 1.0,    0.0, 0.0]);
+                this.primitiveBatch.addVertex([ 1.0,  -1.0,  -1.0,     0.0, 0.0, 1.0,    1.0, 0.0]);
+                this.primitiveBatch.addVertex([ 1.0,  1.0,   -1.0,      0.0, 0.0, 1.0,    1.0, 1.0]);
+
+                this.primitiveBatch.addVertex([ -1.0, -1.0,  -1.0,    0.0, 0.0, 1.0,    0.0, 0.0]);
+                this.primitiveBatch.addVertex([ 1.0,   1.0,  -1.0,      0.0, 0.0, 1.0,    1.0, 1.0]);
+                this.primitiveBatch.addVertex([ -1.0,  1.0,  -1.0,     0.0, 0.0, 1.0,    0.0, 1.0]);
+
+                this.primitiveBatch.end();
+
             },
             initEvents: function() {
                 $(window).on('resize', $.proxy(this.onResize, this));

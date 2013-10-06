@@ -21,6 +21,8 @@ define([
 
         Camera.prototype = Object.create(Entity.prototype);
 
+        Camera.prototype.constructor = Camera;
+
         return Camera;
     }
 );

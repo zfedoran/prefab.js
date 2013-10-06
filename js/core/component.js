@@ -5,6 +5,7 @@ define([
 
         var Component = function() {
             this._dirty = false;
+            this._enabled = true;
         };
 
         Component.prototype = {
@@ -14,6 +15,12 @@ define([
             },
             setDirty: function(value) {
                 this._dirty = value;
+            },
+            isEnabled: function() {
+                return this._enabled;
+            },
+            setEnabled: function(value) {
+                this._enabled = value;
             }
         };
 
