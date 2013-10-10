@@ -4,13 +4,15 @@ define([
         'math/vector4',
         'math/matrix4',
         'graphics/texture',
+        'graphics/spriteFont',
     ],
     function(
         Vector2,
         Vector3,
         Vector4,
         Matrix4,
-        Texture
+        Texture,
+        SpriteFont
     ) {
 
         var ShaderUniform = function(program, name, type, index) {
@@ -75,10 +77,17 @@ define([
                 }
             };
             var _upload1i = function() { 
+                var slot;
                 if (this.data instanceof Texture) {
-                    var slot = _device.getTextureUnit();
+                    slot = _device.getTextureUnit();
                     gl.activeTexture(gl.TEXTURE0 + slot);
                     gl.bindTexture(gl.TEXTURE_2D, this.data.getTextureObject());
+                    gl.uniform1i(_index, slot); 
+                    _dirty = false;
+                } else if (this.data instanceof SpriteFont) {
+                    slot = _device.getTextureUnit();
+                    gl.activeTexture(gl.TEXTURE0 + slot);
+                    gl.bindTexture(gl.TEXTURE_2D, this.data._texture.getTextureObject());
                     gl.uniform1i(_index, slot); 
                     _dirty = false;
                 } else {

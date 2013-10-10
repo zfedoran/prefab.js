@@ -10,6 +10,7 @@ define([
         'graphics/vertexElement',
         'graphics/primitiveBatch',
         'graphics/texture',
+        'graphics/spriteFont',
         'core/entity',
         'core/entityManager',
         'entities/GUILayer',
@@ -30,6 +31,7 @@ define([
         VertexElement,
         PrimitiveBatch,
         Texture,
+        SpriteFont,
         Entity,
         EntityManager,
         GUILayer,
@@ -54,10 +56,10 @@ define([
             this.uNMatrix = this.effect.uniforms.uNMatrix;
             this.uSampler = this.effect.uniforms.uSampler;
 
+            /*
             var canvas = document.createElement('canvas');
             canvas.width = 128;
             canvas.height = 128;
-            document.body.appendChild(canvas);
 
             var ctx = canvas.getContext('2d');
             ctx.fillStyle = "rgb(200,0,0)";
@@ -67,8 +69,23 @@ define([
             ctx.fillRect (30, 30, 55, 50);
 
             var texture = new Texture(this.device, canvas);
-            texture.apply();
+            texture.sendToGPU(this.device);
             this.uSampler.set(texture);
+            */
+            
+            this.spriteFont = new SpriteFont({
+                font: "monospace",
+                size: 14,
+                characters: {
+                    from: 33,
+                    to: 126
+                },
+                vspace: 4,
+                hspace: 0
+            });
+            
+            this.spriteFont.sendToGPU(this.device);
+            this.uSampler.set(this.spriteFont);
 
             this.vertexDeclaration = new VertexDeclaration(
                 new VertexElement(0, VertexElement.Vector3, 'aVertexPosition'),
@@ -98,6 +115,7 @@ define([
                 _this.update(time);
             }
             loop(0);
+            //this.update(0);
         };
 
         Application.prototype = {
@@ -142,20 +160,26 @@ define([
 
                 this.primitiveBatch.begin(GraphicsDevice.TRIANGLES, 8);
 
-                this.primitiveBatch.addVertex([ -1.0, -1.0,  1.0,    0.0, 0.0, 1.0,    0.0, 0.0]);
-                this.primitiveBatch.addVertex([ 1.0, -1.0,  1.0,     0.0, 0.0, 1.0,    1.0, 0.0]);
-                this.primitiveBatch.addVertex([ 1.0, 1.0,  1.0,      0.0, 0.0, 1.0,    1.0, 1.0]);
+                var c = String.fromCharCode(Math.floor(Math.sin(this.time*0.0001) * 20 + 80));
+                var u = this.spriteFont.sprites[c].getUCoordinate();
+                var v = this.spriteFont.sprites[c].getVCoordinate();
+                var w = this.spriteFont.sprites[c].getUVWidth();
+                var h = this.spriteFont.sprites[c].getUVHeight();
 
-                this.primitiveBatch.addVertex([ -1.0, -1.0,  1.0,    0.0, 0.0, 1.0,    0.0, 0.0]);
-                this.primitiveBatch.addVertex([ 1.0, 1.0,  1.0,      0.0, 0.0, 1.0,    1.0, 1.0]);
-                this.primitiveBatch.addVertex([ -1.0, 1.0,  1.0,     0.0, 0.0, 1.0,    0.0, 1.0]);
+                this.primitiveBatch.addVertex([ -0.5, -0.5, -0.5,    0.0, 0.0, 1.0,    0, 0]);
+                this.primitiveBatch.addVertex([  0.5, -0.5, -0.5,    0.0, 0.0, 1.0,    1, 0]);
+                this.primitiveBatch.addVertex([  0.5,  0.5, -0.5,    0.0, 0.0, 1.0,    1, 1]);
+                                                                                           
+                this.primitiveBatch.addVertex([ -0.5, -0.5, -0.5,    0.0, 0.0, 1.0,    0, 0]);
+                this.primitiveBatch.addVertex([  0.5,  0.5, -0.5,    0.0, 0.0, 1.0,    1, 1]);
+                this.primitiveBatch.addVertex([ -0.5,  0.5, -0.5,    0.0, 0.0, 1.0,    0, 1]);
 
                 this.primitiveBatch.end();
 
 
-                transform = Matrix4.createTranslation(200, 200, 0);
+                transform = Matrix4.createTranslation(250, 250, 0);
                 //Matrix4.multiply(transform, Matrix4.createRotationX(this.time*0.001), transform);
-                Matrix4.multiply(transform, Matrix4.createScale(200,200,1), transform);
+                Matrix4.multiply(transform, Matrix4.createScale(this.spriteFont.sprites[c].width,this.spriteFont.sprites[c].height,1), transform);
 
                 proj = this.guiLayer.getComponent('Projection');
                 view = this.guiLayer.getComponent('View');
@@ -166,13 +190,32 @@ define([
 
                 this.primitiveBatch.begin(GraphicsDevice.TRIANGLES, 8);
 
-                this.primitiveBatch.addVertex([ -1.0, -1.0,  -1.0,    0.0, 0.0, 1.0,    0.0, 0.0]);
-                this.primitiveBatch.addVertex([ 1.0,  -1.0,  -1.0,     0.0, 0.0, 1.0,    1.0, 0.0]);
-                this.primitiveBatch.addVertex([ 1.0,  1.0,   -1.0,      0.0, 0.0, 1.0,    1.0, 1.0]);
+                this.primitiveBatch.addVertex([ -0.5, -0.5, -0.5,    0.0, 0.0, 1.0,    u + 0,  v + 0]);
+                this.primitiveBatch.addVertex([  0.5, -0.5, -0.5,    0.0, 0.0, 1.0,    u + w,  v + 0]);
+                this.primitiveBatch.addVertex([  0.5,  0.5, -0.5,    0.0, 0.0, 1.0,    u + w,  v + h]);
+                                                                  
+                this.primitiveBatch.addVertex([ -0.5, -0.5, -0.5,    0.0, 0.0, 1.0,    u + 0,  v + 0]);
+                this.primitiveBatch.addVertex([  0.5,  0.5, -0.5,    0.0, 0.0, 1.0,    u + w,  v + h]);
+                this.primitiveBatch.addVertex([ -0.5,  0.5, -0.5,    0.0, 0.0, 1.0,    u + 0,  v + h]);
 
-                this.primitiveBatch.addVertex([ -1.0, -1.0,  -1.0,    0.0, 0.0, 1.0,    0.0, 0.0]);
-                this.primitiveBatch.addVertex([ 1.0,   1.0,  -1.0,      0.0, 0.0, 1.0,    1.0, 1.0]);
-                this.primitiveBatch.addVertex([ -1.0,  1.0,  -1.0,     0.0, 0.0, 1.0,    0.0, 1.0]);
+                this.primitiveBatch.end();
+
+                transform = Matrix4.createTranslation(150, 80, 0);
+                Matrix4.multiply(transform, Matrix4.createScale(this.spriteFont.getWidth(),this.spriteFont.getHeight(),1), transform);
+
+                this.uMMatrix.set(transform);
+                this.uVMatrix.set(view._viewMatrix);
+                this.uPMatrix.set(proj._projectionMatrix);
+
+                this.primitiveBatch.begin(GraphicsDevice.TRIANGLES, 8);
+
+                this.primitiveBatch.addVertex([ -0.5, -0.5, -0.5,    0.0, 0.0, 1.0,    0, 0]);
+                this.primitiveBatch.addVertex([  0.5, -0.5, -0.5,    0.0, 0.0, 1.0,    1, 0]);
+                this.primitiveBatch.addVertex([  0.5,  0.5, -0.5,    0.0, 0.0, 1.0,    1, 1]);
+                                                                  
+                this.primitiveBatch.addVertex([ -0.5, -0.5, -0.5,    0.0, 0.0, 1.0,    0, 0]);
+                this.primitiveBatch.addVertex([  0.5,  0.5, -0.5,    0.0, 0.0, 1.0,    1, 1]);
+                this.primitiveBatch.addVertex([ -0.5,  0.5, -0.5,    0.0, 0.0, 1.0,    0, 1]);
 
                 this.primitiveBatch.end();
 

@@ -73,9 +73,9 @@ define([
                 gl.enable(gl.DEPTH_TEST);
                 gl.depthFunc(gl.LEQUAL);
 
-                gl.enable( gl.BLEND );
-                gl.blendEquation( gl.FUNC_ADD );
-                gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+                //gl.enable( gl.BLEND );
+                //gl.blendEquation( gl.FUNC_ADD );
+                //gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
             },

@@ -5,8 +5,7 @@ define([
 
         var _textureCount = 0;
 
-        var Texture = function(device, image, options) {
-            this.device = device;
+        var Texture = function(image, options) {
             this._id = _textureCount++;
 
             if (typeof image === 'string') {
@@ -30,6 +29,11 @@ define([
             this._magFilter         = typeof options.magFilter !== 'undefined' ? magFilter : Texture.NEAREST;
             this._minFilter         = typeof options.minFilter !== 'undefined' ? minFilter : Texture.NEAREST;
             this._type              = typeof options.type !== 'undefined' ? type : Texture.UNSIGNED_BYTE;
+
+            if (image instanceof HTMLCanvasElement) {
+                this._textureWidth = image.width;
+                this._textureHeight = image.height;
+            } 
 
             this.setDirty(true);
         };
@@ -136,8 +140,8 @@ define([
                 }
             },
 
-            applyFilterParameter: function() {
-                var gl = this.device.state.getContext();
+            applyFilterParameter: function(device) {
+                var gl = device.state.getContext();
 
                 var powerOfTwo = isPowerOf2(this._textureWidth) && isPowerOf2(this._textureHeight);
                 if (!powerOfTwo) {
@@ -156,8 +160,8 @@ define([
                 gl.texParameteri(this._textureTarget, gl.TEXTURE_WRAP_T, this._wrapT);
             },
 
-            generateMipmap: function() {
-                var gl = this.device.state.getContext();
+            generateMipmap: function(device) {
+                var gl = device.state.getContext();
 
                 if (this._minFilter === gl.NEAREST_MIPMAP_NEAREST ||
                     this._minFilter === gl.LINEAR_MIPMAP_NEAREST ||
@@ -167,8 +171,8 @@ define([
                 }
             },
 
-            apply: function() {
-                var gl = this.device.state.getContext();
+            sendToGPU: function(device) {
+                var gl = device.state.getContext();
 
                 if (typeof this._textureObject !== 'undefined' && !this.isDirty()) {
                     gl.bindTexture(this._textureTarget, this._textureObject);
@@ -195,8 +199,8 @@ define([
                             
                             }
 
-                            this.applyFilterParameter();
-                            this.generateMipmap();
+                            this.applyFilterParameter(device);
+                            this.generateMipmap(device);
 
                             this.setDirty(false);
                         } else {
@@ -209,8 +213,8 @@ define([
                         gl.bindTexture(this._textureTarget, this._textureObject);
                         gl.texImage2D(this._textureTarget, 0, this._imageFormat, this._textureWidth, this._textureHeight, 0, this._imageFormat, this._imageFormat, this._type, null);
 
-                        this.applyFilterParameter();
-                        this.generateMipmap();
+                        this.applyFilterParameter(device);
+                        this.generateMipmap(device);
 
                         this.setDirty(false);
                     }
