@@ -74,7 +74,7 @@ define([
             */
             
             this.spriteFont = new SpriteFont({
-                font: "monospace",
+                font: "arial",
                 size: 14,
                 characters: {
                     from: 33,
@@ -87,11 +87,11 @@ define([
             this.spriteFont.sendToGPU(this.device);
             this.uSampler.set(this.spriteFont);
 
-            this.vertexDeclaration = new VertexDeclaration(
+            this.vertexDeclaration = new VertexDeclaration([
                 new VertexElement(0, VertexElement.Vector3, 'aVertexPosition'),
                 new VertexElement(4*3, VertexElement.Vector3, 'aVertexNormal'),
                 new VertexElement(4*6, VertexElement.Vector2, 'aTextureCoord')
-            );
+            ]);
 
             this.primitiveBatch = new PrimitiveBatch(this.device);
 

@@ -57,6 +57,18 @@ define([
                 this._ctx.font = this.fontSize + 'px ' + this.fontName;
             },
 
+            getSprite: function(character) {
+                return this.sprites[character];
+            },
+
+            getWidth: function() {
+                return this._textureWidth;
+            },
+
+            getHeight: function() {
+                return this._textureHeight;
+            },
+
             setTextureSize: function(widthExp, heightExp, swap) {
                 var widthChar, widthWord, widthTexture,
                     heightChar, heightWord, heightTexture;
@@ -102,14 +114,6 @@ define([
                     this._textureHeight = heightTexture;
                     this._textureWidth = widthTexture;
                 }
-            },
-
-            getWidth: function() {
-                return this._textureWidth;
-            },
-
-            getHeight: function() {
-                return this._textureHeight;
             },
 
             generateTexture: function() {

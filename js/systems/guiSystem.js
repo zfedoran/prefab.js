@@ -1,6 +1,12 @@
 define([
+        'components/meshFilter',
+        'graphics/mesh',
+        'graphics/spriteFont'
     ], 
     function(
+        MeshFilter,
+        Mesh,
+        SpriteFont
     ) {
 
         var GUISystem = function(entityManager) {
@@ -11,6 +17,8 @@ define([
                     || entity.hasComponent('GUIButton')
                     || entity.hasComponent('GUISelect');
             });
+
+            this.fonts = {};
         };
 
         GUISystem.prototype = {
@@ -29,33 +37,79 @@ define([
                 }
             },
             updateText: function(entity) {
-                var text = entity.getComponent('GUIText');
+                var text       = entity.getComponent('GUIText');
+                var meshFilter = entity.getComponent('MeshFilter');
+                var transform  = entity.getComponent('Transform');
+                var fontDef    = text.getFontStyle();
+                var spriteFont;
 
                 if (text.isDirty()) {
-                    if (typeof text._textImage === 'undefined') {
-                        text._canvas = document.createElement('canvas');
-                        text._ctx = text._canvas.getContext('2d');
+                    // check if we need to generate a new sprite sheet
+                    spriteFont = this.fonts[fontDef];
+                    if (typeof spriteFont === 'undefined') {
+                        spriteFont = new SpriteFont({
+                            fontFamily: text.fontFamily,
+                            fontSize: text.fontSize
+                        });
+                        this.fonts[fontDef] = spriteFont; 
                     }
+                    text._spriteFont = spriteFont;
+                    
+                    if (typeof meshFilter === 'undefined') {
+                        meshFilter = new MeshFilter();
+                        entity.addComponent(meshFilter);
+                    }
+                    if (typeof meshFilter.mesh === 'undefined') {
+                        meshFilter.mesh = new Mesh();
+                    }
+                    var mesh = meshFilter.mesh;
 
-                    text._canvas.width = getPowerOfTwo(text._ctx.measureText(text.content));
-                    text._canvas.height = getPowerOfTwo(text.size);
+                    // create the character mesh
+                    var i, len = text.content.length;
+                    var character, sprite, currentWidth = 0, currentHeight = 0;
+                    var u, v, w, h, a, b, c, d, count;
+                    for (i = 0; i < len; i++) {
+                        character = text.content.charAt(i);
+                        sprite = text._spriteFont.getSprite(character);
 
-                    text._ctx.fillStyle = text.color;
-                    text._ctx.textAlign = 'left';
-                    text._ctx.textBaseline = 'middle';
-                    text._ctx.font = text.size + 'px ' + text.font;
-                    text._ctx.fillText(text.content, text._canvas.width / 2, text._canvas.height / 2);
+                        if (currentWidth + sprite.width <= text.boundingBox.width) {
+                            currentWidth += sprite.width;
+                        } else {
+                            currentWidth = 0;
+                            currentHeight += text.lineHeight;
+                        }
+
+                        u = sprite.getUCoordinate();
+                        v = sprite.getVCoordinate();
+                        w = sprite.getUVWidth();
+                        h = sprite.getUVHeight();
+
+                        a = currentWidth - sprite.width;
+                        b = currentWidth;
+                        c = currentHeight - sprite.height;
+                        d = currentHeight;
+
+                        mesh.addVertex(new Vector3(a, c, 0));
+                        mesh.addVertex(new Vector3(b, c, 0));
+                        mesh.addVertex(new Vector3(b, d, 0));
+                        mesh.addVertex(new Vector3(a, d, 0));
+
+                        mesh.addUV(new Vector2(u,     v));
+                        mesh.addUV(new Vector2(u + w, v));
+                        mesh.addUV(new Vector2(u + w, v + h));
+                        mesh.addUV(new Vector2(u,     v + h));
+
+                        count = mesh.getVertexCount();
+                        a = count - 4;
+                        b = count - 3;
+                        c = count - 2;
+                        d = count - 1;
+                        mesh.addTriangle(a, b, c);
+                        mesh.addTriangle(a, c, d);
+                    }
                 }
             }
         };
-
-        function getPowerOfTwo(value, pow) {
-            pow = pow || 1;
-            while(pow<value) {
-                pow *= 2;
-            }
-            return pow;
-        }
 
         return GUISystem;
     }

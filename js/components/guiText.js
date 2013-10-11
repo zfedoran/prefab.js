@@ -5,13 +5,22 @@ define([
         Component
     ) {
     
-        var GUIText = function(text, font, size, color) {
+        var GUIText = function(rect, text, options) {
             Component.call(this);
 
-            this.content = content;
-            this.font = font || 'monospace';
-            this.fontSize = size || 10;
-            this.color = color || '#fff';
+            options = options || {
+                fontFamily: 'monospace',
+                fontSize: 10,
+                lineHeight: 10,
+                color: '#fff'
+            };
+
+            this.lineHeight = options.lineHeight || options.fontSize * 1.4 || 10;
+            this.fontFamily = options.fontFamily || 'monospace';
+            this.fontSize = options.fontSize || 10;
+            this.color = options.color || '#fff';
+            this.boundingBox = rect;
+            this.content = text;
         };
 
         GUIText.__name__ = 'GUIText';
@@ -19,6 +28,10 @@ define([
         GUIText.prototype = Object.create(Component.prototype);
 
         GUIText.prototype.constructor = GUIText;
+
+        GUIText.prototype.getFontStyle = function() {
+            return this.fontSize + 'px ' + this.fontFamily;
+        };
 
         return GUIText;
     }
