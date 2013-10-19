@@ -1,9 +1,15 @@
 define([
-        'math/BoundingBox',
+        'math/vector2',
+        'math/vector3',
+        'math/vector4',
+        'math/boundingBox',
         'graphics/vertexDeclaration',
         'graphics/vertexElement'
     ],
     function(
+        Vector2,
+        Vector3,
+        Vector4,
         BoundingBox,
         VertexDeclaration,
         VertexElement
@@ -12,14 +18,22 @@ define([
         var Mesh = function() {
             this.boundingBox = new BoundingBox();
             this.boundingBoxComputed = false;
+
+            this._vertexCount = 0;
+            this._indexCount = 0;
         };
 
         Mesh.prototype = {
             constructor: Mesh,
 
+            getVertexCount: function() {
+                return this._vertexCount;
+            },
+
             addVertex: function(v) {
                 if (typeof this.vertices === 'undefined') { this.vertices = []; }
                 this.vertices.push(v);
+                this._vertexCount++;
             },
 
             addNormal: function(v) {
@@ -40,8 +54,8 @@ define([
             addTriangle: function(a, b, c) {
                 if (typeof this.indices === 'undefined') { this.indices = []; }
                 this.indices.push(a);
-                this.indices.push(a);
-                this.indices.push(a);
+                this.indices.push(b);
+                this.indices.push(c);
             },
 
             apply: function(device) {
@@ -101,7 +115,7 @@ define([
                     numVertices = this.uv1.length;
                 }
 
-                this._indexData = new Float32Array(this.indices);
+                this._indexData = new Uint16Array(this.indices);
                 this._vertexData = new Float32Array(this._vertexDeclaration.getCurrentOffset() * numVertices);
 
                 var i, j, v, index = 0, numSets = vertexDataSet.length;
@@ -133,8 +147,8 @@ define([
                     this._indexBuffer = device.createBuffer();
                 }
 
-                device.setVertexBufferData(this._vertexData);
-                device.setIndexBufferData(this._indexData);
+                device.setVertexBufferData(this._vertexBuffer, this._vertexData);
+                device.setIndexBufferData(this._indexBuffer, this._indexData);
 
                 this.computeBoundingBox();
             },

@@ -1,9 +1,13 @@
 define([
+        'math/vector2',
+        'math/vector3',
         'components/meshFilter',
         'graphics/mesh',
         'graphics/spriteFont'
     ], 
     function(
+        Vector2,
+        Vector3,
         MeshFilter,
         Mesh,
         SpriteFont
@@ -94,10 +98,10 @@ define([
                         mesh.addVertex(new Vector3(b, d, 0));
                         mesh.addVertex(new Vector3(a, d, 0));
 
-                        mesh.addUV(new Vector2(u,     v));
-                        mesh.addUV(new Vector2(u + w, v));
-                        mesh.addUV(new Vector2(u + w, v + h));
-                        mesh.addUV(new Vector2(u,     v + h));
+                        mesh.addUVtoLayer0(new Vector2(u,     v));
+                        mesh.addUVtoLayer0(new Vector2(u + w, v));
+                        mesh.addUVtoLayer0(new Vector2(u + w, v + h));
+                        mesh.addUVtoLayer0(new Vector2(u,     v + h));
 
                         count = mesh.getVertexCount();
                         a = count - 4;
@@ -107,6 +111,9 @@ define([
                         mesh.addTriangle(a, b, c);
                         mesh.addTriangle(a, c, d);
                     }
+
+                    meshFilter.setDirty(true);
+                    text.setDirty(true);
                 }
             }
         };

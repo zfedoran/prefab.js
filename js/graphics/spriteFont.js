@@ -10,8 +10,8 @@ define([
     ) {
     
         var SpriteFont = function(options) {
-            this.fontName = options.font || 'monospace';
-            this.fontSize = options.size || 10;
+            this.fontName = options.fontFamily || 'monospace';
+            this.fontSize = options.fontSize || 10;
             this.vspace = typeof options.vspace === 'undefined' ? 0 : options.vspace;
             this.hspace = typeof options.hspace === 'undefined' ? 0 : options.hspace;
             this.sprites = {};
@@ -93,6 +93,7 @@ define([
                         widthWord += widthChar;
                     } else if (heightWord + heightChar <= heightTexture) {
                         widthWord = 0;
+                        widthWord += widthChar;
                         heightWord += heightChar;
                     } else {
                         tryAgainWithLargerTexture = true;
@@ -134,6 +135,7 @@ define([
                         widthWord += widthChar;
                     } else if (heightWord + heightChar <= this._textureHeight) {
                         widthWord = 0;
+                        widthWord += widthChar;
                         heightWord += heightChar;
                     } else {
                         throw 'SpriteFont: cannot fit all characters on the texture size provided';

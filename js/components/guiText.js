@@ -21,6 +21,8 @@ define([
             this.color = options.color || '#fff';
             this.boundingBox = rect;
             this.content = text;
+
+            this.setDirty(true);
         };
 
         GUIText.__name__ = 'GUIText';

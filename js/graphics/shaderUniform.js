@@ -40,6 +40,8 @@ define([
                 if (typeof this.data === 'number') {
                     gl.uniform1f(_index, false, this.data); 
                     _dirty = false;
+                } else if (this.data === null || typeof this.data === 'undefined') {
+                    throw 'ShaderUniform: ' + _name + ' data has not been assigned';
                 } else {
                     throw 'ShaderUniform: data type does not match the uniform type';
                 }
@@ -48,6 +50,8 @@ define([
                 if (this.data instanceof Vector2) {
                     gl.uniform2f(_index, false, this.data.x, this.data.y); 
                     _dirty = false;
+                } else if (this.data === null || typeof this.data === 'undefined') {
+                    throw 'ShaderUniform: ' + _name + ' data has not been assigned';
                 } else {
                     throw 'ShaderUniform: data type does not match the uniform type';
                 }
@@ -56,6 +60,8 @@ define([
                 if (this.data instanceof Vector3) {
                     gl.uniform3f(_index, false, this.data.x, this.data.y, this.data.z); 
                     _dirty = false;
+                } else if (this.data === null || typeof this.data === 'undefined') {
+                    throw 'ShaderUniform: ' + _name + ' data has not been assigned';
                 } else {
                     throw 'ShaderUniform: data type does not match the uniform type';
                 }
@@ -64,6 +70,8 @@ define([
                 if (this.data instanceof Vector4) {
                     gl.uniform4f(_index, false, this.data.x, this.data.y, this.data.z, this.data.w); 
                     _dirty = false;
+                } else if (this.data === null || typeof this.data === 'undefined') {
+                    throw 'ShaderUniform: ' + _name + ' data has not been assigned';
                 } else {
                     throw 'ShaderUniform: data type does not match the uniform type';
                 }
@@ -72,6 +80,8 @@ define([
                 if (this.data instanceof Matrix4) {
                     gl.uniformMatrix4fv(_index, false, this.data.elements); 
                     _dirty = false;
+                } else if (this.data === null || typeof this.data === 'undefined') {
+                    throw 'ShaderUniform: ' + _name + ' data has not been assigned';
                 } else {
                     throw 'ShaderUniform: data type does not match the uniform type';
                 }
@@ -90,6 +100,8 @@ define([
                     gl.bindTexture(gl.TEXTURE_2D, this.data._texture.getTextureObject());
                     gl.uniform1i(_index, slot); 
                     _dirty = false;
+                } else if (this.data === null || typeof this.data === 'undefined') {
+                    throw 'ShaderUniform: ' + _name + ' data has not been assigned';
                 } else {
                     throw 'ShaderUniform: data type does not match the uniform type';
                 }
