@@ -47,15 +47,16 @@ define([
             this.renderSystem = new RenderSystem(this.entityManager, this.device);
 
             this.camera = new CameraEntity(this.width, this.height, 0.1, 100, 75);
-            this.guiText = new GUITextEntity(new Rectangle(0, 0, 200, 100), 'hello, world', {
-                fontFamily: 'arial',
-                fontSize: 24
+            this.guiText = new GUITextEntity(new Rectangle(0, 0, 100, 100), 'hello, world', {
+                fontFamily: 'monospace',
+                fontSize: 10
             });
 
             this.guiLayer = new GUILayerEntity(this.width, this.height);
 
             this.entityManager.addEntity(this.camera);
             this.entityManager.addEntity(this.guiText);
+            this.entityManager.addEntity(this.guiLayer);
 
             this.shader = this.device.compileShader(textVertexSource, textFragmentSource);
             this.uMMatrix = this.shader.uniforms.uMMatrix;
@@ -95,7 +96,6 @@ define([
                 this.cameraSystem.update();
                 this.guiSystem.update();
                 this.renderSystem.update();
-                
 
                 this.draw(this.elapsed);
             },
@@ -114,7 +114,7 @@ define([
                     this.initializedTexture = true;
                 }
 
-                var transform = Matrix4.createScale(0.005, -0.005, 0.01);
+                var transform = Matrix4.createTranslation(100, 100, 0);
 
                 this.uMMatrix.set(transform);
                 this.uVMatrix.set(view);

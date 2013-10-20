@@ -76,12 +76,11 @@ define([
                         character = text.content.charAt(i);
                         sprite = text._spriteFont.getSprite(character);
 
-                        if (currentWidth + sprite.width <= text.boundingBox.width) {
-                            currentWidth += sprite.width;
-                        } else {
+                        if (currentWidth + sprite.width > text.boundingBox.width) {
                             currentWidth = 0;
                             currentHeight += text.lineHeight;
                         }
+                        currentWidth += sprite.width;
 
                         u = sprite.getUCoordinate();
                         v = sprite.getVCoordinate();
@@ -113,7 +112,7 @@ define([
                     }
 
                     meshFilter.setDirty(true);
-                    text.setDirty(true);
+                    text.setDirty(false);
                 }
             }
         };

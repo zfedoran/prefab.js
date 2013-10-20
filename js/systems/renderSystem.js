@@ -35,6 +35,7 @@ define([
 
                 if (meshFilter.isDirty()) {
                     meshFilter.mesh.apply(this.device);
+                    meshFilter.setDirty(false);
                 }
             }
         };
