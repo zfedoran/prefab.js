@@ -39,6 +39,13 @@ define([
                       || isNaN(this.height));
             },
 
+            contains: function(position) {
+                return (position.x >= this.x 
+                     || position.x <= this.x + this.width
+                     || position.y >= this.y
+                     || position.y <= this.x + this.height);
+            },
+
             toArray: function() {
                 return [this.x, this.y, this.width, this.height];
             },

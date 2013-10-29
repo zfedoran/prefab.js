@@ -4,7 +4,7 @@ define([
     ) {
 
         var Component = function() {
-            this._dirty = false;
+            this._dirty = true;
             this._enabled = true;
         };
 

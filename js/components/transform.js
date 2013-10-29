@@ -11,15 +11,15 @@ define([
         Matrix4
     ) {
 
-        var Transform = function() {
+        var Transform = function(position, scale, rotation) {
             Component.call(this);
 
             this.parent = null;
             this.children = [];
 
-            this.localPosition = new Vector3();
-            this.localScale = new Vector3(1,1,1);
-            this.localRotation = new Quaternion();
+            this.localPosition = position || new Vector3();
+            this.localScale = scale || new Vector3(1,1,1);
+            this.localRotation = rotation || new Quaternion();
 
             this._position = new Vector3();
             this._scale = new Vector3();

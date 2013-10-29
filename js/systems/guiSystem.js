@@ -1,84 +1,116 @@
 define([
+        'underscore',
         'math/vector2',
         'math/vector3',
-        'components/meshFilter',
-        'graphics/mesh',
-        'graphics/spriteFont'
+        'core/subSystem',
+        'graphics/device',
+        'graphics/vertexElement',
+        'graphics/vertexDeclaration',
+        'graphics/spriteFont',
+        'graphics/primitiveBatch'
     ], 
     function(
+        _,
         Vector2,
         Vector3,
-        MeshFilter,
-        Mesh,
-        SpriteFont
+        SubSystem,
+        GraphicsDevice,
+        VertexElement,
+        VertexDeclaration,
+        SpriteFont,
+        PrimitiveBatch
     ) {
 
-        var GUISystem = function(entityManager) {
-            this.filter = 'has(gui)';
-            this.entityManager = entityManager;
-            this.entityManager.addFilter(this.filter, function(entity) {
-                return entity.hasComponent('GUIText')
-                    || entity.hasComponent('GUIButton')
-                    || entity.hasComponent('GUISelect');
-            });
+        var GUISystem = function(entityManager, device) {
+            SubSystem.call(this, entityManager, ['GUIElement']);
 
             this.fonts = {};
+            this.device = device;
+            this.vertexDeclaration = new VertexDeclaration([
+                new VertexElement(0, VertexElement.Vector3, 'aVertexPosition'),
+                new VertexElement(3 * 4, VertexElement.Vector2, 'aVertexUV0')
+            ]);
+            this.primitiveBatch = new PrimitiveBatch(device, this.vertexDeclaration);
+            this.mousePosition = new Vector2();
         };
 
-        GUISystem.prototype = {
+        GUISystem.prototype = _.extend(Object.create(SubSystem.prototype), {
             constructor: GUISystem,
+
+            onMouseMove: function(evt) {
+                this.mousePosition.x = evt.pageX;
+                this.mousePosition.y = evt.pageY;
+            },
+
             update: function() {
-                var entities = this.entityManager.getAllUsingFilter(this.filter);
+                this.primitiveBatch.begin(GraphicsDevice.TRIANGLES);
+
+                var entities = this.entityManager.getAllUsingFilter(this.filterHash);
                 var o, entity;
                 for (o in entities) {
                     if (entities.hasOwnProperty(o)) {
                         entity = entities[o];
-
                         if (entity.hasComponent('GUIText')) {
                             this.updateText(entity);
                         }
                     }
                 }
+
+                this.primitiveBatch.end();
             },
+
             updateText: function(entity) {
-                var text       = entity.getComponent('GUIText');
-                var meshFilter = entity.getComponent('MeshFilter');
+                var guiElement = entity.getComponent('GUIElement');
+                var guiText    = entity.getComponent('GUIText');
                 var transform  = entity.getComponent('Transform');
-                var fontDef    = text.getFontStyle();
+                var fontDef    = guiText.getFontStyle();
                 var spriteFont;
 
-                if (text.isDirty()) {
-                    // check if we need to generate a new sprite sheet
+                if (guiText.isDirty()) {
                     spriteFont = this.fonts[fontDef];
                     if (typeof spriteFont === 'undefined') {
-                        spriteFont = new SpriteFont({
-                            fontFamily: text.fontFamily,
-                            fontSize: text.fontSize
-                        });
+                        spriteFont = this.generateSpriteFont(guiText);
                         this.fonts[fontDef] = spriteFont; 
                     }
-                    text._spriteFont = spriteFont;
-                    
-                    if (typeof meshFilter === 'undefined') {
-                        meshFilter = new MeshFilter();
-                        entity.addComponent(meshFilter);
-                    }
-                    if (typeof meshFilter.mesh === 'undefined') {
-                        meshFilter.mesh = new Mesh();
-                    }
-                    var mesh = meshFilter.mesh;
+                    guiText._spriteFont = spriteFont;
+                    guiText.setDirty(false);
+                }
 
-                    // create the character mesh
-                    var i, len = text.content.length;
-                    var character, sprite, currentWidth = 0, currentHeight = 0;
-                    var u, v, w, h, a, b, c, d, count;
-                    for (i = 0; i < len; i++) {
-                        character = text.content.charAt(i);
-                        sprite = text._spriteFont.getSprite(character);
+                this.generateCharacterMesh(guiElement, guiText);
+            },
 
-                        if (currentWidth + sprite.width > text.boundingBox.width) {
+            generateSpriteFont: function(guiText) {
+                var spriteFont = new SpriteFont({
+                    fontFamily: guiText.fontFamily,
+                    fontSize: guiText.fontSize
+                });
+
+                spriteFont.sendToGPU(this.device);
+                document.body.appendChild(spriteFont._canvas);
+
+                var tmpHACK = this.device.state.getShader();
+                tmpHACK.uniforms.uSampler.set(spriteFont);
+
+                return spriteFont;
+            },
+
+            generateCharacterMesh: function(guiElement, guiText) {
+                var i, len = guiText.content.length;
+                var character, sprite, currentWidth = 0, currentHeight = 0;
+                var u, v, w, h, a, b, c, d, count;
+
+                for (i = 0; i < len; i++) {
+                    character = guiText.content.charAt(i);
+
+                    if (character === '\n') {
+                        currentWidth = 0;
+                        currentHeight += guiText.lineHeight;
+                    } else {
+                        sprite = guiText._spriteFont.getSprite(character);
+
+                        if (currentWidth + sprite.width > guiElement.boundingBox.width) {
                             currentWidth = 0;
-                            currentHeight += text.lineHeight;
+                            currentHeight += guiText.lineHeight;
                         }
                         currentWidth += sprite.width;
 
@@ -92,30 +124,17 @@ define([
                         c = currentHeight - sprite.height;
                         d = currentHeight;
 
-                        mesh.addVertex(new Vector3(a, c, 0));
-                        mesh.addVertex(new Vector3(b, c, 0));
-                        mesh.addVertex(new Vector3(b, d, 0));
-                        mesh.addVertex(new Vector3(a, d, 0));
+                        this.primitiveBatch.addVertex(a, c, 0, u, v);
+                        this.primitiveBatch.addVertex(b, c, 0, u+w, v);
+                        this.primitiveBatch.addVertex(b, d, 0, u+w, v+h);
 
-                        mesh.addUVtoLayer0(new Vector2(u,     v));
-                        mesh.addUVtoLayer0(new Vector2(u + w, v));
-                        mesh.addUVtoLayer0(new Vector2(u + w, v + h));
-                        mesh.addUVtoLayer0(new Vector2(u,     v + h));
-
-                        count = mesh.getVertexCount();
-                        a = count - 4;
-                        b = count - 3;
-                        c = count - 2;
-                        d = count - 1;
-                        mesh.addTriangle(a, b, c);
-                        mesh.addTriangle(a, c, d);
+                        this.primitiveBatch.addVertex(a, c, 0, u, v);
+                        this.primitiveBatch.addVertex(b, d, 0, u+w, v+h);
+                        this.primitiveBatch.addVertex(a, d, 0, u, v+h);
                     }
-
-                    meshFilter.setDirty(true);
-                    text.setDirty(false);
                 }
             }
-        };
+        });
 
         return GUISystem;
     }

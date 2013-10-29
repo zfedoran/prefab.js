@@ -19,6 +19,13 @@ define([
                 return this;
             },
 
+            setFrom: function(vector) {
+                this.x = vector.x;
+                this.y = vector.y;
+                this.z = vector.z;
+                return this;
+            },
+
             length: function() {
                 return Math.sqrt( this.x * this.x 
                                 + this.y * this.y

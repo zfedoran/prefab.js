@@ -22,6 +22,6 @@ requirejs(['jquery', 'application'], function($, Application) {
     window.requestAnimationFrame = requestAnimationFrame;
 
     $(function() {
-        var app = new Application();
+        new Application();
     });
 });

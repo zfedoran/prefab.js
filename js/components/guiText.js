@@ -4,7 +4,7 @@ define([
     function(
         Component
     ) {
-    
+
         var GUIText = function(rect, text, options) {
             Component.call(this);
 

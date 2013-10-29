@@ -10,7 +10,7 @@ define([
         MathHelper.PI2 = Math.PI * 2;
 
         MathHelper.clamp = function(a, b, val) {
-            return ( x < a ) ? a : ( ( x > b ) ? b : x );
+            return ( val < a ) ? a : ( ( val > b ) ? b : val );
         };
 
         MathHelper.min = function(a, b) {

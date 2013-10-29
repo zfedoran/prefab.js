@@ -1,23 +1,21 @@
 define([
+        'underscore',
+        'core/subSystem'
     ],
     function(
+        _,
+        SubSystem
     ) {
     
         var RenderSystem = function(entityManager, device) {
-            this.filter = 'has(renderer)';
-            this.entityManager = entityManager;
-            this.entityManager.addFilter(this.filter, function(entity) {
-                return entity.hasComponent('Transform')
-                    && entity.hasComponent('MeshRenderer');
-            });
-
+            SubSystem.call(this, entityManager, ['Transform', 'MeshRenderer']);
             this.device = device;
         };
 
-        RenderSystem.prototype = {
+        RenderSystem.prototype = _.extend(Object.create(SubSystem.prototype), {
             constructor: RenderSystem,
             update: function() {
-                var entities = this.entityManager.getAllUsingFilter(this.filter);
+                var entities = this.entityManager.getAllUsingFilter(this.filterHash);
                 var o, entity;
                 for (o in entities) {
                     if (entities.hasOwnProperty(o)) {
@@ -38,7 +36,7 @@ define([
                     meshFilter.setDirty(false);
                 }
             }
-        };
+        });
 
         return RenderSystem;
     }

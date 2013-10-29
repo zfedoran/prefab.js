@@ -44,10 +44,10 @@ define([
                     if (debug) {
                         var logGLCall = function(functionName, args) {
                             console.log('gl.' + functionName + '(' 
-                                    + WebGLDebugUtils.glFunctionArgsToString(functionName, args) + ')');
+                                    + window.WebGLDebugUtils.glFunctionArgsToString(functionName, args) + ')');
                         };
 
-                        gl = WebGLDebugUtils.makeDebugContext(gl, undefined, logGLCall);
+                        gl = window.WebGLDebugUtils.makeDebugContext(gl, undefined, logGLCall);
                     }
 
                     this.state = new GraphicsState(gl);

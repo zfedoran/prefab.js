@@ -154,10 +154,10 @@ define([
             clone: function() {
                 var te = this.elements;
                 return new Matrix4(
-                    me[0], me[4], me[8],  me[12],
-                    me[1], me[5], me[9],  me[13],
-                    me[2], me[6], me[10], me[14],
-                    me[3], me[7], me[11], me[15]
+                    te[0], te[4], te[8],  te[12],
+                    te[1], te[5], te[9],  te[13],
+                    te[2], te[6], te[10], te[14],
+                    te[3], te[7], te[11], te[15]
                 );
             },
 
@@ -174,10 +174,10 @@ define([
             toArray: function () {
                 var te = this.elements;
                 return [
-                    me[0], me[4], me[8],  me[12],
-                    me[1], me[5], me[9],  me[13],
-                    me[2], me[6], me[10], me[14],
-                    me[3], me[7], me[11], me[15]
+                    te[0], te[4], te[8],  te[12],
+                    te[1], te[5], te[9],  te[13],
+                    te[2], te[6], te[10], te[14],
+                    te[3], te[7], te[11], te[15]
                 ];
             },
 

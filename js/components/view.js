@@ -37,7 +37,7 @@ define([
 
             var transform;
             if (this.target instanceof Entity) {
-                transform = this.target.getComponent(Transform);
+                transform = this.target.getComponent('Transform');
                 if (transform) {
                     return transform.getPosition();
                 } 

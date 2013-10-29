@@ -1,4 +1,5 @@
 define([
+        'jquery',
         'math/vector3',
         'math/vector4',
         'math/matrix4',
@@ -16,6 +17,7 @@ define([
         'text!shaders/fragment.shader'
     ],
     function(
+        $,
         Vector3,
         Vector4,
         Matrix4,
@@ -43,15 +45,15 @@ define([
 
             this.entityManager = new EntityManager();
             this.cameraSystem = new CameraSystem(this.entityManager);
-            this.guiSystem = new GUISystem(this.entityManager);
+            this.guiSystem = new GUISystem(this.entityManager, this.device);
             this.renderSystem = new RenderSystem(this.entityManager, this.device);
 
             this.camera = new CameraEntity(this.width, this.height, 0.1, 100, 75);
-            this.guiText = new GUITextEntity(new Rectangle(0, 0, 100, 100), 'hello, world', {
+            this.guiText = new GUITextEntity(new Rectangle(20, 40, 1000, 100), '', {
                 fontFamily: 'monospace',
-                fontSize: 10
+                fontSize: 10,
+                //lineHeight: 10
             });
-
             this.guiLayer = new GUILayerEntity(this.width, this.height);
 
             this.entityManager.addEntity(this.camera);
@@ -70,7 +72,7 @@ define([
 
             var _this = this;
             function loop(time) {
-                requestAnimationFrame(loop);
+                window.requestAnimationFrame(loop);
                 _this.update(time);
             }
             loop(0);
@@ -94,8 +96,7 @@ define([
                 view.setDirty(true);
 
                 this.cameraSystem.update();
-                this.guiSystem.update();
-                this.renderSystem.update();
+                //this.renderSystem.update();
 
                 this.draw(this.elapsed);
             },
@@ -107,38 +108,49 @@ define([
                 var view = this.guiLayer.getComponent('View')._viewMatrix;
                 var proj = this.guiLayer.getComponent('Projection')._projectionMatrix;
 
-                var spriteFont = this.guiText.getComponent('GUIText')._spriteFont;
-                if (!this.initializedTexture) {
-                    spriteFont.sendToGPU(this.device);
-                    document.body.appendChild(spriteFont._canvas);
-                    this.initializedTexture = true;
-                }
+                var text = this.guiText.getComponent('GUIText');
+                text.content = this.camera.getComponent('View')._viewMatrix.toString();
+                text.content = this.guiSystem.mousePosition.toString();
+                text.setDirty(true);
 
-                var transform = Matrix4.createTranslation(100, 100, 0);
+                var transform = this.guiText.getComponent('Transform').getWorldMatrix();
 
                 this.uMMatrix.set(transform);
                 this.uVMatrix.set(view);
                 this.uPMatrix.set(proj);
-                this.uSampler.set(spriteFont);
 
+                this.guiSystem.update();
+
+                /*
                 var meshFilter = this.guiText.getComponent('MeshFilter');
                 var mesh = meshFilter.mesh;
 
-                this.device.bindVertexDeclaration(mesh._vertexDeclaration); 
+                this.device.bindVertexDeclaration(mesh._vertexDeclaration);
                 this.device.bindIndexBuffer(mesh._indexBuffer);
                 this.device.bindVertexBuffer(mesh._vertexBuffer);
                 this.device.drawIndexedPrimitives(GraphicsDevice.TRIANGLES, mesh._indexBuffer.length, GraphicsDevice.UNSIGNED_SHORT, 0);
+                */
             },
             initEvents: function() {
                 $(window).on('resize', $.proxy(this.onResize, this));
+                $(window).on('mousemove', $.proxy(this.onMouseMove, this));
             },
             removeEvents: function() {
                 $(window).off('resize');
+                $(window).off('mousemove');
             },
             onResize: function(evt) {
                 this.width = $(window).width();
                 this.height = $(window).height();
                 this.device.setSize(this.width, this.height);
+
+                var proj = this.guiLayer.getComponent('Projection');
+                proj.width = this.width;
+                proj.height = this.height;
+                proj.setDirty(true);
+            },
+            onMouseMove: function(evt) {
+                this.guiSystem.onMouseMove(evt);
             }
         };
 

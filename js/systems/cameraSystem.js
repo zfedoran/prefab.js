@@ -1,22 +1,21 @@
 define([
-        'math/matrix4'
+        'underscore',
+        'math/matrix4',
+        'core/subSystem'
     ],
     function(
-        Matrix4
+        _,
+        Matrix4,
+        SubSystem
     ) {
 
         var CameraSystem = function(entityManager) {
-            this.filter = 'has(Transform,Projection,View)';
-            this.entityManager = entityManager;
-            this.entityManager.addFilter(this.filter, function(entity) {
-                return entity.hasComponent('Transform')
-                    && entity.hasComponent('Projection')
-                    && entity.hasComponent('View');
-            });
+            SubSystem.call(this, entityManager, ['Transform', 'Projection', 'View']);
         };
 
-        CameraSystem.prototype = {
+        CameraSystem.prototype = _.extend(Object.create(SubSystem.prototype), {
             constructor: CameraSystem,
+
             updateProjectionMatrix: function(entity) {
                 var proj = entity.getComponent('Projection');
                 var hasGUILayer = entity.hasComponent('GUILayer');
@@ -31,6 +30,7 @@ define([
                     }
                 }
             },
+
             updateViewMatrix: function(entity) {
                 var view = entity.getComponent('View');
                 var transform = entity.getComponent('Transform');
@@ -50,8 +50,9 @@ define([
                     }
                 }
             },
+
             update: function() {
-                var entities = this.entityManager.getAllUsingFilter(this.filter);
+                var entities = this.entityManager.getAllUsingFilter(this.filterHash);
                 var o, entity;
                 for (o in entities) {
                     if (entities.hasOwnProperty(o)) {
@@ -62,7 +63,7 @@ define([
                     }
                 }
             }
-        };
+        });
 
         return CameraSystem;
     }

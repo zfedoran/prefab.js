@@ -5,21 +5,23 @@ define([
         GraphicsDevice
     ) {
 
-        var PrimitiveBatch = function(device) {
+        var PrimitiveBatch = function(device, vertexDeclaration) {
+            if (typeof vertexDeclaration === 'undefined') {
+                throw 'PrimitiveBatch: no VertexDeclaration specified';
+            }
+
             this.device = device;
+            this.vertexDeclaration = vertexDeclaration;
             this.vertexBuffer = this.device.createBuffer();
             this.vertices = new Float32Array(1024);
+            this.stride = vertexDeclaration.getCurrentOffset();
         };
 
         PrimitiveBatch.prototype = {
             constructor: PrimitiveBatch,
-            begin: function(primitiveType, stride) {
+            begin: function(primitiveType) {
                 if (this.hasBegun) {
                     throw 'PrimitiveBatch: end() must be called before begin() can be called again';
-                }
-
-                if (typeof stride === 'undefined') {
-                    throw 'PrimitiveBatch: no stride length specified';
                 }
 
                 if (primitiveType === GraphicsDevice.POINTS) {
@@ -33,7 +35,6 @@ define([
                 }
 
                 this.primitiveType = primitiveType;
-                this.stride = stride;
                 this.positionInBuffer = 0;
                 this.hasBegun = true;
             },
@@ -48,12 +49,14 @@ define([
                     throw 'PrimitiveBatch: flush called on 0 elements';
                 }
 
+                this.device.bindVertexDeclaration(this.vertexDeclaration);
                 this.device.bindVertexBuffer(this.vertexBuffer);
                 this.device.setVertexBufferData(this.vertexBuffer, this.vertices);
                 this.device.drawPrimitives(this.primitiveType, this.positionInBuffer, 0);
                 this.positionInBuffer = 0;
             },
-            addVertex: function(vertexData) {
+            addVertex: function() {
+                var vertexData = arguments;
                 if (!this.hasBegun) {
                     throw 'PrimitiveBatch: begin() must be called before addVertex()';
                 }

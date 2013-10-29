@@ -23,12 +23,12 @@ define([
             this._textureWidth      = typeof options.width !== 'undefined' ? options.width : 0;
             this._textureHeight     = typeof options.height !== 'undefined' ? options.height : 0;
             this._textureTarget     = typeof options.target !== 'undefined' ? options.target : Texture.TEXTURE_2D;
-            this._imageFormat       = typeof options.format !== 'undefined' ? format : Texture.RGBA;
-            this._wrapS             = typeof options.wrapS !== 'undefined' ? wrapS : Texture.CLAMP_TO_EDGE;
-            this._wrapT             = typeof options.wrapT !== 'undefined' ? wrapT : Texture.CLAMP_TO_EDGE;
-            this._magFilter         = typeof options.magFilter !== 'undefined' ? magFilter : Texture.NEAREST;
-            this._minFilter         = typeof options.minFilter !== 'undefined' ? minFilter : Texture.NEAREST;
-            this._type              = typeof options.type !== 'undefined' ? type : Texture.UNSIGNED_BYTE;
+            this._imageFormat       = typeof options.format !== 'undefined' ? options.format : Texture.RGBA;
+            this._wrapS             = typeof options.wrapS !== 'undefined' ? options.wrapS : Texture.CLAMP_TO_EDGE;
+            this._wrapT             = typeof options.wrapT !== 'undefined' ? options.wrapT : Texture.CLAMP_TO_EDGE;
+            this._magFilter         = typeof options.magFilter !== 'undefined' ? options.magFilter : Texture.NEAREST;
+            this._minFilter         = typeof options.minFilter !== 'undefined' ? options.minFilter : Texture.NEAREST;
+            this._type              = typeof options.type !== 'undefined' ? options.type : Texture.UNSIGNED_BYTE;
 
             if (image instanceof HTMLCanvasElement) {
                 this._textureWidth = image.width;
@@ -37,43 +37,6 @@ define([
 
             this.setDirty(true);
         };
-
-        // format
-        Texture.DEPTH_COMPONENT                 = 0x1902;
-        Texture.ALPHA                           = 0x1906;
-        Texture.RGB                             = 0x1907;
-        Texture.RGBA                            = 0x1908;
-        Texture.LUMINANCE                       = 0x1909;
-        Texture.LUMINANCE_ALPHA                 = 0x190A;
-
-        // filter mode
-        Texture.LINEAR                          = 0x2601;
-        Texture.NEAREST                         = 0x2600;
-        Texture.NEAREST_MIPMAP_NEAREST          = 0x2700;
-        Texture.LINEAR_MIPMAP_NEAREST           = 0x2701;
-        Texture.NEAREST_MIPMAP_LINEAR           = 0x2702;
-        Texture.LINEAR_MIPMAP_LINEAR            = 0x2703;
-
-        // wrap mode
-        Texture.CLAMP_TO_EDGE                   = 0x812F;
-        Texture.REPEAT                          = 0x2901;
-        Texture.MIRRORED_REPEAT                 = 0x8370;
-
-        // target
-        Texture.TEXTURE_2D                      = 0x0DE1;
-        Texture.TEXTURE_CUBE_MAP                = 0x8513;
-        Texture.TEXTURE_BINDING_CUBE_MAP        = 0x8514;
-        Texture.TEXTURE_CUBE_MAP_POSITIVE_X     = 0x8515;
-        Texture.TEXTURE_CUBE_MAP_NEGATIVE_X     = 0x8516;
-        Texture.TEXTURE_CUBE_MAP_POSITIVE_Y     = 0x8517;
-        Texture.TEXTURE_CUBE_MAP_NEGATIVE_Y     = 0x8518;
-        Texture.TEXTURE_CUBE_MAP_POSITIVE_Z     = 0x8519;
-        Texture.TEXTURE_CUBE_MAP_NEGATIVE_Z     = 0x851A;
-        Texture.MAX_CUBE_MAP_TEXTURE_SIZE       = 0x851C;
-
-        // type
-        Texture.UNSIGNED_BYTE = 0x1401;
-        Texture.FLOAT = 0x1406;
 
         Texture.prototype = {
             constructor: Texture,
@@ -172,55 +135,94 @@ define([
             },
 
             sendToGPU: function(device) {
-                var gl = device.state.getContext();
+                if (this.isDirty()) {
+                    var gl = device.state.getContext();
 
-                if (typeof this._textureObject !== 'undefined' && !this.isDirty()) {
-                    gl.bindTexture(this._textureTarget, this._textureObject);
-                } else if (this.default_type) {
-                    gl.bindTexture(this._textureTarget, null);
-                } else {
-                    var image = this._image;
-                    if (typeof image !== 'undefined') {
-                        if (this.isImageReady(image)) {
+                    if (typeof this._textureObject !== 'undefined' && !this.isDirty()) {
+                        gl.bindTexture(this._textureTarget, this._textureObject);
+                    } else if (this.default_type) {
+                        gl.bindTexture(this._textureTarget, null);
+                    } else {
+                        var image = this._image;
+                        if (typeof image !== 'undefined') {
+                            if (this.isImageReady(image)) {
+                                if (!this._textureObject) {
+                                    this._textureObject = gl.createTexture();
+                                }
+
+                                gl.bindTexture(this._textureTarget, this._textureObject);
+
+                                if (image instanceof Image) {
+                                    this.setTextureSize(image.naturalWidth, image.naturalHeight);
+                                    gl.texImage2D(this._textureTarget, 0, this._imageFormat, this._imageFormat, this._type, this._image);
+                                } else if (image instanceof HTMLCanvasElement) {
+                                    this.setTextureSize(image.width, image.height);
+                                    gl.texImage2D(this._textureTarget, 0, this._imageFormat, this._imageFormat, this._type, this._image);
+                                } else {
+                                    throw 'Texture: unsupported image type ' + typeof image;
+                                
+                                }
+
+                                this.applyFilterParameter(device);
+                                this.generateMipmap(device);
+
+                                this.setDirty(false);
+                            } else {
+                                gl.bindTexture(this._textureTarget, null);
+                            }
+                        } else if (this._textureWidth !== 0 && this._textureHeight !== 0) {
                             if (!this._textureObject) {
                                 this._textureObject = gl.createTexture();
                             }
-
                             gl.bindTexture(this._textureTarget, this._textureObject);
-
-                            if (image instanceof Image) {
-                                this.setTextureSize(image.naturalWidth, image.naturalHeight);
-                                gl.texImage2D(this._textureTarget, 0, this._imageFormat, this._imageFormat, this._type, this._image);
-                            } else if (image instanceof HTMLCanvasElement) {
-                                this.setTextureSize(image.width, image.height);
-                                gl.texImage2D(this._textureTarget, 0, this._imageFormat, this._imageFormat, this._type, this._image);
-                            } else {
-                                throw 'Texture: unsupported image type ' + typeof image;
-                            
-                            }
+                            gl.texImage2D(this._textureTarget, 0, this._imageFormat, this._textureWidth, this._textureHeight, 0, this._imageFormat, this._imageFormat, this._type, null);
 
                             this.applyFilterParameter(device);
                             this.generateMipmap(device);
 
                             this.setDirty(false);
-                        } else {
-                            gl.bindTexture(this._textureTarget, null);
                         }
-                    } else if (this._textureWidth !== 0 && this._textureHeight !== 0) {
-                        if (!this._textureObject) {
-                            this._textureObject = gl.createTexture();
-                        }
-                        gl.bindTexture(this._textureTarget, this._textureObject);
-                        gl.texImage2D(this._textureTarget, 0, this._imageFormat, this._textureWidth, this._textureHeight, 0, this._imageFormat, this._imageFormat, this._type, null);
-
-                        this.applyFilterParameter(device);
-                        this.generateMipmap(device);
-
-                        this.setDirty(false);
                     }
                 }
             }
         };
+
+        // format
+        Texture.DEPTH_COMPONENT                 = 0x1902;
+        Texture.ALPHA                           = 0x1906;
+        Texture.RGB                             = 0x1907;
+        Texture.RGBA                            = 0x1908;
+        Texture.LUMINANCE                       = 0x1909;
+        Texture.LUMINANCE_ALPHA                 = 0x190A;
+
+        // filter mode
+        Texture.LINEAR                          = 0x2601;
+        Texture.NEAREST                         = 0x2600;
+        Texture.NEAREST_MIPMAP_NEAREST          = 0x2700;
+        Texture.LINEAR_MIPMAP_NEAREST           = 0x2701;
+        Texture.NEAREST_MIPMAP_LINEAR           = 0x2702;
+        Texture.LINEAR_MIPMAP_LINEAR            = 0x2703;
+
+        // wrap mode
+        Texture.CLAMP_TO_EDGE                   = 0x812F;
+        Texture.REPEAT                          = 0x2901;
+        Texture.MIRRORED_REPEAT                 = 0x8370;
+
+        // target
+        Texture.TEXTURE_2D                      = 0x0DE1;
+        Texture.TEXTURE_CUBE_MAP                = 0x8513;
+        Texture.TEXTURE_BINDING_CUBE_MAP        = 0x8514;
+        Texture.TEXTURE_CUBE_MAP_POSITIVE_X     = 0x8515;
+        Texture.TEXTURE_CUBE_MAP_NEGATIVE_X     = 0x8516;
+        Texture.TEXTURE_CUBE_MAP_POSITIVE_Y     = 0x8517;
+        Texture.TEXTURE_CUBE_MAP_NEGATIVE_Y     = 0x8518;
+        Texture.TEXTURE_CUBE_MAP_POSITIVE_Z     = 0x8519;
+        Texture.TEXTURE_CUBE_MAP_NEGATIVE_Z     = 0x851A;
+        Texture.MAX_CUBE_MAP_TEXTURE_SIZE       = 0x851C;
+
+        // type
+        Texture.UNSIGNED_BYTE = 0x1401;
+        Texture.FLOAT = 0x1406;
 
         function isPowerOf2(x) {
             return ((x !== 0) && ((x & (~x + 1)) === x));
