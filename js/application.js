@@ -54,7 +54,7 @@ define([
                 fontSize: 10,
                 //lineHeight: 10
             });
-            this.guiLayer = new GUILayerEntity(this.width, this.height);
+            this.guiLayer = new GUILayerEntity(0, 0, this.width, this.height);
 
             this.entityManager.addEntity(this.camera);
             this.entityManager.addEntity(this.guiText);

@@ -18,11 +18,12 @@ define([
 
             updateProjectionMatrix: function(entity) {
                 var proj = entity.getComponent('Projection');
-                var hasGUILayer = entity.hasComponent('GUILayer');
+                var guiLayer = entity.getComponent('GUILayer');
                 if (proj.isDirty()) {
                     proj.aspect = proj.width / proj.height;
-                    if (hasGUILayer) {
-                        Matrix4.createOrthographic(0, proj.width, 0, proj.height, proj.near, proj.far, /*out*/ proj._projectionMatrix);
+                    if (typeof guiLayer !== 'undefined') {
+                        var rect = guiLayer.boundingBox;
+                        Matrix4.createOrthographic(-rect.x, rect.width - rect.x, -rect.y, rect.height - rect.y, proj.near, proj.far, /*out*/ proj._projectionMatrix);
                     } else if (proj.isOrthographic()){
                         Matrix4.createOrthographic(-proj.width/2, proj.width/2, -proj.height/2, proj.height/2, proj.near, proj.far, /*out*/ proj._projectionMatrix);
                     } else {

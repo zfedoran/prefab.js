@@ -18,6 +18,7 @@ define([
         ShaderUniform,
         __debugUtils
     ) {
+        'use strict';
 
         var GraphicsDevice = function(width, height) {
             this.initCanvas();

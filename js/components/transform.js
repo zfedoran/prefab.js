@@ -53,6 +53,14 @@ define([
             }
         };
 
+        Transform.prototype.hasParent = function() {
+            return typeof this.parent !== 'undefined';
+        };
+
+        Transform.prototype.getParent = function() {
+            return this.parent;
+        };
+
         Transform.prototype.getPosition = function() {
             if (this.isDirty()) { this.update(); }
             return this._position;

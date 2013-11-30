@@ -8,6 +8,7 @@ define([
         Component,
         Events
     ) {
+        'use strict';
 
         var _entityCount = 0;
 

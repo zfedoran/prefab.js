@@ -5,8 +5,10 @@ define([
         Component
     ) {
     
-        var GUILayer = function() {
+        var GUILayer = function(rect) {
             Component.call(this);
+
+            this.boundingBox = rect;
         };
 
         GUILayer.__name__ = 'GUILayer';

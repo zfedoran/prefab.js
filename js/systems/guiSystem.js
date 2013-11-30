@@ -2,6 +2,7 @@ define([
         'underscore',
         'math/vector2',
         'math/vector3',
+        'math/rectangle',
         'core/subSystem',
         'graphics/device',
         'graphics/vertexElement',
@@ -13,6 +14,7 @@ define([
         _,
         Vector2,
         Vector3,
+        Rectangle,
         SubSystem,
         GraphicsDevice,
         VertexElement,
@@ -20,9 +22,10 @@ define([
         SpriteFont,
         PrimitiveBatch
     ) {
+        'use strict';
 
         var GUISystem = function(entityManager, device) {
-            SubSystem.call(this, entityManager, ['GUIElement']);
+            SubSystem.call(this, entityManager, ['GUIElement', 'GUILayer']);
 
             this.fonts = {};
             this.device = device;
@@ -32,6 +35,7 @@ define([
             ]);
             this.primitiveBatch = new PrimitiveBatch(device, this.vertexDeclaration);
             this.mousePosition = new Vector2();
+            this.currentStyleState = new Rectangle();
         };
 
         GUISystem.prototype = _.extend(Object.create(SubSystem.prototype), {
@@ -46,10 +50,15 @@ define([
                 this.primitiveBatch.begin(GraphicsDevice.TRIANGLES);
 
                 var entities = this.entityManager.getAllUsingFilter(this.filterHash);
-                var o, entity;
+                var o, entity, guiElement;
                 for (o in entities) {
                     if (entities.hasOwnProperty(o)) {
                         entity = entities[o];
+
+                        if (entity.hasComponent('GUILayer')) {
+                            this.updateLayout(entity);
+                        }
+
                         if (entity.hasComponent('GUIText')) {
                             this.updateText(entity);
                         }
@@ -57,6 +66,46 @@ define([
                 }
 
                 this.primitiveBatch.end();
+            },
+
+            updateLayout: function(entity) {
+                var layer = entity.getComponent('GUILayer');
+
+                if (layer.isDirty()) {
+                    var transform = entity.getComponent('Transform');
+                    var children = transform.children;
+                    var i, child;
+                    for (i = 0; i < children.length; i++) {
+                        child = children[i];
+                        if (child.hasComponent('GUIElement')) {
+                            this.updateElement(child);
+                            //add child width
+                        }
+                    }
+
+                    layer.setDirty(false);
+                }
+            },
+
+            updateElement: function(entity, parentState) {
+                var element = entity.getComponent('GUIElement');
+                var currentStyle = element.getCurrentStyle();
+                var currentState = currentStyle.getCurrentState();
+
+                if (element.isDirty()) {
+                    currentStyle.updateState(parentState);
+                    element.setDirty(false);
+                }
+
+                var transform = entity.getComponent('Transform');
+                var children = transform.children;
+                var i, child;
+                for (i = 0; i < children.length; i++) {
+                    child = children[i];
+                    if (child.hasComponent('GUIElement')) {
+                        this.updateElement(child, currentState);
+                    }
+                }
             },
 
             updateText: function(entity) {
