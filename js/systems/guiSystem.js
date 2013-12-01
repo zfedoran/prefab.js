@@ -1,8 +1,7 @@
 define([
-        'underscore',
+        'lodash',
         'math/vector2',
         'math/vector3',
-        'math/rectangle',
         'core/subSystem',
         'graphics/device',
         'graphics/vertexElement',
@@ -14,7 +13,6 @@ define([
         _,
         Vector2,
         Vector3,
-        Rectangle,
         SubSystem,
         GraphicsDevice,
         VertexElement,
@@ -25,7 +23,7 @@ define([
         'use strict';
 
         var GUISystem = function(entityManager, device) {
-            SubSystem.call(this, entityManager, ['GUIElement', 'GUILayer']);
+            SubSystem.call(this, entityManager, ['GUIElement']);
 
             this.fonts = {};
             this.device = device;
@@ -35,16 +33,10 @@ define([
             ]);
             this.primitiveBatch = new PrimitiveBatch(device, this.vertexDeclaration);
             this.mousePosition = new Vector2();
-            this.currentStyleState = new Rectangle();
         };
 
         GUISystem.prototype = _.extend(Object.create(SubSystem.prototype), {
             constructor: GUISystem,
-
-            onMouseMove: function(evt) {
-                this.mousePosition.x = evt.pageX;
-                this.mousePosition.y = evt.pageY;
-            },
 
             update: function() {
                 this.primitiveBatch.begin(GraphicsDevice.TRIANGLES);
@@ -55,9 +47,11 @@ define([
                     if (entities.hasOwnProperty(o)) {
                         entity = entities[o];
 
+                        /*
                         if (entity.hasComponent('GUILayer')) {
                             this.updateLayout(entity);
                         }
+                        */
 
                         if (entity.hasComponent('GUIText')) {
                             this.updateText(entity);
@@ -68,6 +62,7 @@ define([
                 this.primitiveBatch.end();
             },
 
+            /*
             updateLayout: function(entity) {
                 var layer = entity.getComponent('GUILayer');
 
@@ -107,6 +102,7 @@ define([
                     }
                 }
             },
+            */
 
             updateText: function(entity) {
                 var guiElement = entity.getComponent('GUIElement');

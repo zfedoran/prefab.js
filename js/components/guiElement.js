@@ -6,12 +6,14 @@ define([
         Component,
         GUIStyle
     ) {
+        'use strict';
 
         var GUIElement = function(rect) {
             Component.call(this);
 
             this.boundingBox = rect;
 
+            /*
             this.styleDefault = new GUIStyle();
             this.styleHover   = new GUIStyle();
             this.styleActive  = new GUIStyle();
@@ -19,6 +21,7 @@ define([
 
             this.currentStyleState = GUIElement.DEFAULT_STATE;
             this.currentStyle = this.styleDefault;
+            */
 
             this.setDirty(true);
         };
@@ -33,6 +36,7 @@ define([
             return this.boundingBox.contains(position);
         };
 
+        /*
         GUIElement.prototype.getCurrentStyle = function() {
             return this.currentStyle;
         };
@@ -41,6 +45,7 @@ define([
         GUIElement.HOVER_STATE   = 'hover';
         GUIElement.ACTIVE_STATE  = 'active';
         GUIElement.FOCUS_STATE   = 'focus';
+        */
 
         return GUIElement;
     }

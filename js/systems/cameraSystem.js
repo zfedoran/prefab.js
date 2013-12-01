@@ -1,5 +1,5 @@
 define([
-        'underscore',
+        'lodash',
         'math/matrix4',
         'core/subSystem'
     ],
@@ -8,6 +8,7 @@ define([
         Matrix4,
         SubSystem
     ) {
+        'use strict';
 
         var CameraSystem = function(entityManager) {
             SubSystem.call(this, entityManager, ['Transform', 'Projection', 'View']);

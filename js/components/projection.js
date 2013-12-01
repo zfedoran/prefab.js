@@ -6,6 +6,7 @@ define([
         Component,
         Matrix4
     ) {
+        'use strict';
 
         var Projection = function(width, height, near, far, fov) {
             Component.call(this);

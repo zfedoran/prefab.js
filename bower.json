@@ -10,7 +10,7 @@
   ],
   "dependencies": {
     "jquery"         : "*",
-    "underscore"     : "*",
+    "lodash"         : "*",
     "requirejs"      : "*",
     "threejs"        : "*",
     "requirejs-text" : "*"

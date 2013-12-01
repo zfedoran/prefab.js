@@ -4,6 +4,7 @@ define([
     function(
         Component
     ) {
+        'use strict';
     
         var GUILayer = function(rect) {
             Component.call(this);

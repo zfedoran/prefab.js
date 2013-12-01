@@ -16,6 +16,7 @@ define([
         MeshFilter,
         MeshRenderer
     ) {
+        'use strict';
 
         var GUITextEntity = function(rect, text, options) {
             Entity.call(this);

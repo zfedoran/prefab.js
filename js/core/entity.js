@@ -1,5 +1,5 @@
 define([
-        'underscore',
+        'lodash',
         'core/component',
         'core/events'
     ],
@@ -15,17 +15,12 @@ define([
         var Entity = function(){
             this.uuid = Entity.generateUUID();
             this.name = '';
-            this.id = _entityCount;
+            this.id = _entityCount++;
             this.components = {};
-            _entityCount++;
         };
 
         Entity.prototype = {
             constructor: Entity,
-
-            toString: function() {
-                return this.name;
-            },
 
             addComponent: function(component) {
                 if (component instanceof Component) {
@@ -63,6 +58,10 @@ define([
                     this.trigger('component.removed', component);
                 }
             },
+
+            toString: function() {
+                return this.name;
+            }
         };
 
         Entity.generateUUID = (function (){

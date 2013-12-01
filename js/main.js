@@ -2,17 +2,18 @@ requirejs.config({
     baseUrl: 'js',
     shim: {
         'three': { exports: 'THREE' },
-        'underscore': { exports: '_' }
+        'lodash': { exports: '_' }
     },
     paths: {
         'jquery'        : '../bower_components/jquery/jquery',
-        'underscore'    : '../bower_components/underscore/underscore',
+        'lodash'        : '../bower_components/lodash/dist/lodash',
         'three'         : '../bower_components/threejs/build/three',
         'text'          : '../bower_components/requirejs-text/text'
     }
 });
 
-requirejs(['jquery', 'application'], function($, Application) {
+requirejs(['jquery', 'construct'], function($, Construct) {
+    'use strict';
 
     var requestAnimationFrame = window.requestAnimationFrame
                              || window.mozRequestAnimationFrame
@@ -21,7 +22,13 @@ requirejs(['jquery', 'application'], function($, Application) {
 
     window.requestAnimationFrame = requestAnimationFrame;
 
+    var gui = require('nw.gui'); 
+    var win = gui.Window.get();
+    win.on('focus', function() { window.hasFocus = true; });
+    win.on('blur', function() { window.hasFocus = false; });
+    window.hasFocus = true;
+
     $(function() {
-        new Application();
+        new Construct();
     });
 });

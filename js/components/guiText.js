@@ -4,6 +4,7 @@ define([
     function(
         Component
     ) {
+        'use strict';
 
         var GUIText = function(rect, text, options) {
             Component.call(this);

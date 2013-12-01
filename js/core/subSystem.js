@@ -2,6 +2,7 @@ define([
     ],
     function(
     ) {
+        'use strict';
 
         var SubSystem = function(entityManager, filter) {
             this.filter = filter;

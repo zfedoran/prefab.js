@@ -22,9 +22,9 @@ define([
             this.height = 'auto';
 
             this.left = 0;
-            this.right = 0;  // overrides the width
+            this.right = 0;
             this.top = 0;
-            this.bottom = 0; // overrides the height
+            this.bottom = 0;
 
             this.padding = 0;
             this.paddingTop = 0;

@@ -2,6 +2,7 @@ define([
     ],
     function(
     ) {
+        'use strict';
 
         var EntityFilter = function(name, filterFunction, globalEntities) {
             this.name = name;

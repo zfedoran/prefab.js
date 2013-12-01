@@ -14,6 +14,7 @@ define([
         View,
         GUILayer
     ) {
+        'use strict';
 
         var GUILayerEntity = function(x, y, width, height) {
             Entity.call(this);
