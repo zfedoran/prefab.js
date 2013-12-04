@@ -10,6 +10,7 @@ define([
         Projection,
         View
     ) {
+        'use strict';
     
         var Camera = function(width, height, near, far, fov) {
             Entity.call(this);

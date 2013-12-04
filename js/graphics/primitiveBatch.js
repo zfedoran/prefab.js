@@ -39,6 +39,10 @@ define([
                 this.hasBegun = true;
             },
             end: function() {
+                if (!this.hasBegun) {
+                    throw 'PrimitiveBatch: begin() must be called end()';
+                }
+
                 if (this.positionInBuffer !== 0) {
                     this.flush();
                 }

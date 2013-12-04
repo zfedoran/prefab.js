@@ -4,6 +4,7 @@ define([
     function(
         Component
     ) {
+        'use strict';
 
         var MeshFilter = function(mesh) {
             Component.call(this);

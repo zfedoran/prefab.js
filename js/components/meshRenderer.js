@@ -4,6 +4,7 @@ define([
     function(
         Component
     ) {
+        'use strict';
     
         var MeshRenderer = function() {
             Component.call(this);

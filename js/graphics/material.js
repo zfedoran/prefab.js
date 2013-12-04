@@ -4,6 +4,7 @@ define([
     function(
         Vector4
     ) {
+        'use strict';
     
         var Material = function() {
             this.shadingModel = Material.LAMBERT;

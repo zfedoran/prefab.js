@@ -6,6 +6,7 @@ define([
         _,
         SubSystem
     ) {
+        'use strict';
     
         var RenderSystem = function(entityManager, device) {
             SubSystem.call(this, entityManager, ['Transform', 'MeshRenderer']);
@@ -22,11 +23,12 @@ define([
                         entity = entities[o];
 
                         if (entity.hasComponent('MeshFilter')) {
-                            this.updateMesh(entity);
+                            //this.updateMesh(entity);
                         }
                     }
                 }
             },
+            /*
             updateMesh: function(entity) {
                 var transform  = entity.getComponent('Transform');
                 var meshFilter = entity.getComponent('MeshFilter');
@@ -36,6 +38,7 @@ define([
                     meshFilter.setDirty(false);
                 }
             }
+            */
         });
 
         return RenderSystem;

@@ -4,6 +4,7 @@ define([
     function(
         Rectangle
     ) {
+        'use strict';
 
         var Sprite = function(rect, texture) {
             this.texture = texture;

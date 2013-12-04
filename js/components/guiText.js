@@ -6,7 +6,7 @@ define([
     ) {
         'use strict';
 
-        var GUIText = function(rect, text, options) {
+        var GUIText = function(text, options) {
             Component.call(this);
 
             options = options || {
@@ -20,7 +20,6 @@ define([
             this.fontFamily = options.fontFamily || 'monospace';
             this.fontSize = options.fontSize || 10;
             this.color = options.color || '#fff';
-            this.boundingBox = rect;
             this.content = text;
 
             this.setDirty(true);

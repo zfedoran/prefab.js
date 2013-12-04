@@ -8,9 +8,10 @@ define([
         Texture,
         Sprite
     ) {
+        'use strict';
     
         var SpriteFont = function(options) {
-            this.fontName = options.fontFamily || 'monospace';
+            this.fontFamily = options.fontFamily || 'monospace';
             this.fontSize = options.fontSize || 10;
             this.vspace = typeof options.vspace === 'undefined' ? 0 : options.vspace;
             this.hspace = typeof options.hspace === 'undefined' ? 0 : options.hspace;
@@ -54,7 +55,7 @@ define([
                 this._ctx.fillStyle = '#000';
                 this._ctx.textAlign = 'left';
                 this._ctx.textBaseline = 'top';
-                this._ctx.font = this.fontSize + 'px ' + this.fontName;
+                this._ctx.font = this.fontSize + 'px ' + this.fontFamily;
             },
 
             getSprite: function(character) {

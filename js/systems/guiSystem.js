@@ -125,13 +125,14 @@ define([
             },
 
             generateSpriteFont: function(guiText) {
+
                 var spriteFont = new SpriteFont({
                     fontFamily: guiText.fontFamily,
                     fontSize: guiText.fontSize
                 });
 
                 spriteFont.sendToGPU(this.device);
-                document.body.appendChild(spriteFont._canvas);
+                //document.body.appendChild(spriteFont._canvas);
 
                 var tmpHACK = this.device.state.getShader();
                 tmpHACK.uniforms.uSampler.set(spriteFont);

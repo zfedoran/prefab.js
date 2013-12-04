@@ -62,7 +62,8 @@ define([
                 this.camera = new CameraEntity(this.width, this.height, 0.1, 100, 75);
                 this.guiText = new GUITextEntity(new Rectangle(20, 40, 1000, 100), '', {
                     fontFamily: 'monospace',
-                    fontSize: 10
+                    fontSize: 10,
+                    lineHeight: 10
                 });
                 this.guiLayer = new GUILayerEntity(0, 0, this.width, this.height);
 
