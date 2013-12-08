@@ -128,9 +128,9 @@ define([
                         currentWidth += sprite.width;
 
                         u = sprite.getUCoordinate();
-                        v = sprite.getVCoordinate();
+                        v = 1 - sprite.getVCoordinate();
                         w = sprite.getUVWidth();
-                        h = sprite.getUVHeight();
+                        h = -sprite.getUVHeight();
 
                         a = currentWidth - sprite.width;
                         b = currentWidth;
@@ -149,8 +149,8 @@ define([
                         this.meshFactory.addUVtoLayer0(new Vector2(u+w, v+h));
                         this.meshFactory.addUVtoLayer0(new Vector2(u  , v+h));
 
-                        this.meshFactory.addTriangle(vertexCount, vertexCount + 1, vertexCount + 2);
-                        this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 3);
+                        this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 1);
+                        this.meshFactory.addTriangle(vertexCount, vertexCount + 3, vertexCount + 2);
                     }
                 }
             }
