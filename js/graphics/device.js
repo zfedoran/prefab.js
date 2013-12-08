@@ -78,8 +78,8 @@ define([
                 //gl.blendEquation( gl.FUNC_ADD );
                 //gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 
-                gl.cullFace(gl.BACK);
-                gl.enable(gl.CULL_FACE);
+                //gl.cullFace(gl.BACK);
+                //gl.enable(gl.CULL_FACE);
 
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
             },
@@ -163,7 +163,7 @@ define([
             },
             deleteBuffer: function(buffer) {
                 var gl = this.state.getContext();
-                return gl.deleteBuffer();
+                return gl.deleteBuffer(buffer);
             },
             bindVertexDeclaration: function(vertexDeclaration) {
                 this.state.setVertexDeclaration(vertexDeclaration);

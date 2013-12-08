@@ -13,13 +13,14 @@ define([
         'use strict';
     
         var SpriteFont = function(device, options) {
-            if (!(device instanceof GraphicsDevice)) {
+            if (typeof device === 'undefined') {
                 throw 'SpriteFont: cannot create a sprite font without a graphics device';
             }
 
             this.device = device;
-            this.fontFamily = options.fontFamily || 'monospace';
-            this.fontSize = options.fontSize || 10;
+            this.fontFamily = options.fontFamily;
+            this.fontSize = options.fontSize;
+
             this.vspace = typeof options.vspace === 'undefined' ? 0 : options.vspace;
             this.hspace = typeof options.hspace === 'undefined' ? 0 : options.hspace;
             this.sprites = {};

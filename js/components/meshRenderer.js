@@ -1,8 +1,10 @@
 define([
-        'core/component'
+        'core/component',
+        'graphics/material'
     ],
     function(
-        Component
+        Component,
+        Material
     ) {
         'use strict';
     
@@ -11,7 +13,7 @@ define([
 
             this.castShadows = false;
             this.receiveShadows = false;
-            this.material = undefined;
+            this.material = new Material();
         };
 
         MeshRenderer.__name__ = 'MeshRenderer';

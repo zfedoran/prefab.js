@@ -15,6 +15,8 @@ define([
         var RenderSystem = function(entityManager, device) {
             SubSystem.call(this, entityManager, ['Transform', 'MeshFilter', 'MeshRenderer']);
             this.device = device;
+            this.camera2d = null;
+            this.camera3d = null;
             this.shaderCache = {};
         };
 
@@ -23,10 +25,21 @@ define([
 
             setDefaultCamera: function(entity) {
                 if (entity.hasComponent('Projection') && entity.hasComponent('View')) {
-                    this.camera = entity;
+                    if (entity.hasComponent('GUILayer')) {
+                        this.camera2d = entity;
+                    } else {
+                        this.camera3d = entity;
+                    }
                 } else {
                     throw 'RenderSystem: the provided entity does not have the "Projection" and "View" components';
                 }
+            },
+
+            getCameraForEntity: function(entity) {
+                if (entity.hasComponent('GUIElement')) {
+                    return this.camera2d;
+                }
+                return this.camera3d;
             },
 
             render: function() {
@@ -53,8 +66,8 @@ define([
                         if (typeof shader === 'undefined') {
                             shader = this.generateShader(material);
                             this.shaderCache[shaderType] = shader; 
-                            material._shader = shader;
                         }
+                        material._shader = shader;
                     }
                     meshRenderer.setDirty(false);
                 }
@@ -80,8 +93,9 @@ define([
                     }
                 }
 
-                var view = this.camera.getComponent('View')._viewMatrix;
-                var proj = this.camera.getComponent('Projection')._projectionMatrix;
+                var camera = this.getCameraForEntity(entity);
+                var view = camera.getComponent('View')._viewMatrix;
+                var proj = camera.getComponent('Projection')._projectionMatrix;
 
                 shader.uniforms.uMMatrix.set(transform._worldMatrix);
                 shader.uniforms.uVMatrix.set(view);

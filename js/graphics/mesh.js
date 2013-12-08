@@ -78,8 +78,8 @@ define([
             },
 
             destroy: function() {
-                this.vertexData.length = 0;
-                this.indexData.length = 0;
+                delete this.vertexData;
+                delete this.indexData;
                 this.device.deleteBuffer(this.vertexBuffer);
                 this.device.deleteBuffer(this.indexBuffer);
             },

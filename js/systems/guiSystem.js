@@ -7,7 +7,10 @@ define([
         'graphics/vertexElement',
         'graphics/vertexDeclaration',
         'graphics/spriteFont',
-        'graphics/primitiveBatch'
+        'graphics/meshFactory',
+        'graphics/mesh',
+        'components/meshFilter',
+        'components/meshRenderer'
     ], 
     function(
         _,
@@ -18,29 +21,25 @@ define([
         VertexElement,
         VertexDeclaration,
         SpriteFont,
-        PrimitiveBatch
+        MeshFactory,
+        Mesh,
+        MeshFilter,
+        MeshRenderer
     ) {
         'use strict';
 
         var GUISystem = function(entityManager, device) {
             SubSystem.call(this, entityManager, ['GUIElement']);
 
-            this.fontCache = {};
             this.device = device;
-            this.vertexDeclaration = new VertexDeclaration([
-                new VertexElement(0, VertexElement.Vector3, 'aVertexPosition'),
-                new VertexElement(3 * 4, VertexElement.Vector2, 'aVertexUV0')
-            ]);
-            this.primitiveBatch = new PrimitiveBatch(device, this.vertexDeclaration);
-            this.mousePosition = new Vector2();
+            this.fontCache = {};
+            this.meshFactory = new MeshFactory(this.device);
         };
 
         GUISystem.prototype = _.extend(Object.create(SubSystem.prototype), {
             constructor: GUISystem,
 
             update: function() {
-                this.primitiveBatch.begin(GraphicsDevice.TRIANGLES);
-
                 var entities = this.entityManager.getAllUsingFilter(this.filterHash);
                 var o, entity, guiElement;
                 for (o in entities) {
@@ -52,43 +51,60 @@ define([
                         }
                     }
                 }
-
-                this.primitiveBatch.end();
             },
 
             updateText: function(entity) {
-                var guiElement = entity.getComponent('GUIElement');
-                var guiText    = entity.getComponent('GUIText');
-                var transform  = entity.getComponent('Transform');
-                var fontDef    = guiText.getFontStyle();
-                var spriteFont;
+                var transform    = entity.getComponent('Transform');
+                var guiElement   = entity.getComponent('GUIElement');
+                var guiText      = entity.getComponent('GUIText');
+                var meshFilter   = entity.getComponent('MeshFilter');
+                var meshRenderer = entity.getComponent('MeshRenderer');
 
-                if (guiText.isDirty()) {
-                    spriteFont = this.fontCache[fontDef];
-                    if (typeof spriteFont === 'undefined') {
-                        spriteFont = this.generateSpriteFont(guiText);
-                        this.fontCache[fontDef] = spriteFont; 
-                    }
-                    guiText._spriteFont = spriteFont;
-                    guiText.setDirty(false);
+                if (typeof meshFilter === 'undefined') {
+                    meshFilter = new MeshFilter();
+                    entity.addComponent(meshFilter);
                 }
 
-                this.generateCharacterMesh(guiElement, guiText);
+                if (typeof meshRenderer === 'undefined') {
+                    meshRenderer = new MeshRenderer();
+                    entity.addComponent(meshRenderer);
+                }
+
+                if (guiText.isDirty()) {
+                    if (typeof meshFilter.mesh !== 'undefined') {
+                        meshFilter.mesh.destroy();
+                    }
+
+                    guiText._spriteFont = this.generateSpriteFont(guiText);
+
+                    meshRenderer.material.diffuseMap = guiText._spriteFont._texture;
+                    meshRenderer.material.setDirty(true);
+
+                    meshFilter.mesh = this.generateTextMesh(guiElement, guiText);
+                    meshFilter.setDirty(true);
+
+                    guiText.setDirty(false);
+                }
             },
 
             generateSpriteFont: function(guiText) {
-
-                var spriteFont = new SpriteFont({
-                    fontFamily: guiText.fontFamily,
-                    fontSize: guiText.fontSize
-                });
-
-                document.body.appendChild(spriteFont._canvas);
-
-                var tmpHACK = this.device.state.getShader();
-                tmpHACK.uniforms.uSampler.set(spriteFont);
-
+                var fontDef = guiText.getFontStyle();
+                var spriteFont = this.fontCache[fontDef];
+                if (typeof spriteFont === 'undefined') {
+                    spriteFont = new SpriteFont(this.device, guiText);
+                    this.fontCache[fontDef] = spriteFont; 
+                }
                 return spriteFont;
+            },
+
+            generateTextMesh: function(guiElement, guiText) {
+                var mesh = new Mesh(this.device);
+                this.meshFactory.begin(mesh);
+
+                this.generateCharacterMesh(guiElement, guiText);
+
+                this.meshFactory.end();
+                return mesh;
             },
 
             generateCharacterMesh: function(guiElement, guiText) {
@@ -121,13 +137,20 @@ define([
                         c = currentHeight - sprite.height;
                         d = currentHeight;
 
-                        this.primitiveBatch.addVertex(a, c, 0, u, v);
-                        this.primitiveBatch.addVertex(b, c, 0, u+w, v);
-                        this.primitiveBatch.addVertex(b, d, 0, u+w, v+h);
+                        var vertexCount = this.meshFactory.getVertexCount();
 
-                        this.primitiveBatch.addVertex(a, c, 0, u, v);
-                        this.primitiveBatch.addVertex(b, d, 0, u+w, v+h);
-                        this.primitiveBatch.addVertex(a, d, 0, u, v+h);
+                        this.meshFactory.addVertex(new Vector3(a, c, 0));
+                        this.meshFactory.addVertex(new Vector3(b, c, 0));
+                        this.meshFactory.addVertex(new Vector3(b, d, 0));
+                        this.meshFactory.addVertex(new Vector3(a, d, 0));
+
+                        this.meshFactory.addUVtoLayer0(new Vector2(u,   v  ));
+                        this.meshFactory.addUVtoLayer0(new Vector2(u+w, v  ));
+                        this.meshFactory.addUVtoLayer0(new Vector2(u+w, v+h));
+                        this.meshFactory.addUVtoLayer0(new Vector2(u  , v+h));
+
+                        this.meshFactory.addTriangle(vertexCount, vertexCount + 1, vertexCount + 2);
+                        this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 3);
                     }
                 }
             }

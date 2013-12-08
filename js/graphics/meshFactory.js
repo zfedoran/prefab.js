@@ -93,6 +93,9 @@ define([
                 this.uv0.length = 0;
                 this.uv1.length = 0;
 
+                this._vertexCount = 0;
+                this._indexCount = 0;
+
                 this.hasBegun = true;
             },
 
@@ -187,6 +190,7 @@ define([
                 this.mesh.setIndexData(indexData);
 
                 this.mesh = null;
+                this.hasBegun = false;
             }
         };
 

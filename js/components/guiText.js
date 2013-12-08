@@ -6,21 +6,14 @@ define([
     ) {
         'use strict';
 
-        var GUIText = function(text, options) {
+        var GUIText = function(text) {
             Component.call(this);
 
-            options = options || {
-                fontFamily: 'monospace',
-                fontSize: 10,
-                lineHeight: 10,
-                color: '#fff'
-            };
-
-            this.lineHeight = options.lineHeight || options.fontSize * 1.4 || 10;
-            this.fontFamily = options.fontFamily || 'monospace';
-            this.fontSize = options.fontSize || 10;
-            this.color = options.color || '#fff';
             this.content = text;
+            this.lineHeight = 10;
+            this.fontFamily = 'monospace';
+            this.fontSize = 10;
+            this.color = '#000';
 
             this.setDirty(true);
         };

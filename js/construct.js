@@ -73,6 +73,12 @@ define([
                 this.camera = new CameraEntity(this.width, this.height, 0.1, 100, 75);
                 this.entityManager.addEntity(this.camera);
 
+                this.guiText = new GUITextEntity(new Rectangle(0, 0, 1000, 100), 'hello, world');
+                this.guiLayer = new GUILayerEntity(0, 0, this.width, this.height);
+
+                this.entityManager.addEntity(this.guiText);
+                this.entityManager.addEntity(this.guiLayer);
+                
                 this.block = new BlockEntity(1, 1, 1);
                 var blockComponent = this.block.getComponent('Block');
 
@@ -114,73 +120,40 @@ define([
                 blockComponent.right = sprites[4]; //green
                 blockComponent.back = sprites[5]; //blue
 
-                var material = new Material();
+                var material = this.block.getComponent('MeshRenderer').material;
                 material.diffuseMap = texture;
-                this.block.getComponent('MeshRenderer').material = material;
+                material.setDirty(true);
 
                 this.entityManager.addEntity(this.block);
 
                 this.renderSystem.setDefaultCamera(this.camera);
+                this.renderSystem.setDefaultCamera(this.guiLayer);
 
-
-                /*
-                this.guiText = new GUITextEntity(new Rectangle(20, 40, 1000, 100), '', {
-                    fontFamily: 'monospace',
-                    fontSize: 10,
-                    lineHeight: 10
-                });
-                this.guiLayer = new GUILayerEntity(0, 0, this.width, this.height);
-
-                this.entityManager.addEntity(this.guiText);
-                this.entityManager.addEntity(this.guiLayer);
-
-                this.shader = this.device.compileShader(textVertexSource, textFragmentSource);
-                this.uMMatrix = this.shader.uniforms.uMMatrix;
-                this.uVMatrix = this.shader.uniforms.uVMatrix;
-                this.uPMatrix = this.shader.uniforms.uPMatrix;
-                this.uNMatrix = this.shader.uniforms.uNMatrix;
-                this.uSampler = this.shader.uniforms.uSampler;
-                */
             },
 
             update: function(elapsed) {
                 var transform = this.camera.getComponent('Transform');
-                transform.localPosition.x = Math.sin(this.time * 0.001) * 5;
+                transform.localPosition.x = Math.sin(this.time * 0.0001) * 5;
                 transform.localPosition.y = Math.sin(this.time * 0.0001) * 5;
-                transform.localPosition.z = Math.cos(this.time * 0.001) * 5;
+                transform.localPosition.z = Math.cos(this.time * 0.0001) * 5;
                 transform.setDirty(true);
 
                 var view = this.camera.getComponent('View');
                 view.target = new Vector3(0,0,0);
                 view.setDirty(true);
 
+                var text = this.guiText.getComponent('GUIText');
+                text.content = view._viewMatrix.toString();
+                text.setDirty(true);
+
                 this.cameraSystem.update();
                 this.blockSystem.update();
+                this.guiSystem.update();
             },
 
             draw: function(elapsed) {
                 this.device.clear(this.backgroundColor);
-
                 this.renderSystem.render();
-
-                /*
-                this.device.bindShader(this.shader);
-
-                var view = this.guiLayer.getComponent('View')._viewMatrix;
-                var proj = this.guiLayer.getComponent('Projection')._projectionMatrix;
-
-                var text = this.guiText.getComponent('GUIText');
-                text.content = this.camera.getComponent('View')._viewMatrix.toString();
-                text.setDirty(true);
-
-                var transform = this.guiText.getComponent('Transform').getWorldMatrix();
-
-                this.uMMatrix.set(transform);
-                this.uVMatrix.set(view);
-                this.uPMatrix.set(proj);
-
-                this.guiSystem.update();
-                */
             }
         });
 

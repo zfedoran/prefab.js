@@ -18,13 +18,13 @@ define([
     ) {
         'use strict';
 
-        var GUITextEntity = function(rect, text, options) {
+        var GUITextEntity = function(rect, text) {
             Entity.call(this);
 
             var position = new Vector3(rect.x, rect.y, 0);
             this.addComponent(new Transform(position));
             this.addComponent(new GUIElement(rect));
-            this.addComponent(new GUIText(text, options));
+            this.addComponent(new GUIText(text));
             this.addComponent(new MeshFilter());
             this.addComponent(new MeshRenderer());
         };
