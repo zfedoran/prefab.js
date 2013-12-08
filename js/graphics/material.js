@@ -33,10 +33,13 @@ define([
             this.reflectionMap = null;
             this.reflectionFactor = 0;
 
-            this.dirty = true;
+            this.isDirty(true);
         };
 
         Material.prototype = {
+            isDirty: function() { return this._dirty; },
+            setDirty: function(value) { this._dirty = value; },
+
             setEmissive:  function(val) { this.emissive.setFrom(val); this._dirty = true; },
             setAmbient:   function(val) { this.ambient.setFrom(val); this._dirty = true; },
             setDiffuse:   function(val) { this.diffuse.setFrom(val); this._dirty = true; },

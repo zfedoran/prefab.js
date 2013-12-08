@@ -78,6 +78,9 @@ define([
                 //gl.blendEquation( gl.FUNC_ADD );
                 //gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 
+                gl.cullFace(gl.BACK);
+                gl.enable(gl.CULL_FACE);
+
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
             },
             clear: function(color, depth, stencil) {
@@ -154,12 +157,16 @@ define([
             bindShader: function(program) {
                 this.state.setShader(program);
             },
-            bindVertexDeclaration: function(vertexDeclaration) {
-                this.state.setVertexDeclaration(vertexDeclaration);
-            },
             createBuffer: function() {
                 var gl = this.state.getContext();
                 return gl.createBuffer();
+            },
+            deleteBuffer: function(buffer) {
+                var gl = this.state.getContext();
+                return gl.deleteBuffer();
+            },
+            bindVertexDeclaration: function(vertexDeclaration) {
+                this.state.setVertexDeclaration(vertexDeclaration);
             },
             bindVertexBuffer: function(buffer) {
                 this.state.setVertexBuffer(buffer);

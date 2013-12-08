@@ -6,7 +6,12 @@ define([
 
         var _textureCount = 0;
 
-        var Texture = function(image, options) {
+        var Texture = function(device, image, options) {
+            if (typeof device === 'undefined') {
+                throw 'Texture: cannot create a texture without a graphics device';
+            }
+
+            this.device = device;
             this._id = _textureCount++;
 
             if (typeof image === 'string') {
@@ -50,8 +55,15 @@ define([
                 this.setDirty(true);
             },
 
-            getTextureTarget: function() { return this._textureTarget; },
-            getTextureObject: function() { return this._textureObject; },
+            getTextureTarget: function() {
+                return this._textureTarget; 
+            },
+            getTextureObject: function() { 
+                if (typeof this._textureObject === 'undefined') {
+                    this.apply();
+                }
+                return this._textureObject; 
+            },
 
             setType: function(value) { this._type = value; this.setDirty(true); },
             getType: function() { return this._type; },
@@ -104,8 +116,8 @@ define([
                 }
             },
 
-            applyFilterParameter: function(device) {
-                var gl = device.state.getContext();
+            applyFilterParameter: function() {
+                var gl = this.device.state.getContext();
 
                 var powerOfTwo = isPowerOf2(this._textureWidth) && isPowerOf2(this._textureHeight);
                 if (!powerOfTwo) {
@@ -124,8 +136,8 @@ define([
                 gl.texParameteri(this._textureTarget, gl.TEXTURE_WRAP_T, this._wrapT);
             },
 
-            generateMipmap: function(device) {
-                var gl = device.state.getContext();
+            generateMipmap: function() {
+                var gl = this.device.state.getContext();
 
                 if (this._minFilter === gl.NEAREST_MIPMAP_NEAREST ||
                     this._minFilter === gl.LINEAR_MIPMAP_NEAREST ||
@@ -135,9 +147,9 @@ define([
                 }
             },
 
-            sendToGPU: function(device) {
+            apply: function() {
                 if (this.isDirty()) {
-                    var gl = device.state.getContext();
+                    var gl = this.device.state.getContext();
 
                     if (typeof this._textureObject !== 'undefined' && !this.isDirty()) {
                         gl.bindTexture(this._textureTarget, this._textureObject);
@@ -152,6 +164,7 @@ define([
                                 }
 
                                 gl.bindTexture(this._textureTarget, this._textureObject);
+                                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
                                 if (image instanceof Image) {
                                     this.setTextureSize(image.naturalWidth, image.naturalHeight);
@@ -164,8 +177,8 @@ define([
                                 
                                 }
 
-                                this.applyFilterParameter(device);
-                                this.generateMipmap(device);
+                                this.applyFilterParameter();
+                                this.generateMipmap();
 
                                 this.setDirty(false);
                             } else {
@@ -176,10 +189,11 @@ define([
                                 this._textureObject = gl.createTexture();
                             }
                             gl.bindTexture(this._textureTarget, this._textureObject);
+                            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
                             gl.texImage2D(this._textureTarget, 0, this._imageFormat, this._textureWidth, this._textureHeight, 0, this._imageFormat, this._imageFormat, this._type, null);
 
-                            this.applyFilterParameter(device);
-                            this.generateMipmap(device);
+                            this.applyFilterParameter();
+                            this.generateMipmap();
 
                             this.setDirty(false);
                         }

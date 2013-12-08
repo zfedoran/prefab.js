@@ -2,6 +2,7 @@ define([
     ],
     function(
     ) {
+        'use strict';
 
         var ShaderAttribute = function(program, name, type, index) {
             this.program = program;

@@ -4,6 +4,7 @@ define([
     function(
         GraphicsDevice
     ) {
+        'use strict';
 
         var PrimitiveBatch = function(device, vertexDeclaration) {
             if (typeof vertexDeclaration === 'undefined') {

@@ -25,7 +25,7 @@ define([
         var GUISystem = function(entityManager, device) {
             SubSystem.call(this, entityManager, ['GUIElement']);
 
-            this.fonts = {};
+            this.fontCache = {};
             this.device = device;
             this.vertexDeclaration = new VertexDeclaration([
                 new VertexElement(0, VertexElement.Vector3, 'aVertexPosition'),
@@ -47,12 +47,6 @@ define([
                     if (entities.hasOwnProperty(o)) {
                         entity = entities[o];
 
-                        /*
-                        if (entity.hasComponent('GUILayer')) {
-                            this.updateLayout(entity);
-                        }
-                        */
-
                         if (entity.hasComponent('GUIText')) {
                             this.updateText(entity);
                         }
@@ -62,48 +56,6 @@ define([
                 this.primitiveBatch.end();
             },
 
-            /*
-            updateLayout: function(entity) {
-                var layer = entity.getComponent('GUILayer');
-
-                if (layer.isDirty()) {
-                    var transform = entity.getComponent('Transform');
-                    var children = transform.children;
-                    var i, child;
-                    for (i = 0; i < children.length; i++) {
-                        child = children[i];
-                        if (child.hasComponent('GUIElement')) {
-                            this.updateElement(child);
-                            //add child width
-                        }
-                    }
-
-                    layer.setDirty(false);
-                }
-            },
-
-            updateElement: function(entity, parentState) {
-                var element = entity.getComponent('GUIElement');
-                var currentStyle = element.getCurrentStyle();
-                var currentState = currentStyle.getCurrentState();
-
-                if (element.isDirty()) {
-                    currentStyle.updateState(parentState);
-                    element.setDirty(false);
-                }
-
-                var transform = entity.getComponent('Transform');
-                var children = transform.children;
-                var i, child;
-                for (i = 0; i < children.length; i++) {
-                    child = children[i];
-                    if (child.hasComponent('GUIElement')) {
-                        this.updateElement(child, currentState);
-                    }
-                }
-            },
-            */
-
             updateText: function(entity) {
                 var guiElement = entity.getComponent('GUIElement');
                 var guiText    = entity.getComponent('GUIText');
@@ -112,10 +64,10 @@ define([
                 var spriteFont;
 
                 if (guiText.isDirty()) {
-                    spriteFont = this.fonts[fontDef];
+                    spriteFont = this.fontCache[fontDef];
                     if (typeof spriteFont === 'undefined') {
                         spriteFont = this.generateSpriteFont(guiText);
-                        this.fonts[fontDef] = spriteFont; 
+                        this.fontCache[fontDef] = spriteFont; 
                     }
                     guiText._spriteFont = spriteFont;
                     guiText.setDirty(false);
@@ -131,8 +83,7 @@ define([
                     fontSize: guiText.fontSize
                 });
 
-                spriteFont.sendToGPU(this.device);
-                //document.body.appendChild(spriteFont._canvas);
+                document.body.appendChild(spriteFont._canvas);
 
                 var tmpHACK = this.device.state.getShader();
                 tmpHACK.uniforms.uSampler.set(spriteFont);

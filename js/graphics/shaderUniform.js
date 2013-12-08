@@ -4,6 +4,7 @@ define([
         'math/vector4',
         'math/matrix4',
         'graphics/texture',
+        'graphics/sprite',
         'graphics/spriteFont',
     ],
     function(
@@ -12,8 +13,10 @@ define([
         Vector4,
         Matrix4,
         Texture,
+        Sprite,
         SpriteFont
     ) {
+        'use strict';
 
         var ShaderUniform = function(program, name, type, index) {
             var _program = program, _name = name, _type = type, _index = index;
@@ -92,6 +95,12 @@ define([
                     slot = _device.getTextureUnit();
                     gl.activeTexture(gl.TEXTURE0 + slot);
                     gl.bindTexture(gl.TEXTURE_2D, this.data.getTextureObject());
+                    gl.uniform1i(_index, slot); 
+                    _dirty = false;
+                } else if (this.data instanceof Sprite) {
+                    slot = _device.getTextureUnit();
+                    gl.activeTexture(gl.TEXTURE0 + slot);
+                    gl.bindTexture(gl.TEXTURE_2D, this.data.texture.getTextureObject());
                     gl.uniform1i(_index, slot); 
                     _dirty = false;
                 } else if (this.data instanceof SpriteFont) {

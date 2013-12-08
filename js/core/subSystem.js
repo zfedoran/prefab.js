@@ -10,6 +10,7 @@ define([
             this.filterFunction = _generateFilterFunction(filter);
             this.entityManager = entityManager;
             this.entityManager.addFilter(this.filterHash, this.filterFunction);
+            console.log(this.filterHash);
         };
 
         SubSystem.prototype = {
@@ -26,6 +27,8 @@ define([
         }
 
         function _generateFilterHash(components) {
+            return components.sort().join('.');
+            /*
             var i, component, str, hash, char, filter = 0;
             for (i = 0; i < components.length; i++) {
                 hash = 0;
@@ -50,6 +53,7 @@ define([
                 filter |= hash;
             }
             return filter;
+            */
         }
 
         return SubSystem;

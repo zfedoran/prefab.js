@@ -3,6 +3,7 @@ define([
         'math/vector3',
         'math/vector4',
         'math/boundingBox',
+        'graphics/device',
         'graphics/vertexDeclaration',
         'graphics/vertexElement'
     ],
@@ -11,12 +12,17 @@ define([
         Vector3,
         Vector4,
         BoundingBox,
+        GraphicsDevice,
         VertexDeclaration,
         VertexElement
     ) {
         'use strict';
 
         var Mesh = function(device) {
+            if (!(device instanceof GraphicsDevice)) {
+                throw 'Mesh: cannot create a mesh without a graphics device';
+            }
+
             this.device = device;
 
             this.vertexDeclaration = null;
@@ -58,6 +64,24 @@ define([
                 this.device.setVertexBufferData(this.vertexBuffer, this.vertexData);
                 this.device.setIndexBufferData(this.indexBuffer, this.indexData);
                 this.setDirty(false);
+            },
+
+            draw: function() {
+                if (this.isDirty(true)) {
+                    this.sendToGPU();
+                }
+
+                this.device.bindVertexDeclaration(this.vertexDeclaration);
+                this.device.bindVertexBuffer(this.vertexBuffer);
+                this.device.bindIndexBuffer(this.indexBuffer);
+                this.device.drawIndexedPrimitives(GraphicsDevice.TRIANGLES, this.indexBuffer.length, GraphicsDevice.UNSIGNED_SHORT, 0);
+            },
+
+            destroy: function() {
+                this.vertexData.length = 0;
+                this.indexData.length = 0;
+                this.device.deleteBuffer(this.vertexBuffer);
+                this.device.deleteBuffer(this.indexBuffer);
             },
 
             computeBoundingBox: function() {

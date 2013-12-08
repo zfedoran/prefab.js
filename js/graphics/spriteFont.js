@@ -1,16 +1,23 @@
 define([
         'math/rectangle',
+        'graphics/device',
         'graphics/texture',
         'graphics/sprite'
     ],
     function(
         Rectangle,
+        GraphicsDevice,
         Texture,
         Sprite
     ) {
         'use strict';
     
-        var SpriteFont = function(options) {
+        var SpriteFont = function(device, options) {
+            if (!(device instanceof GraphicsDevice)) {
+                throw 'SpriteFont: cannot create a sprite font without a graphics device';
+            }
+
+            this.device = device;
             this.fontFamily = options.fontFamily || 'monospace';
             this.fontSize = options.fontSize || 10;
             this.vspace = typeof options.vspace === 'undefined' ? 0 : options.vspace;
@@ -36,7 +43,7 @@ define([
 
             this._canvas.width = this._textureWidth;
             this._canvas.height = this._textureHeight;
-            this._texture = new Texture(this._canvas);
+            this._texture = new Texture(this.device, this._canvas);
 
             this.initState();
 
@@ -151,10 +158,6 @@ define([
                     this._ctx.fillText(character, coords.x + Math.ceil(this.hspace / 2), coords.y + Math.ceil(this.vspace / 2));
                     i++;
                 }
-            },
-            
-            sendToGPU: function(device) {
-                this._texture.sendToGPU(device);
             }
         };
 

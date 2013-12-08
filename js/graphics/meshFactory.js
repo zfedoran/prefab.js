@@ -21,6 +21,7 @@ define([
         var MeshFactory = function(device) {
             this.device = device;
 
+            this.indices   = [];
             this.vertices  = [];
             this.normals   = [];
             this.tangents  = [];
@@ -85,6 +86,7 @@ define([
 
                 this.mesh = mesh;
 
+                this.indices.length = 0;
                 this.vertices.length = 0;
                 this.normals.length = 0;
                 this.tangents.length = 0;

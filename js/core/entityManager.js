@@ -4,6 +4,7 @@ define([
     function(
         EntityFilter
     ) {
+        'use strict';
 
         var EntityManager = function() {
             this.entities = {};

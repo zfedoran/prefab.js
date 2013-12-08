@@ -2,6 +2,7 @@ define([
     ],
     function(
     ) {
+        'use strict';
 
         var Rectangle = function(x, y, width, height) {
             this.x = x || 0;

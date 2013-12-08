@@ -42,9 +42,13 @@ define([
             updateBlock: function(entity) {
                 var transform  = entity.getComponent('Transform');
                 var block      = entity.getComponent('Block');
+                var meshFilter = entity.getComponent('MeshFilter');
 
                 if (block.isDirty()) {
-                    this.generateBlockMesh(block);
+                    if (typeof meshFilter.mesh !== 'undefined') {
+                        meshFilter.mesh.destroy();
+                    }
+                    meshFilter.mesh = this.generateBlockMesh(block);
                     block.setDirty(false);
                 }
             },
@@ -96,8 +100,8 @@ define([
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
 
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 1, vertexCount + 2);
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 3);
+                this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 1);
+                this.meshFactory.addTriangle(vertexCount, vertexCount + 3, vertexCount + 2);
             },
 
             generateFaceBack: function(w, h, d, sprite) {
@@ -114,10 +118,10 @@ define([
                 this.meshFactory.addVertex(new Vector3( w,  h, -d));
                 this.meshFactory.addVertex(new Vector3( w, -h, -d));
 
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
 
                 this.meshFactory.addTriangle(vertexCount, vertexCount + 1, vertexCount + 2);
                 this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 3);
@@ -142,8 +146,8 @@ define([
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
 
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 1, vertexCount + 2);
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 3);
+                this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 1);
+                this.meshFactory.addTriangle(vertexCount, vertexCount + 3, vertexCount + 2);
             },
 
             generateFaceRight: function(w, h, d, sprite) {
@@ -160,10 +164,10 @@ define([
                 this.meshFactory.addVertex(new Vector3(w,  h,  d));
                 this.meshFactory.addVertex(new Vector3(w, -h,  d));
 
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
 
                 this.meshFactory.addTriangle(vertexCount, vertexCount + 1, vertexCount + 2);
                 this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 3);
@@ -188,8 +192,8 @@ define([
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
 
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 1, vertexCount + 2);
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 3);
+                this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 1);
+                this.meshFactory.addTriangle(vertexCount, vertexCount + 3, vertexCount + 2);
             },
 
             generateFaceBottom: function(w, h, d, sprite) {
