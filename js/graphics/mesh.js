@@ -18,12 +18,16 @@ define([
     ) {
         'use strict';
 
-        var Mesh = function(device) {
-            if (!(device instanceof GraphicsDevice)) {
+        var Mesh = function(device, primitiveType) {
+            if (typeof device === 'undefined') {
                 throw 'Mesh: cannot create a mesh without a graphics device';
+            }
+            if (typeof primitiveType === 'undefined') {
+                throw 'Mesh: cannot create a mesh without a primitive type';
             }
 
             this.device = device;
+            this.primitiveType = primitiveType;
 
             this.vertexDeclaration = null;
             this.indexData    = null;
@@ -74,7 +78,7 @@ define([
                 this.device.bindVertexDeclaration(this.vertexDeclaration);
                 this.device.bindVertexBuffer(this.vertexBuffer);
                 this.device.bindIndexBuffer(this.indexBuffer);
-                this.device.drawIndexedPrimitives(GraphicsDevice.TRIANGLES, this.indexBuffer.length, GraphicsDevice.UNSIGNED_SHORT, 0);
+                this.device.drawIndexedPrimitives(this.primitiveType, this.indexBuffer.length, GraphicsDevice.UNSIGNED_SHORT, 0);
             },
 
             destroy: function() {
@@ -93,6 +97,15 @@ define([
                 }
             }
         };
+
+        /* PrimitiveType */
+        Mesh.POINTS         = GraphicsDevice.POINTS;
+        Mesh.LINES          = GraphicsDevice.LINES;
+        Mesh.LINE_LOOP      = GraphicsDevice.LINE_LOOP;
+        Mesh.LINE_STRIP     = GraphicsDevice.LINE_STRIP;
+        Mesh.TRIANGLES      = GraphicsDevice.TRIANGLES;
+        Mesh.TRIANGLE_STRIP = GraphicsDevice.TRIANGLE_STRIP;
+        Mesh.TRIANGLE_FAN   = GraphicsDevice.TRIANGLE_FAN;
 
         return Mesh;
     }

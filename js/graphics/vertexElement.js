@@ -2,6 +2,7 @@ define([
     ],
     function(
     ) {
+        'use strict';
 
         var VertexElement = function(offset, type, attribute) {
             this.offset = offset;

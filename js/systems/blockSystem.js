@@ -66,7 +66,7 @@ define([
 
                 var vertexCount = 0;
 
-                var mesh = new Mesh(this.device);
+                var mesh = new Mesh(this.device, Mesh.TRIANGLES);
                 this.meshFactory.begin(mesh);
 
                 this.generateFaceFront(w, h, d, block.front);

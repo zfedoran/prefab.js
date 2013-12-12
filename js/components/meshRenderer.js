@@ -8,12 +8,12 @@ define([
     ) {
         'use strict';
     
-        var MeshRenderer = function() {
+        var MeshRenderer = function(material) {
             Component.call(this);
 
             this.castShadows = false;
             this.receiveShadows = false;
-            this.material = new Material();
+            this.material = material;
         };
 
         MeshRenderer.__name__ = 'MeshRenderer';

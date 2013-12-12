@@ -7,6 +7,7 @@ define([
         'graphics/vertexElement',
         'graphics/vertexDeclaration',
         'graphics/spriteFont',
+        'graphics/material',
         'graphics/meshFactory',
         'graphics/mesh',
         'components/meshFilter',
@@ -21,6 +22,7 @@ define([
         VertexElement,
         VertexDeclaration,
         SpriteFont,
+        Material,
         MeshFactory,
         Mesh,
         MeshFilter,
@@ -66,7 +68,8 @@ define([
                 }
 
                 if (typeof meshRenderer === 'undefined') {
-                    meshRenderer = new MeshRenderer();
+                    var material = new Material(Material.TEXTURED);
+                    meshRenderer = new MeshRenderer(material);
                     entity.addComponent(meshRenderer);
                 }
 
@@ -98,7 +101,7 @@ define([
             },
 
             generateTextMesh: function(guiElement, guiText) {
-                var mesh = new Mesh(this.device);
+                var mesh = new Mesh(this.device, Mesh.TRIANGLES);
                 this.meshFactory.begin(mesh);
 
                 this.generateCharacterMesh(guiElement, guiText);

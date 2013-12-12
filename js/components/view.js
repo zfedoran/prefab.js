@@ -10,6 +10,7 @@ define([
         Vector3,
         Matrix4
     ) {
+        'use strict';
 
         var View = function(target, up) {
             Component.call(this);

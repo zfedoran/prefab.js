@@ -9,9 +9,9 @@ define([
     ],
     function(
         Entity,
-        Material,
         Transform,
-        Block,
+        Material,
+        Grid,
         MeshFilter,
         MeshRenderer,
         Mesh
@@ -20,11 +20,11 @@ define([
     
         var BlockEntity = function(width, height, depth) {
             Entity.call(this);
-            
-            var material = new Material(Material.LAMBERT);
+
+            var material = new Material(Material.BASIC);
 
             this.addComponent(new Transform());
-            this.addComponent(new Block(width, height, depth));
+            this.addComponent(new Grid(width, height, depth));
             this.addComponent(new MeshFilter());
             this.addComponent(new MeshRenderer(material));
         };

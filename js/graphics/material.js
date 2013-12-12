@@ -6,8 +6,8 @@ define([
     ) {
         'use strict';
     
-        var Material = function() {
-            this.shadingModel = Material.LAMBERT;
+        var Material = function(shaderType) {
+            this.shadingModel = shaderType || Material.LAMBERT;
 
             this.emissive = new Vector4(0.0, 0.0, 0.0, 1.0);
             this.ambient  = new Vector4(0.2, 0.2, 0.2, 1.0);
@@ -91,9 +91,10 @@ define([
             getReflecitonMap: function() { return this.normalMap; },
         };
 
-        Material.BASIC   = 'Basic';
-        Material.LAMBERT = 'Lambert';
-        Material.PHONG   = 'Phong';
+        Material.BASIC    = 'Basic';
+        Material.TEXTURED = 'Textured';
+        Material.LAMBERT  = 'Lambert';
+        Material.PHONG    = 'Phong';
 
         return Material;
     }

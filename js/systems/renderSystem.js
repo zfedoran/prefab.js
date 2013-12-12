@@ -1,13 +1,23 @@
 define([
         'lodash',
-        'text!shaders/vertex.shader',
-        'text!shaders/fragment.shader',
+        'graphics/material',
+        'text!shaders/basic/vertex.shader',
+        'text!shaders/basic/fragment.shader',
+        'text!shaders/textured/vertex.shader',
+        'text!shaders/textured/fragment.shader',
+        'text!shaders/lambert/vertex.shader',
+        'text!shaders/lambert/fragment.shader',
         'core/subSystem'
     ],
     function(
         _,
-        _vertexShaderSource,
-        _fragmentShaderSource,
+        Material,
+        _basicVertexShader,
+        _basicFragmentShader,
+        _texturedVertexShader,
+        _texturedFragmentShader,
+        _lambertVertexShader,
+        _lambertFragmentShader,
         SubSystem
     ) {
         'use strict';
@@ -74,7 +84,14 @@ define([
             },
 
             generateShader: function(material) {
-                var shader = this.device.compileShader(_vertexShaderSource, _fragmentShaderSource);
+                var shader;
+                if (material.shadingModel === Material.LAMBERT) {
+                    shader = this.device.compileShader(_lambertVertexShader, _lambertFragmentShader);
+                } else if (material.shadingModel === Material.TEXTURED) {
+                    shader = this.device.compileShader(_texturedVertexShader, _texturedFragmentShader);
+                } else {
+                    shader = this.device.compileShader(_basicVertexShader, _basicFragmentShader);
+                }
                 return shader;
             },
 

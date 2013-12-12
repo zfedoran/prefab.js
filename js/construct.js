@@ -8,7 +8,6 @@ define([
         'graphics/device',
         'graphics/texture',
         'graphics/sprite',
-        'graphics/material',
         'core/entity',
         'core/entityManager',
         'core/application',
@@ -19,9 +18,7 @@ define([
         'systems/cameraSystem',
         'systems/guiSystem',
         'systems/blockSystem',
-        'systems/renderSystem',
-        'text!shaders/vertex.shader',
-        'text!shaders/fragment.shader'
+        'systems/renderSystem'
     ],
     function(
         $,
@@ -33,7 +30,6 @@ define([
         GraphicsDevice,
         Texture,
         Sprite,
-        Material,
         Entity,
         EntityManager,
         Application,
@@ -44,9 +40,7 @@ define([
         CameraSystem,
         GUISystem,
         BlockSystem,
-        RenderSystem,
-        textVertexSource,
-        textFragmentSource
+        RenderSystem
     ) {
         'use strict';
 
@@ -74,7 +68,7 @@ define([
                 this.entityManager.addEntity(this.camera);
 
                 this.guiText = new GUITextEntity(new Rectangle(0, 0, 1000, 100), 'hello, world');
-                this.guiLayer = new GUILayerEntity(0, 0, this.width, this.height);
+                this.guiLayer = new GUILayerEntity(this.width, this.height, 0, 0);
 
                 this.entityManager.addEntity(this.guiText);
                 this.entityManager.addEntity(this.guiLayer);
@@ -83,7 +77,6 @@ define([
                 var blockComponent = this.block.getComponent('Block');
 
                 var canvas, ctx, texture, sprites = [], width;
-
                 canvas = document.createElement('canvas');
                 canvas.width = 64*6; canvas.height = 64;
                 $('body').append(canvas);
@@ -128,7 +121,6 @@ define([
 
                 this.renderSystem.setDefaultCamera(this.camera);
                 this.renderSystem.setDefaultCamera(this.guiLayer);
-
             },
 
             update: function(elapsed) {

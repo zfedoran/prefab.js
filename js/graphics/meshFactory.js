@@ -23,6 +23,7 @@ define([
 
             this.indices   = [];
             this.vertices  = [];
+            this.colors    = [];
             this.normals   = [];
             this.tangents  = [];
             this.uv0       = [];
@@ -46,6 +47,12 @@ define([
 
                 this.vertices.push(v);
                 this._vertexCount++;
+            },
+
+            addColor: function(v) {
+                if (!this.hasBegun) { throw 'MeshFactory: begin() must be called before addColor()'; }
+
+                this.colors.push(v);
             },
 
             addNormal: function(v) {
@@ -88,6 +95,7 @@ define([
 
                 this.indices.length = 0;
                 this.vertices.length = 0;
+                this.colors.length = 0;
                 this.normals.length = 0;
                 this.tangents.length = 0;
                 this.uv0.length = 0;
@@ -118,6 +126,16 @@ define([
                         throw 'Mesh: unexpected number of vertices';
                     }
                     numVertices = this.vertices.length;
+                }
+                if (this.colors.length > 0) {
+                    offset = vertexDeclaration.getCurrentOffset();
+                    element = new VertexElement(offset * 4, VertexElement.Vector4, 'aVertexColor');
+                    vertexDeclaration.push(element);
+                    vertexDataSet.push(this.colors);
+                    if (numVertices > 0 && numVertices !== this.colors.length) {
+                        throw 'Mesh: unexpected number of colors';
+                    }
+                    numVertices = this.colors.length;
                 }
                 if (this.normals.length > 0) {
                     offset = vertexDeclaration.getCurrentOffset();
