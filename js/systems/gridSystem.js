@@ -67,7 +67,7 @@ define([
                 var mesh = new Mesh(this.device, Mesh.LINES);
                 this.meshFactory.begin(mesh);
 
-                var color = new Vector4(0.5, 0.5, 0.5, 0.5);
+                var color = new Vector4(0.3, 0.3, 0.3, 1);
                 this.generateXYPlane(w, h, color);
                 this.generateXZPlane(w, d, color);
                 this.generateYZPlane(h, d, color);
@@ -78,66 +78,78 @@ define([
             },
 
             generateXYPlane: function(u, v, color) {
+                var vertexCount;
                 var hu = u / 2, hv = v / 2, i, j;
-                for (i = 0; i < u; i++) {
-                    for (j = 0; j < u; j++) {
-                        this.meshFactory.addVertex(new Vector3(-i/2, -hv, 0));
-                        this.meshFactory.addVertex(new Vector3( i/2,  hv, 0));
-                        this.meshFactory.addVertex(color);
-                        this.meshFactory.addVertex(color);
+                for (i = 0; i <= u; i++) {
+                    for (j = 0; j <= u; j++) {
+                        vertexCount = this.meshFactory.getVertexCount();
+                        this.meshFactory.addVertex(new Vector3(i-hu, -hv, 0));
+                        this.meshFactory.addVertex(new Vector3(i-hu,  hv, 0));
+                        this.meshFactory.addColor(color);
+                        this.meshFactory.addColor(color);
+                        this.meshFactory.addLine(vertexCount, vertexCount+1);
                     }
                 }
-                this.meshFactory.addVertex(new Vector3(-hu, -hv, 0));
-                this.meshFactory.addVertex(new Vector3( hu, -hv, 0));
-                this.meshFactory.addVertex(color);
-                this.meshFactory.addVertex(color);
-
-                this.meshFactory.addVertex(new Vector3(-hu,  hv, 0));
-                this.meshFactory.addVertex(new Vector3( hu,  hv, 0));
-                this.meshFactory.addVertex(color);
-                this.meshFactory.addVertex(color);
+                for (i = 0; i <= u; i++) {
+                    for (j = 0; j <= u; j++) {
+                        vertexCount = this.meshFactory.getVertexCount();
+                        this.meshFactory.addVertex(new Vector3(-hv, j-hv, 0));
+                        this.meshFactory.addVertex(new Vector3( hv, j-hv, 0));
+                        this.meshFactory.addColor(color);
+                        this.meshFactory.addColor(color);
+                        this.meshFactory.addLine(vertexCount, vertexCount+1);
+                    }
+                }
             },
 
             generateXZPlane: function(u, v, color) {
+                var vertexCount;
                 var hu = u / 2, hv = v / 2, i, j;
-                for (i = 0; i < u; i++) {
-                    for (j = 0; j < u; j++) {
-                        this.meshFactory.addVertex(new Vector3(-i/2, 0, -hv));
-                        this.meshFactory.addVertex(new Vector3( i/2, 0,  hv));
-                        this.meshFactory.addVertex(color);
-                        this.meshFactory.addVertex(color);
+                for (i = 0; i <= u; i++) {
+                    for (j = 0; j <= u; j++) {
+                        vertexCount = this.meshFactory.getVertexCount();
+                        this.meshFactory.addVertex(new Vector3(i-hu, 0, -hv));
+                        this.meshFactory.addVertex(new Vector3(i-hu, 0,  hv));
+                        this.meshFactory.addColor(color);
+                        this.meshFactory.addColor(color);
+                        this.meshFactory.addLine(vertexCount, vertexCount+1);
                     }
                 }
-                this.meshFactory.addVertex(new Vector3(-hu, 0, -hv));
-                this.meshFactory.addVertex(new Vector3( hu, 0, -hv));
-                this.meshFactory.addVertex(color);
-                this.meshFactory.addVertex(color);
-
-                this.meshFactory.addVertex(new Vector3(-hu, 0,  hv));
-                this.meshFactory.addVertex(new Vector3( hu, 0,  hv));
-                this.meshFactory.addVertex(color);
-                this.meshFactory.addVertex(color);
+                for (i = 0; i <= u; i++) {
+                    for (j = 0; j <= u; j++) {
+                        vertexCount = this.meshFactory.getVertexCount();
+                        this.meshFactory.addVertex(new Vector3(-hv, 0, j-hv));
+                        this.meshFactory.addVertex(new Vector3( hv, 0, j-hv));
+                        this.meshFactory.addColor(color);
+                        this.meshFactory.addColor(color);
+                        this.meshFactory.addLine(vertexCount, vertexCount+1);
+                    }
+                }
             },
 
             generateYZPlane: function(u, v, color) {
+                var vertexCount;
                 var hu = u / 2, hv = v / 2, i, j;
-                for (i = 0; i < u; i++) {
-                    for (j = 0; j < u; j++) {
-                        this.meshFactory.addVertex(new Vector3(0, -i/2, -hv));
-                        this.meshFactory.addVertex(new Vector3(0,  i/2,  hv));
-                        this.meshFactory.addVertex(color);
-                        this.meshFactory.addVertex(color);
+                for (i = 0; i <= u; i++) {
+                    for (j = 0; j <= u; j++) {
+                        vertexCount = this.meshFactory.getVertexCount();
+                        this.meshFactory.addVertex(new Vector3(0, i-hu, -hv));
+                        this.meshFactory.addVertex(new Vector3(0, i-hu,  hv));
+                        this.meshFactory.addColor(color);
+                        this.meshFactory.addColor(color);
+                        this.meshFactory.addLine(vertexCount, vertexCount+1);
                     }
                 }
-                this.meshFactory.addVertex(new Vector3(0, -hu, -hv));
-                this.meshFactory.addVertex(new Vector3(0,  hu, -hv));
-                this.meshFactory.addVertex(color);
-                this.meshFactory.addVertex(color);
-
-                this.meshFactory.addVertex(new Vector3(0, -hu,  hv));
-                this.meshFactory.addVertex(new Vector3(0,  hu,  hv));
-                this.meshFactory.addVertex(color);
-                this.meshFactory.addVertex(color);
+                for (i = 0; i <= u; i++) {
+                    for (j = 0; j <= u; j++) {
+                        vertexCount = this.meshFactory.getVertexCount();
+                        this.meshFactory.addVertex(new Vector3(0, -hv, j-hv));
+                        this.meshFactory.addVertex(new Vector3(0,  hv, j-hv));
+                        this.meshFactory.addColor(color);
+                        this.meshFactory.addColor(color);
+                        this.meshFactory.addLine(vertexCount, vertexCount+1);
+                    }
+                }
             }
 
         });

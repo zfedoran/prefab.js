@@ -15,9 +15,11 @@ define([
         'entities/guiLayer',
         'entities/camera',
         'entities/block',
+        'entities/grid',
         'systems/cameraSystem',
         'systems/guiSystem',
         'systems/blockSystem',
+        'systems/gridSystem',
         'systems/renderSystem'
     ],
     function(
@@ -37,9 +39,11 @@ define([
         GUILayerEntity,
         CameraEntity,
         BlockEntity,
+        GridEntity,
         CameraSystem,
         GUISystem,
         BlockSystem,
+        GridSystem,
         RenderSystem
     ) {
         'use strict';
@@ -62,6 +66,7 @@ define([
                 this.cameraSystem = new CameraSystem(this.entityManager);
                 this.guiSystem = new GUISystem(this.entityManager, this.device);
                 this.blockSystem = new BlockSystem(this.entityManager, this.device);
+                this.gridSystem = new GridSystem(this.entityManager, this.device);
                 this.renderSystem = new RenderSystem(this.entityManager, this.device);
 
                 this.camera = new CameraEntity(this.width, this.height, 0.1, 100, 75);
@@ -73,6 +78,9 @@ define([
                 this.entityManager.addEntity(this.guiText);
                 this.entityManager.addEntity(this.guiLayer);
                 
+                this.grid = new GridEntity(50, 50, 50);
+                this.entityManager.addEntity(this.grid);
+
                 this.block = new BlockEntity(1, 1, 1);
                 var blockComponent = this.block.getComponent('Block');
 
@@ -140,6 +148,7 @@ define([
 
                 this.cameraSystem.update();
                 this.blockSystem.update();
+                this.gridSystem.update();
                 this.guiSystem.update();
             },
 

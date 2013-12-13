@@ -4,6 +4,7 @@ define([
     function(
         VertexElement
     ) {
+        'use strict';
 
         var VertexDeclaration = function(elements) {
             this.elements = elements || [];

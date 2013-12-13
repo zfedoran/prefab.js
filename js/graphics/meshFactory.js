@@ -82,6 +82,14 @@ define([
                 this._indexCount+=3;
             },
 
+            addLine: function(a, b) {
+                if (!this.hasBegun) { throw 'MeshFactory: begin() must be called before addLine()'; }
+
+                this.indices.push(a);
+                this.indices.push(b);
+                this._indexCount+=2;
+            },
+
             begin: function(mesh) {
                 if (this.hasBegun) {
                     throw 'MeshFactory: end() must be called before begin() can be called again';

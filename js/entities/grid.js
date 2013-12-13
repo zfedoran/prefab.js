@@ -2,15 +2,15 @@ define([
         'core/entity',
         'graphics/material',
         'components/transform',
-        'components/block',
+        'components/grid',
         'components/meshFilter',
         'components/meshRenderer',
         'graphics/mesh'
     ],
     function(
         Entity,
-        Transform,
         Material,
+        Transform,
         Grid,
         MeshFilter,
         MeshRenderer,
@@ -18,7 +18,7 @@ define([
     ) {
         'use strict';
     
-        var BlockEntity = function(width, height, depth) {
+        var GridEntity = function(width, height, depth) {
             Entity.call(this);
 
             var material = new Material(Material.BASIC);
@@ -29,10 +29,10 @@ define([
             this.addComponent(new MeshRenderer(material));
         };
 
-        BlockEntity.prototype = Object.create(Entity.prototype);
+        GridEntity.prototype = Object.create(Entity.prototype);
 
-        BlockEntity.prototype.constructor = BlockEntity;
+        GridEntity.prototype.constructor = GridEntity;
 
-        return BlockEntity;
+        return GridEntity;
     }
 );
