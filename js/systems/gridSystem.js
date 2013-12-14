@@ -68,13 +68,69 @@ define([
                 this.meshFactory.begin(mesh);
 
                 var color = new Vector4(0.3, 0.3, 0.3, 1);
-                this.generateXYPlane(w, h, color);
-                this.generateXZPlane(w, d, color);
-                this.generateYZPlane(h, d, color);
+
+                if (grid.hasXYPlane) {
+                    this.generateXYPlane(w, h, color);
+                }
+                if (grid.hasXZPlane) {
+                    this.generateXZPlane(w, d, color);
+                }
+                if (grid.hasYZPlane) {
+                    this.generateYZPlane(h, d, color);
+                }
+
+                if (grid.hasXAxis) {
+                    color = new Vector4(1, 0, 0, 1);
+                    this.generateXAxis(w, color);
+                }
+                if (grid.hasYAxis) {
+                    color = new Vector4(0, 1, 0, 1);
+                    this.generateYAxis(h, color);
+                }
+                if (grid.hasZAxis) {
+                    color = new Vector4(0, 0, 1, 1);
+                    this.generateZAxis(d, color);
+                }
 
                 this.meshFactory.end();
 
                 return mesh;
+            },
+
+            generateXAxis: function(u, color) {
+                var vertexCount;
+                var hu = u / 2;
+
+                vertexCount = this.meshFactory.getVertexCount();
+                this.meshFactory.addVertex(new Vector3(-hu, 0, 0));
+                this.meshFactory.addVertex(new Vector3( hu, 0, 0));
+                this.meshFactory.addColor(color);
+                this.meshFactory.addColor(color);
+                this.meshFactory.addLine(vertexCount, vertexCount+1);
+            },
+
+            generateYAxis: function(u, color) {
+                var vertexCount;
+                var hu = u / 2;
+
+                vertexCount = this.meshFactory.getVertexCount();
+                this.meshFactory.addVertex(new Vector3(0, -hu, 0));
+                this.meshFactory.addVertex(new Vector3(0,  hu, 0));
+                this.meshFactory.addColor(color);
+                this.meshFactory.addColor(color);
+                this.meshFactory.addLine(vertexCount, vertexCount+1);
+            },
+
+            generateZAxis: function(u, color) {
+                var vertexCount;
+                var hu = u / 2;
+
+                vertexCount = this.meshFactory.getVertexCount();
+                this.meshFactory.addVertex(new Vector3(0, 0, -hu));
+                this.meshFactory.addVertex(new Vector3(0, 0,  hu));
+                this.meshFactory.addColor(color);
+                this.meshFactory.addColor(color);
+                this.meshFactory.addLine(vertexCount, vertexCount+1);
             },
 
             generateXYPlane: function(u, v, color) {

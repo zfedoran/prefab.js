@@ -79,6 +79,9 @@ define([
                 this.entityManager.addEntity(this.guiLayer);
                 
                 this.grid = new GridEntity(50, 50, 50);
+                this.grid.getComponent('Grid').hasXYPlane = false;
+                this.grid.getComponent('Grid').hasYZPlane = false;
+
                 this.entityManager.addEntity(this.grid);
 
                 this.block = new BlockEntity(1, 1, 1);
@@ -95,17 +98,17 @@ define([
                 width = 64;
 
                 ctx.fillStyle = "#f00";
-                ctx.fillText('Fy', 0 * width, 50);
+                ctx.fillText('Fx', 0 * width, 50);
                 ctx.fillStyle = "#0f0";
-                ctx.fillText('Fz', 1 * width, 50);
+                ctx.fillText('Fy', 1 * width, 50);
                 ctx.fillStyle = "#00f";
-                ctx.fillText('Fx', 2 * width, 50);
+                ctx.fillText('Fz', 2 * width, 50);
                 ctx.fillStyle = "#800";
-                ctx.fillText('Fy', 3 * width, 50);
+                ctx.fillText('Fx', 3 * width, 50);
                 ctx.fillStyle = "#080";
-                ctx.fillText('Fz', 4 * width, 50);
+                ctx.fillText('Fy', 4 * width, 50);
                 ctx.fillStyle = "#008";
-                ctx.fillText('Fx', 5 * width, 50);
+                ctx.fillText('Fz', 5 * width, 50);
 
                 sprites.push(new Sprite(new Rectangle(0 * width, 0, width,  64), texture));
                 sprites.push(new Sprite(new Rectangle(1 * width, 0, width,  64), texture));
@@ -114,12 +117,12 @@ define([
                 sprites.push(new Sprite(new Rectangle(4 * width, 0, width,  64), texture));
                 sprites.push(new Sprite(new Rectangle(5 * width, 0, width,  64), texture));
 
-                blockComponent.top = sprites[0]; //red
-                blockComponent.left = sprites[1]; //green
-                blockComponent.front = sprites[2]; //blue
-                blockComponent.bottom = sprites[3]; //red
-                blockComponent.right = sprites[4]; //green
-                blockComponent.back = sprites[5]; //blue
+                blockComponent.top = sprites[1];
+                blockComponent.left = sprites[3];
+                blockComponent.front = sprites[2];
+                blockComponent.bottom = sprites[4];
+                blockComponent.right = sprites[0];
+                blockComponent.back = sprites[5];
 
                 var material = this.block.getComponent('MeshRenderer').material;
                 material.diffuseMap = texture;
