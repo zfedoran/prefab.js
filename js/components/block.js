@@ -19,6 +19,8 @@ define([
             this.right  = null;
             this.front  = null;
             this.back   = null;
+
+            this.texture = null;
         };
 
         Block.__name__ = 'Block';

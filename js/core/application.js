@@ -16,7 +16,7 @@ define([
             this.width = 720;
             this.height = 480;
 
-            this.backgroundColor = new Vector4(0.5, 0.5, 0.5, 1.0);
+            this.backgroundColor = new Vector4(0.22, 0.22, 0.22, 1.0);
 
             this.device = new GraphicsDevice(this.width, this.height);
             this.device.initDefaultState();

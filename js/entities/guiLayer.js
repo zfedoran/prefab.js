@@ -2,16 +2,14 @@ define([
         'math/rectangle',
         'core/entity',
         'components/transform',
-        'components/projection',
-        'components/view',
+        'components/camera',
         'components/guiLayer'
     ],
     function(
         Rectangle,
         Entity,
         Transform,
-        Projection,
-        View,
+        Camera,
         GUILayer
     ) {
         'use strict';
@@ -24,8 +22,7 @@ define([
 
             var viewRect = new Rectangle(offsetX, offsetY, width, height);
             this.addComponent(new Transform());
-            this.addComponent(new Projection(width, height, 0, 100));
-            this.addComponent(new View());
+            this.addComponent(new Camera(width, height, 0, 100));
             this.addComponent(new GUILayer(viewRect));
         };
 

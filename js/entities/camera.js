@@ -1,29 +1,26 @@
 define([
         'core/entity',
         'components/transform',
-        'components/projection',
-        'components/view'
+        'components/camera'
     ],
     function(
         Entity,
         Transform,
-        Projection,
-        View
+        Camera
     ) {
         'use strict';
     
-        var Camera = function(width, height, near, far, fov) {
+        var CameraEntity = function(width, height, near, far, fov) {
             Entity.call(this);
 
             this.addComponent(new Transform());
-            this.addComponent(new Projection(width, height, near, far, fov));
-            this.addComponent(new View());
+            this.addComponent(new Camera(width, height, near, far, fov));
         };
 
-        Camera.prototype = Object.create(Entity.prototype);
+        CameraEntity.prototype = Object.create(Entity.prototype);
 
-        Camera.prototype.constructor = Camera;
+        CameraEntity.prototype.constructor = CameraEntity;
 
-        return Camera;
+        return CameraEntity;
     }
 );

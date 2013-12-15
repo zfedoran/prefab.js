@@ -1,14 +1,17 @@
 define([
-        'core/entityFilter'
+        'core/entityFilter',
+        'core/entityGroup'
     ],
     function(
-        EntityFilter
+        EntityFilter,
+        EntityGroup
     ) {
         'use strict';
 
         var EntityManager = function() {
             this.entities = {};
             this.filters = {};
+            this.groups = {};
         };
 
         EntityManager.prototype = {
@@ -17,7 +20,6 @@ define([
             addEntity: function(entity) {
                 this.entities[entity.id] = entity;
                 this.updateFiltersForEntity(entity);
-                //entity.setEntityManager(this);
             },
 
             getEntity: function(id) {
@@ -28,11 +30,28 @@ define([
                 var success = delete this.entities[entity.id];
                 if (success) {
                     this.removeEntityFromAllFilters(entity);
+                    this.removeEntityFromAllGroups(entity);
                 }
                 return success;
             },
 
-            getAllUsingFilter: function(name) {
+            addEntityToGroup: function(entity, name) {
+                var group = this.groups[name];
+                if (typeof group === 'undefined') {
+                    group = new EntityGroup(name);
+                    this.groups[name] = group;
+                }
+                group.addEntity(entity);
+            },
+
+            getAllUsingGroupName: function(name) {
+                var group = this.groups[name];
+                if (typeof group !== 'undefined') {
+                    return group.getEntities();
+                }
+            },
+
+            getAllUsingFilterName: function(name) {
                 var filter = this.filters[name];
                 if (typeof filter !== 'undefined') {
                     return filter.getEntities();
@@ -79,6 +98,16 @@ define([
                 }
             },
 
+            removeEntityFromAllGroups: function(entity) {
+                var o, group;
+                for (o in this.groups) {
+                    if (this.groups.hasOwnProperty(o)) {
+                        group = this.groups[o];
+                        group.remove(entity);
+                    }
+                }
+            },
+
             getAllMatchingFiltersFor: function(entity) {
                 var o, filter, result = [];
                 for (o in this.filters) {
@@ -90,6 +119,33 @@ define([
                     }
                 }
                 return result;
+            },
+
+            getAllMatchingGroupsFor: function(entity) {
+                var o, group, result = [];
+                for (o in this.groups) {
+                    if (this.groups.hasOwnProperty(o)) {
+                        group = this.groups[o];
+                        if (group.matches(entity)) {
+                            result.push(group);
+                        }
+                    }
+                }
+                return result;
+            },
+
+            getFilterNameForComponents: function(components) {
+                return components.sort().join('.');
+            },
+
+            getFilterFunctionForComponents: function(components) {
+                return function(entity) {
+                    var i, result = true;
+                    for (i = 0; i < components.length; i++) {
+                        result = result && entity.hasComponent(components[i]);
+                    }
+                    return result;
+                };
             }
         };
 

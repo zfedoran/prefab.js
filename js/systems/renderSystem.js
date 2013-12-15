@@ -23,44 +23,47 @@ define([
         'use strict';
     
         var RenderSystem = function(entityManager, device) {
-            SubSystem.call(this, entityManager, ['Transform', 'MeshFilter', 'MeshRenderer']);
+            SubSystem.call(this, entityManager, ['Transform', 'Camera']);
             this.device = device;
-            this.camera2d = null;
-            this.camera3d = null;
             this.shaderCache = {};
         };
 
         RenderSystem.prototype = _.extend(Object.create(SubSystem.prototype), {
             constructor: RenderSystem,
 
-            setDefaultCamera: function(entity) {
-                if (entity.hasComponent('Projection') && entity.hasComponent('View')) {
-                    if (entity.hasComponent('GUILayer')) {
-                        this.camera2d = entity;
-                    } else {
-                        this.camera3d = entity;
-                    }
-                } else {
-                    throw 'RenderSystem: the provided entity does not have the "Projection" and "View" components';
-                }
-            },
-
-            getCameraForEntity: function(entity) {
-                if (entity.hasComponent('GUIElement')) {
-                    return this.camera2d;
-                }
-                return this.camera3d;
-            },
-
             render: function() {
-                var entities = this.entityManager.getAllUsingFilter(this.filterHash);
+                var entities = this.entityManager.getAllUsingFilterName(this.filterHash);
+                var o, entity;
+                for (o in entities) {
+                    if (entities.hasOwnProperty(o)) {
+                        entity = entities[o];
+                        if (entity.hasComponent('Camera')) {
+                            var camera = entity.getComponent('Camera');
+                            if (camera.isEnabled() && camera.renderGroups.length > 0) {
+                                var i, group;
+                                for (i = 0; i < camera.renderGroups.length; i++) {
+                                    group = camera.renderGroups[i];
+                                    this.renderGroup(group, camera);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+
+            renderGroup: function(group, cameraComponent) {
+                var entities = this.entityManager.getAllUsingGroupName(group);
                 var o, entity;
                 for (o in entities) {
                     if (entities.hasOwnProperty(o)) {
                         entity = entities[o];
 
-                        this.updateRenderer(entity);
-                        this.renderMesh(entity);
+                        if (entity.hasComponent('MeshRenderer')) {
+                            this.updateRenderer(entity);
+                        }
+                        if (entity.hasComponent('MeshFilter')) {
+                            this.renderMesh(entity, cameraComponent);
+                        }
                     }
                 }
             },
@@ -95,7 +98,7 @@ define([
                 return shader;
             },
 
-            renderMesh: function(entity) {
+            renderMesh: function(entity, cameraComponent) {
                 var transform    = entity.getComponent('Transform');
                 var meshFilter   = entity.getComponent('MeshFilter');
                 var meshRenderer = entity.getComponent('MeshRenderer');
@@ -110,9 +113,8 @@ define([
                     }
                 }
 
-                var camera = this.getCameraForEntity(entity);
-                var view = camera.getComponent('View')._viewMatrix;
-                var proj = camera.getComponent('Projection')._projectionMatrix;
+                var view = cameraComponent._viewMatrix;
+                var proj = cameraComponent._projectionMatrix;
 
                 shader.uniforms.uMMatrix.set(transform._worldMatrix);
                 shader.uniforms.uVMatrix.set(view);

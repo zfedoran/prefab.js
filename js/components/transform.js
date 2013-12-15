@@ -10,6 +10,7 @@ define([
         Quaternion,
         Matrix4
     ) {
+        'use strict';
 
         var Transform = function(position, scale, rotation) {
             Component.call(this);

@@ -26,7 +26,7 @@ define([
             constructor: BlockSystem,
 
             update: function() {
-                var entities = this.entityManager.getAllUsingFilter(this.filterHash);
+                var entities = this.entityManager.getAllUsingFilterName(this.filterHash);
                 var o, entity, guiElement;
                 for (o in entities) {
                     if (entities.hasOwnProperty(o)) {

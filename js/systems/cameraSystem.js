@@ -11,50 +11,51 @@ define([
         'use strict';
 
         var CameraSystem = function(entityManager) {
-            SubSystem.call(this, entityManager, ['Transform', 'Projection', 'View']);
+            SubSystem.call(this, entityManager, ['Transform', 'Camera']);
         };
 
         CameraSystem.prototype = _.extend(Object.create(SubSystem.prototype), {
             constructor: CameraSystem,
 
             updateProjectionMatrix: function(entity) {
-                var proj = entity.getComponent('Projection');
+                var camera = entity.getComponent('Camera');
                 var guiLayer = entity.getComponent('GUILayer');
-                if (proj.isDirty()) {
-                    proj.aspect = proj.width / proj.height;
+
+                if (camera.isDirty()) {
+                    camera.aspect = camera.width / camera.height;
                     if (typeof guiLayer !== 'undefined') {
                         var rect = guiLayer.boundingBox;
-                        Matrix4.createOrthographic(-rect.x, rect.width - rect.x, -rect.y, rect.height - rect.y, proj.near, proj.far, /*out*/ proj._projectionMatrix);
-                    } else if (proj.isOrthographic()){
-                        Matrix4.createOrthographic(-proj.width/2, proj.width/2, -proj.height/2, proj.height/2, proj.near, proj.far, /*out*/ proj._projectionMatrix);
+                        Matrix4.createOrthographic(-rect.x, rect.width - rect.x, -rect.y, rect.height - rect.y, camera.near, camera.far, /*out*/ camera._projectionMatrix);
+                    } else if (camera.isOrthographic()){
+                        Matrix4.createOrthographic(-camera.width/2, camera.width/2, -camera.height/2, camera.height/2, camera.near, camera.far, /*out*/ camera._projectionMatrix);
                     } else {
-                        Matrix4.createPerspective(proj.fov, proj.aspect, proj.near, proj.far, /*out*/ proj._projectionMatrix);
+                        Matrix4.createPerspective(camera.fov, camera.aspect, camera.near, camera.far, /*out*/ camera._projectionMatrix);
                     }
                 }
             },
 
             updateViewMatrix: function(entity) {
-                var view = entity.getComponent('View');
+                var camera = entity.getComponent('Camera');
                 var transform = entity.getComponent('Transform');
 
-                if (view.isDirty()) {
-                    if (view.hasTarget()) {
+                if (camera.isDirty()) {
+                    if (camera.hasTarget()) {
                         Matrix4.createLookAt(transform.getPosition(), 
-                                            view.getTargetPosition(), 
-                                            view.up, 
-                                            /*out*/ view._viewMatrix);
+                                            camera.getTargetPosition(), 
+                                            camera.up, 
+                                            /*out*/ camera._viewMatrix);
                     } else {
                         // If you only have the camera transformation and you want
                         // to compute the view matrix that will correctly transform
                         // vertices from world-space to view-space, you only need 
                         // to take the inverse of the camera transform.
-                        Matrix4.inverse(transform.getWorldMatrix(), view._viewMatrix);
+                        Matrix4.inverse(transform.getWorldMatrix(), camera._viewMatrix);
                     }
                 }
             },
 
             update: function() {
-                var entities = this.entityManager.getAllUsingFilter(this.filterHash);
+                var entities = this.entityManager.getAllUsingFilterName(this.filterHash);
                 var o, entity;
                 for (o in entities) {
                     if (entities.hasOwnProperty(o)) {

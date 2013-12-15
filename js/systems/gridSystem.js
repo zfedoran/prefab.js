@@ -28,7 +28,7 @@ define([
             constructor: GridSystem,
 
             update: function() {
-                var entities = this.entityManager.getAllUsingFilter(this.filterHash);
+                var entities = this.entityManager.getAllUsingFilterName(this.filterHash);
                 var o, entity, guiElement;
                 for (o in entities) {
                     if (entities.hasOwnProperty(o)) {
@@ -67,7 +67,7 @@ define([
                 var mesh = new Mesh(this.device, Mesh.LINES);
                 this.meshFactory.begin(mesh);
 
-                var color = new Vector4(0.3, 0.3, 0.3, 1);
+                var color = new Vector4(0.28, 0.28, 0.28, 1);
 
                 if (grid.hasXYPlane) {
                     this.generateXYPlane(w, h, color);
@@ -80,15 +80,15 @@ define([
                 }
 
                 if (grid.hasXAxis) {
-                    color = new Vector4(1, 0, 0, 1);
+                    color = new Vector4(132/22, 22/256, 22/256, 1);
                     this.generateXAxis(w, color);
                 }
                 if (grid.hasYAxis) {
-                    color = new Vector4(0, 1, 0, 1);
+                    color = new Vector4(22/256, 132/256, 22/256, 1);
                     this.generateYAxis(h, color);
                 }
                 if (grid.hasZAxis) {
-                    color = new Vector4(0, 0, 1, 1);
+                    color = new Vector4(22/256, 22/256, 132/256, 1);
                     this.generateZAxis(d, color);
                 }
 
