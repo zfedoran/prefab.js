@@ -30,10 +30,9 @@ define([
     ) {
         'use strict';
 
-        var GUISystem = function(entityManager, device) {
-            SubSystem.call(this, entityManager, ['GUIElement']);
+        var GUISystem = function(context) {
+            SubSystem.call(this, context, ['GUIElement']);
 
-            this.device = device;
             this.fontCache = {};
             this.meshFactory = new MeshFactory(this.device);
         };
@@ -112,7 +111,7 @@ define([
 
             generateCharacterMesh: function(guiElement, guiText) {
                 var i, len = guiText.content.length;
-                var character, sprite, currentWidth = 0, currentHeight = 0;
+                var character, sprite, currentWidth = 0, currentHeight = guiText.lineHeight;
                 var u, v, w, h, a, b, c, d, count;
 
                 for (i = 0; i < len; i++) {

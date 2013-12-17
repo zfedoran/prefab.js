@@ -22,9 +22,9 @@ define([
     ) {
         'use strict';
     
-        var RenderSystem = function(entityManager, device) {
-            SubSystem.call(this, entityManager, ['Transform', 'Camera']);
-            this.device = device;
+        var RenderSystem = function(context) {
+            SubSystem.call(this, context, ['Transform', 'Camera']);
+
             this.shaderCache = {};
         };
 

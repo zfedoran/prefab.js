@@ -18,9 +18,9 @@ define([
     ) {
         'use strict';
 
-        var GridSystem = function(entityManager, device) {
-            SubSystem.call(this, entityManager, ['Grid', 'MeshFilter']);
-            this.device = device;
+        var GridSystem = function(context) {
+            SubSystem.call(this, context, ['Grid', 'MeshFilter']);
+            
             this.meshFactory = new MeshFactory(this.device);
         };
 

@@ -10,8 +10,8 @@ define([
     ) {
         'use strict';
 
-        var CameraSystem = function(entityManager) {
-            SubSystem.call(this, entityManager, ['Transform', 'Camera']);
+        var CameraSystem = function(context) {
+            SubSystem.call(this, context, ['Transform', 'Camera']);
         };
 
         CameraSystem.prototype = _.extend(Object.create(SubSystem.prototype), {

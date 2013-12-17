@@ -16,9 +16,9 @@ define([
     ) {
         'use strict';
 
-        var BlockSystem = function(entityManager, device) {
-            SubSystem.call(this, entityManager, ['Block', 'MeshFilter']);
-            this.device = device;
+        var BlockSystem = function(context) {
+            SubSystem.call(this, context, ['Block', 'MeshFilter']);
+
             this.meshFactory = new MeshFactory(this.device);
         };
 
