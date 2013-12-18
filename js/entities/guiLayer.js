@@ -2,28 +2,24 @@ define([
         'math/rectangle',
         'core/entity',
         'components/transform',
-        'components/camera',
-        'components/guiLayer'
+        'components/camera'
     ],
     function(
         Rectangle,
         Entity,
         Transform,
-        Camera,
-        GUILayer
+        Camera
     ) {
         'use strict';
 
-        var GUILayerEntity = function(width, height, offsetX, offsetY) {
+        var GUILayerEntity = function(viewRect, near, far) {
             Entity.call(this);
 
-            if (typeof offsetX === 'undefined') { offsetX = 0; }
-            if (typeof offsetY === 'undefined') { offsetY = 0; }
+            if (typeof near === 'undefined') { near = 0; }
+            if (typeof far === 'undefined') { far = 100; }
 
-            var viewRect = new Rectangle(offsetX, offsetY, width, height);
             this.addComponent(new Transform());
-            this.addComponent(new Camera(width, height, 0, 100));
-            this.addComponent(new GUILayer(viewRect));
+            this.addComponent(new Camera(viewRect, near, far));
         };
 
         GUILayerEntity.prototype = Object.create(Entity.prototype);

@@ -12,11 +12,12 @@ define([
     ) {
         'use strict';
 
-        var Camera = function(width, height, near, far, fov, target, up) {
+        var Camera = function(rect, near, far, fov, target, up) {
             Component.call(this);
 
-            this.width = width;
-            this.height = height;
+            this.viewRect = rect;
+            this.width = rect.width;
+            this.height = rect.height;
             this.near = typeof near !== 'undefined' ? near : 0.1;
             this.far = typeof far !== 'undefined' ? far : 100;
 

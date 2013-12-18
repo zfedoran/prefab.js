@@ -19,17 +19,33 @@ define([
 
             updateProjectionMatrix: function(entity) {
                 var camera = entity.getComponent('Camera');
-                var guiLayer = entity.getComponent('GUILayer');
 
                 if (camera.isDirty()) {
                     camera.aspect = camera.width / camera.height;
-                    if (typeof guiLayer !== 'undefined') {
-                        var rect = guiLayer.boundingBox;
-                        Matrix4.createOrthographic(-rect.x, rect.width - rect.x, -rect.y, rect.height - rect.y, camera.near, camera.far, /*out*/ camera._projectionMatrix);
-                    } else if (camera.isOrthographic()){
-                        Matrix4.createOrthographic(-camera.width/2, camera.width/2, -camera.height/2, camera.height/2, camera.near, camera.far, /*out*/ camera._projectionMatrix);
+                    if (camera.isOrthographic()){
+                        Matrix4.createOrthographic(
+                            0, 
+                            camera.width, 
+                            0, 
+                            camera.height, 
+                            camera.near, 
+                            camera.far, 
+                    /*out*/ camera._projectionMatrix);
+                //      Matrix4.createOrthographic(
+                //         -camera.viewRect.x,
+                //          camera.viewRect.width - camera.viewRect.x,
+                //         -camera.viewRect.y,
+                //          camera.viewRect.height - camera.viewRect.y,
+                //          camera.near,
+                //          camera.far,
+                //  /*out*/ camera._projectionMatrix);
                     } else {
-                        Matrix4.createPerspective(camera.fov, camera.aspect, camera.near, camera.far, /*out*/ camera._projectionMatrix);
+                        Matrix4.createPerspective(
+                            camera.fov,
+                            camera.aspect,
+                            camera.near,
+                            camera.far,
+                    /*out*/ camera._projectionMatrix);
                     }
                 }
             },

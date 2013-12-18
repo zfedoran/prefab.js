@@ -44,13 +44,24 @@ define([
                 this.context.width  = this.width;
                 this.context.height = this.height;
 
+                window.context = this.context;
+
                 this.cameraSystem   = new CameraSystem(this.context);
                 this.guiSystem      = new GUISystem(this.context);
                 this.blockSystem    = new BlockSystem(this.context);
                 this.gridSystem     = new GridSystem(this.context);
                 this.renderSystem   = new RenderSystem(this.context);
 
-                this.view3D = new View3D(this.context, new Rectangle(0, 0, this.width, this.height));
+                this.context.scene.addBlock(1, 1, 1);
+
+                var w, h;
+                w = this.width / 2;
+                h = this.height / 2;
+
+                this.view3DTop          = new View3D(this.context, new Rectangle(0, 0, w, h));
+                this.view3DLeft         = new View3D(this.context, new Rectangle(0, h, w, h));
+                this.view3DFront        = new View3D(this.context, new Rectangle(w, h, w, h));
+                this.view3DPerspective  = new View3D(this.context, new Rectangle(w, 0, w, h));
 
                 $(window).on('resize', this.onWindowResize.bind(this));
             },
@@ -61,7 +72,10 @@ define([
                 this.gridSystem.update();
                 this.guiSystem.update();
 
-                this.view3D.update(elapsed);
+                this.view3DTop.update(elapsed);
+                this.view3DLeft.update(elapsed);
+                this.view3DFront.update(elapsed);
+                this.view3DPerspective.update(elapsed);
             },
 
             draw: function(elapsed) {

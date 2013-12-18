@@ -10,11 +10,11 @@ define([
     ) {
         'use strict';
     
-        var CameraEntity = function(width, height, near, far, fov) {
+        var CameraEntity = function(viewRect, near, far, fov) {
             Entity.call(this);
 
             this.addComponent(new Transform());
-            this.addComponent(new Camera(width, height, near, far, fov));
+            this.addComponent(new Camera(viewRect, near, far, fov));
         };
 
         CameraEntity.prototype = Object.create(Entity.prototype);

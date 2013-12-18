@@ -24,33 +24,35 @@ define([
     ) {
         'use strict';
     
+        var tmp = 0;
         var View3D = function(context, viewRect) {
+            tmp++;
+            this.tmp = tmp;
             this.context        = context;
             this.scene          = context.scene;
             this.entityManager  = context.entityManager;
 
             this.viewRect = viewRect;
 
-            this.guiLayer = new GUILayerEntity(viewRect.width, viewRect.height, viewRect.x, viewRect.y);
-            this.guiLayer.getComponent('Camera').addRenderGroup('SceneViewUI');
+            this.guiLayer = new GUILayerEntity(viewRect);
+            this.guiLayer.getComponent('Camera').addRenderGroup('SceneViewUI'+this.tmp);
             this.entityManager.addEntity(this.guiLayer);
 
             this.guiText = new GUITextEntity(new Rectangle(0, 0, 1000, 100), 'hello, world');
             this.entityManager.addEntity(this.guiText);
-            this.entityManager.addEntityToGroup(this.guiText, 'SceneViewUI');
+            this.entityManager.addEntityToGroup(this.guiText, 'SceneViewUI'+this.tmp);
 
-            this.grid = new GridEntity(10, 10, 10);
+            this.grid = new GridEntity(10*this.tmp, 10*this.tmp, 10*this.tmp);
             this.grid.getComponent('Grid').hasXYPlane = false;
             this.grid.getComponent('Grid').hasYZPlane = false;
             this.entityManager.addEntity(this.grid);
-            this.entityManager.addEntityToGroup(this.grid, 'SceneView');
+            this.entityManager.addEntityToGroup(this.grid, 'SceneView'+this.tmp);
 
-            this.camera = new CameraEntity(viewRect.width, viewRect.height, 0.1, 500, 75);
+            this.camera = new CameraEntity(viewRect, 0.1, 500, 75);
             this.camera.getComponent('Camera').addRenderGroup('Scene');
-            this.camera.getComponent('Camera').addRenderGroup('SceneView');
+            this.camera.getComponent('Camera').addRenderGroup('SceneView'+this.tmp);
             this.entityManager.addEntity(this.camera);
 
-            this.scene.addBlock(1, 1, 1);
             this.time = 0;
         };
 
@@ -60,9 +62,9 @@ define([
             update: function(elapsed) {
                 this.time += elapsed;
                 var transform = this.camera.getComponent('Transform');
-                transform.localPosition.x = Math.sin(this.time * 0.0001) * 5;
-                transform.localPosition.y = Math.sin(this.time * 0.0001) * 5;
-                transform.localPosition.z = Math.cos(this.time * 0.0001) * 5;
+                transform.localPosition.x = Math.sin(this.time * 0.0001*this.tmp) * 5*this.tmp;
+                transform.localPosition.y = Math.sin(this.time * 0.0001) * 5*this.tmp;
+                transform.localPosition.z = Math.cos(this.time * 0.0001) * 5*this.tmp;
                 transform.setDirty(true);
 
                 var camera = this.camera.getComponent('Camera');
@@ -70,7 +72,7 @@ define([
                 camera.setDirty(true);
 
                 var text = this.guiText.getComponent('GUIText');
-                text.content = camera._viewMatrix.toString();
+                text.content = this.tmp + '\n' + camera._viewMatrix.toString();
                 text.setDirty(true);
             },
 
@@ -86,16 +88,11 @@ define([
                 this.viewRect.width  = width;
                 this.viewRect.height = height;
 
-                var cameraComponent, guiLayerComponent;
+                var cameraComponent;
                 cameraComponent = this.camera.getComponent('Camera');
                 cameraComponent.width  = width;
                 cameraComponent.height = height;
                 cameraComponent.setDirty(true);
-
-                guiLayerComponent = this.guiLayer.getComponent('GUILayer');
-                guiLayerComponent.boundingBox.width = width;
-                guiLayerComponent.boundingBox.height = height;
-                guiLayerComponent.setDirty(true);
 
                 cameraComponent = this.guiLayer.getComponent('Camera');
                 cameraComponent.width  = width;
