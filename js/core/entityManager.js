@@ -44,6 +44,13 @@ define([
                 group.addEntity(entity);
             },
 
+            removeEntityFromGroup: function(entity, name) {
+                var group = this.groups[name];
+                if (typeof group !== 'undefined') {
+                    group.removeEntity(entity);
+                }
+            },
+
             getAllUsingGroupName: function(name) {
                 var group = this.groups[name];
                 if (typeof group !== 'undefined') {

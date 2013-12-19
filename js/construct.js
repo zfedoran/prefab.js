@@ -3,26 +3,24 @@ define([
         'lodash',
         'math/Rectangle',
         'core/application',
-        'core/context',
         'systems/cameraSystem',
         'systems/guiSystem',
         'systems/blockSystem',
         'systems/gridSystem',
         'systems/renderSystem',
-        'editor/view3D'
+        'editor/sceneView'
     ],
     function(
         $,
         _,
         Rectangle,
         Application,
-        Context,
         CameraSystem,
         GUISystem,
         BlockSystem,
         GridSystem,
         RenderSystem,
-        View3D
+        SceneView
     ) {
         'use strict';
 
@@ -40,12 +38,6 @@ define([
             },
 
             init: function() {
-                this.context = new Context(this.device);
-                this.context.width  = this.width;
-                this.context.height = this.height;
-
-                window.context = this.context;
-
                 this.cameraSystem   = new CameraSystem(this.context);
                 this.guiSystem      = new GUISystem(this.context);
                 this.blockSystem    = new BlockSystem(this.context);
@@ -58,10 +50,10 @@ define([
                 w = this.width / 2;
                 h = this.height / 2;
 
-                this.view3DTop          = new View3D(this.context, new Rectangle(0, 0, w, h));
-                this.view3DLeft         = new View3D(this.context, new Rectangle(0, h, w, h));
-                this.view3DFront        = new View3D(this.context, new Rectangle(w, h, w, h));
-                this.view3DPerspective  = new View3D(this.context, new Rectangle(w, 0, w, h));
+                this.sceneViewTop          = new SceneView(this.context, new Rectangle(0, 0, w, h), SceneView.VIEW_DIRECTION_TOP);
+                this.sceneViewLeft         = new SceneView(this.context, new Rectangle(0, h, w, h), SceneView.VIEW_DIRECTION_LEFT);
+                this.sceneViewFront        = new SceneView(this.context, new Rectangle(w, h, w, h), SceneView.VIEW_DIRECTION_FRONT);
+                this.sceneViewPerspective  = new SceneView(this.context, new Rectangle(w, 0, w, h), SceneView.VIEW_DIRECTION_BACK, SceneView.VIEW_PROJECTION_ORTHO);
 
                 $(window).on('resize', this.onWindowResize.bind(this));
             },
@@ -72,10 +64,10 @@ define([
                 this.gridSystem.update();
                 this.guiSystem.update();
 
-                this.view3DTop.update(elapsed);
-                this.view3DLeft.update(elapsed);
-                this.view3DFront.update(elapsed);
-                this.view3DPerspective.update(elapsed);
+                this.sceneViewTop.update(elapsed);
+                this.sceneViewLeft.update(elapsed);
+                this.sceneViewFront.update(elapsed);
+                this.sceneViewPerspective.update(elapsed);
             },
 
             draw: function(elapsed) {
@@ -92,7 +84,6 @@ define([
                 this.context.height = this.height;
 
                 this.device.setSize(this.width, this.height);
-                this.view3D.setSize(this.width, this.height);
             }
         });
 

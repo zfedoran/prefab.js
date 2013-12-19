@@ -2,13 +2,15 @@ define([
         'jquery',
         'lodash',
         'math/vector4',
-        'graphics/device'
+        'graphics/device',
+        'core/context'
     ],
     function(
         $,
         _,
         Vector4,
-        GraphicsDevice
+        GraphicsDevice,
+        Context
     ) {
         'use strict';
 
@@ -20,6 +22,13 @@ define([
 
             this.device = new GraphicsDevice(this.width, this.height);
             this.device.initDefaultState();
+
+            this.context = new Context(this.device);
+            this.context.width  = this.width;
+            this.context.height = this.height;
+            this.context.time = 0;
+
+            window.context = this.context;
 
             this.loadAssets();
             this.init();
@@ -42,6 +51,7 @@ define([
                         elapsedList.length = 0;
                     }
                     self.time = time;
+                    self.context.time = time;
                     self.update(elapsed);
                     self.draw(elapsed);
                 }
