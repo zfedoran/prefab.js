@@ -22,23 +22,26 @@ define([
 
                 if (camera.isDirty()) {
                     camera.aspect = camera.width / camera.height;
-                    if (camera.isOrthographic()){
-                        Matrix4.createOrthographic(
-                            0, 
-                            camera.width, 
-                            0, 
-                            camera.height, 
-                            camera.near, 
-                            camera.far, 
-                    /*out*/ camera._projectionMatrix);
-                //      Matrix4.createOrthographic(
-                //         -camera.viewRect.x,
-                //          camera.viewRect.width - camera.viewRect.x,
-                //         -camera.viewRect.y,
-                //          camera.viewRect.height - camera.viewRect.y,
-                //          camera.near,
-                //          camera.far,
-                //  /*out*/ camera._projectionMatrix);
+                    if (camera.isOrthographic()) {
+                        if (camera.isOffCenter()) {
+                            Matrix4.createOrthographic(
+                                0, 
+                                camera.width, 
+                                0, 
+                                camera.height, 
+                                camera.near, 
+                                camera.far, 
+                        /*out*/ camera._projectionMatrix);
+                        } else {
+                            Matrix4.createOrthographic(
+                               -camera.width/35, 
+                                camera.width/35, 
+                               -camera.height/35, 
+                                camera.height/35, 
+                                camera.near, 
+                                camera.far, 
+                        /*out*/ camera._projectionMatrix);
+                        }
                     } else {
                         Matrix4.createPerspective(
                             camera.fov,

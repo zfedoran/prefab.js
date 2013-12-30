@@ -130,9 +130,9 @@ define([
                         currentWidth += sprite.width;
 
                         u = sprite.getUCoordinate();
-                        v = 1 - sprite.getVCoordinate();
+                        v = sprite.getVCoordinate();
                         w = sprite.getUVWidth();
-                        h = -sprite.getUVHeight();
+                        h = sprite.getUVHeight();
 
                         a = currentWidth - sprite.width;
                         b = currentWidth;

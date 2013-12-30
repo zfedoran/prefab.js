@@ -23,12 +23,12 @@ define([
         var SceneView = function(context, viewRect, viewDirection, viewProjection) {
             View.apply(this, arguments);
 
-            this.groupName2D = this.getGroupInstanceName('View2DLayer');
-            this.groupName3D = this.getGroupInstanceName('View3DLayer');
+            this.groupNameGUI = this.getGroupInstanceName('ViewGUILayer');
+            this.groupName3D  = this.getGroupInstanceName('View3DLayer');
             this.groupNameScene = 'Scene';
 
             this.guiLayer = new GUILayerEntity(viewRect);
-            this.guiLayer.getComponent('Camera').addRenderGroup(this.groupName2D);
+            this.guiLayer.getComponent('Camera').addRenderGroup(this.groupNameGUI);
             this.entityManager.addEntity(this.guiLayer);
 
             this.camera = new CameraEntity(viewRect, 0.1, 500, 75);
@@ -48,7 +48,7 @@ define([
             init: function() {
                 this.guiText = new GUITextEntity(new Rectangle(0, 0, 1000, 100), this.uuid + ' ' + this.viewDirection);
                 this.entityManager.addEntity(this.guiText);
-                this.entityManager.addEntityToGroup(this.guiText, this.groupName2D);
+                this.entityManager.addEntityToGroup(this.guiText, this.groupNameGUI);
             },
 
             initCamera: function() {
@@ -122,17 +122,15 @@ define([
             },
 
             update: function(elapsed) {
-                /*
                 var transform = this.camera.getComponent('Transform');
-                transform.localPosition.x = Math.sin(this.context.time * 0.0001) * 5;
+                transform.localPosition.x = Math.sin(this.context.time * 0.001) * 5;
                 transform.localPosition.y = Math.sin(this.context.time * 0.0001) * 5;
-                transform.localPosition.z = Math.cos(this.context.time * 0.0001) * 5;
+                transform.localPosition.z = Math.cos(this.context.time * 0.001) * 5;
                 transform.setDirty(true);
 
                 var camera = this.camera.getComponent('Camera');
                 camera.target = new Vector3(0,0,0);
                 camera.setDirty(true);
-                */
             },
 
             setSize: function(width, height) {

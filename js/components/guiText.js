@@ -10,7 +10,7 @@ define([
             Component.call(this);
 
             this.content = text;
-            this.lineHeight = 10;
+            this.lineHeight = 20;
             this.fontFamily = 'monospace';
             this.fontSize = 10;
             this.color = '#000';

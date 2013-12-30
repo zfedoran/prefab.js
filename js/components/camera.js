@@ -20,6 +20,7 @@ define([
             this.height = rect.height;
             this.near = typeof near !== 'undefined' ? near : 0.1;
             this.far = typeof far !== 'undefined' ? far : 100;
+            this.offCenter = false;
 
             if (typeof fov !== 'undefined') {
                 this.fov = fov;
@@ -75,6 +76,10 @@ define([
 
         Camera.prototype.isOrthographic = function() {
             return this.ortho; 
+        };
+
+        Camera.prototype.isOffCenter = function() {
+            return this.offCenter; 
         };
 
         Camera.prototype.hasTarget = function() {

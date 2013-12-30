@@ -15,7 +15,13 @@ define([
         };
 
         Context.prototype = {
-            constructor: Context
+            constructor: Context,
+
+            addBlock: function(width, height, depth) {
+                var blockEntity = this.scene.addBlock(width, height, depth);
+                this.entityManager.addEntityToGroup(blockEntity, 'CurrentSelection');
+            },
+
         };
 
         return Context;

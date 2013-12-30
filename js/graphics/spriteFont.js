@@ -21,7 +21,7 @@ define([
             this.fontFamily = options.fontFamily;
             this.fontSize = options.fontSize;
 
-            this.vspace = typeof options.vspace === 'undefined' ? 0 : options.vspace;
+            this.vspace = typeof options.vspace === 'undefined' ? 10 : options.vspace;
             this.hspace = typeof options.hspace === 'undefined' ? 0 : options.hspace;
             this.sprites = {};
 

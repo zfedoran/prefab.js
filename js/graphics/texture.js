@@ -164,7 +164,7 @@ define([
                                 }
 
                                 gl.bindTexture(this._textureTarget, this._textureObject);
-                                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+                                //gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
                                 if (image instanceof Image) {
                                     this.setTextureSize(image.naturalWidth, image.naturalHeight);
@@ -189,7 +189,7 @@ define([
                                 this._textureObject = gl.createTexture();
                             }
                             gl.bindTexture(this._textureTarget, this._textureObject);
-                            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+                            //gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
                             gl.texImage2D(this._textureTarget, 0, this._imageFormat, this._textureWidth, this._textureHeight, 0, this._imageFormat, this._imageFormat, this._type, null);
 
                             this.applyFilterParameter();

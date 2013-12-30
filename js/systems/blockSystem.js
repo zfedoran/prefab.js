@@ -61,20 +61,20 @@ define([
                 d = block.depth;
 
                 hw = w / 2;
-                hh = w / 2;
-                hd = w / 2;
+                hh = h / 2;
+                hd = d / 2;
 
                 var vertexCount = 0;
 
                 var mesh = new Mesh(this.device, Mesh.TRIANGLES);
                 this.meshFactory.begin(mesh);
 
-                this.generateFaceFront(w, h, d, block.front);
-                this.generateFaceBack(w, h, d, block.back);
-                this.generateFaceLeft(w, h, d, block.left);
-                this.generateFaceRight(w, h, d, block.right);
-                this.generateFaceTop(w, h, d, block.top);
-                this.generateFaceBottom(w, h, d, block.bottom);
+                this.generateFaceFront(hw, hh, hd, block.front);
+                this.generateFaceBack(hw, hh, hd, block.back);
+                this.generateFaceLeft(hw, hh, hd, block.left);
+                this.generateFaceRight(hw, hh, hd, block.right);
+                this.generateFaceTop(hw, hh, hd, block.top);
+                this.generateFaceBottom(hw, hh, hd, block.bottom);
 
                 this.meshFactory.end();
 
@@ -95,10 +95,10 @@ define([
                 this.meshFactory.addVertex(new Vector3( w,  h, d));
                 this.meshFactory.addVertex(new Vector3( w, -h, d));
 
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
 
                 this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 1);
                 this.meshFactory.addTriangle(vertexCount, vertexCount + 3, vertexCount + 2);
@@ -118,10 +118,10 @@ define([
                 this.meshFactory.addVertex(new Vector3( w,  h, -d));
                 this.meshFactory.addVertex(new Vector3( w, -h, -d));
 
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
 
                 this.meshFactory.addTriangle(vertexCount, vertexCount + 1, vertexCount + 2);
                 this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 3);
@@ -141,10 +141,10 @@ define([
                 this.meshFactory.addVertex(new Vector3(-w,  h,  d));
                 this.meshFactory.addVertex(new Vector3(-w, -h,  d));
 
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
 
                 this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 1);
                 this.meshFactory.addTriangle(vertexCount, vertexCount + 3, vertexCount + 2);
@@ -164,10 +164,10 @@ define([
                 this.meshFactory.addVertex(new Vector3(w,  h,  d));
                 this.meshFactory.addVertex(new Vector3(w, -h,  d));
 
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
 
                 this.meshFactory.addTriangle(vertexCount, vertexCount + 1, vertexCount + 2);
                 this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 3);
@@ -187,10 +187,10 @@ define([
                 this.meshFactory.addVertex(new Vector3( w, h,  d));
                 this.meshFactory.addVertex(new Vector3(-w, h,  d));
 
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
 
                 this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 1);
                 this.meshFactory.addTriangle(vertexCount, vertexCount + 3, vertexCount + 2);

@@ -18,8 +18,11 @@ define([
             if (typeof near === 'undefined') { near = 0; }
             if (typeof far === 'undefined') { far = 100; }
 
+            var camera = new Camera(viewRect, near, far);
+            camera.offCenter = true;
+
             this.addComponent(new Transform());
-            this.addComponent(new Camera(viewRect, near, far));
+            this.addComponent(camera);
         };
 
         GUILayerEntity.prototype = Object.create(Entity.prototype);

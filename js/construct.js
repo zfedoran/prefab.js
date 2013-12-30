@@ -8,7 +8,8 @@ define([
         'systems/blockSystem',
         'systems/gridSystem',
         'systems/renderSystem',
-        'editor/sceneView'
+        'editor/sceneView',
+        'editor/textureView'
     ],
     function(
         $,
@@ -20,7 +21,8 @@ define([
         BlockSystem,
         GridSystem,
         RenderSystem,
-        SceneView
+        SceneView,
+        TextureView
     ) {
         'use strict';
 
@@ -38,13 +40,13 @@ define([
             },
 
             init: function() {
-                this.cameraSystem   = new CameraSystem(this.context);
-                this.guiSystem      = new GUISystem(this.context);
-                this.blockSystem    = new BlockSystem(this.context);
-                this.gridSystem     = new GridSystem(this.context);
-                this.renderSystem   = new RenderSystem(this.context);
+                this.cameraSystem       = new CameraSystem(this.context);
+                this.guiSystem          = new GUISystem(this.context);
+                this.blockSystem        = new BlockSystem(this.context);
+                this.gridSystem         = new GridSystem(this.context);
+                this.renderSystem       = new RenderSystem(this.context);
 
-                this.context.scene.addBlock(1, 1, 1);
+                this.context.addBlock(1, 5, 2);
 
                 var w, h;
                 w = this.width / 2;
@@ -53,7 +55,8 @@ define([
                 this.sceneViewTop          = new SceneView(this.context, new Rectangle(0, 0, w, h), SceneView.VIEW_DIRECTION_TOP);
                 this.sceneViewLeft         = new SceneView(this.context, new Rectangle(0, h, w, h), SceneView.VIEW_DIRECTION_LEFT);
                 this.sceneViewFront        = new SceneView(this.context, new Rectangle(w, h, w, h), SceneView.VIEW_DIRECTION_FRONT);
-                this.sceneViewPerspective  = new SceneView(this.context, new Rectangle(w, 0, w, h), SceneView.VIEW_DIRECTION_BACK, SceneView.VIEW_PROJECTION_ORTHO);
+                //this.sceneViewPerspective  = new SceneView(this.context, new Rectangle(w, 0, w, h), SceneView.VIEW_DIRECTION_BACK, SceneView.VIEW_PROJECTION_ORTHO);
+                this.textureView           = new TextureView(this.context, new Rectangle(w, 0, w, h));
 
                 $(window).on('resize', this.onWindowResize.bind(this));
             },
@@ -67,7 +70,8 @@ define([
                 this.sceneViewTop.update(elapsed);
                 this.sceneViewLeft.update(elapsed);
                 this.sceneViewFront.update(elapsed);
-                this.sceneViewPerspective.update(elapsed);
+                //this.sceneViewPerspective.update(elapsed);
+                this.textureView.update(elapsed);
             },
 
             draw: function(elapsed) {

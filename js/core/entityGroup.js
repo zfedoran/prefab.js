@@ -12,6 +12,10 @@ define([
         EntityGroup.prototype = {
             constructor: EntityGroup,
 
+            reset: function() {
+                this.entities = {};
+            },
+
             addEntity: function(entity) {
                 this.entities[entity.id] = entity;
             },
