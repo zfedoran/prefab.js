@@ -4,7 +4,7 @@ define([
     ) {
         'use strict';
 
-        var SubSystem = function(context, components) {
+        var Controller = function(context, components) {
             this.context        = context;
             this.device         = context.device;
             this.entityManager  = context.entityManager;
@@ -14,9 +14,9 @@ define([
             this.entityManager.addFilter(this.filterHash, this.filterFunction);
         };
 
-        SubSystem.prototype = {
+        Controller.prototype = {
         };
 
-        return SubSystem;
+        return Controller;
     }
 );

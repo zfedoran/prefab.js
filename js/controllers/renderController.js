@@ -7,7 +7,7 @@ define([
         'text!shaders/textured/fragment.shader',
         'text!shaders/lambert/vertex.shader',
         'text!shaders/lambert/fragment.shader',
-        'core/subSystem'
+        'core/controller'
     ],
     function(
         _,
@@ -18,18 +18,18 @@ define([
         _texturedFragmentShader,
         _lambertVertexShader,
         _lambertFragmentShader,
-        SubSystem
+        Controller
     ) {
         'use strict';
     
-        var RenderSystem = function(context) {
-            SubSystem.call(this, context, ['Transform', 'Camera']);
+        var RenderController = function(context) {
+            Controller.call(this, context, ['Transform', 'Camera']);
 
             this.shaderCache = {};
         };
 
-        RenderSystem.prototype = _.extend(Object.create(SubSystem.prototype), {
-            constructor: RenderSystem,
+        RenderController.prototype = _.extend(Object.create(Controller.prototype), {
+            constructor: RenderController,
 
             render: function() {
                 var entities = this.entityManager.getAllUsingFilterName(this.filterHash);
@@ -128,6 +128,6 @@ define([
             }
         });
 
-        return RenderSystem;
+        return RenderController;
     }
 );

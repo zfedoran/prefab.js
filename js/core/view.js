@@ -1,6 +1,6 @@
 define([
         'core/entity',
-        'entities/guiLayer'
+        'entities/guiLayerEntity'
     ],
     function(
         Entity,

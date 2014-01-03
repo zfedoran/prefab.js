@@ -1,21 +1,21 @@
 define([
         'lodash',
         'math/matrix4',
-        'core/subSystem'
+        'core/controller'
     ],
     function(
         _,
         Matrix4,
-        SubSystem
+        Controller
     ) {
         'use strict';
 
-        var CameraSystem = function(context) {
-            SubSystem.call(this, context, ['Transform', 'Camera']);
+        var CameraController = function(context) {
+            Controller.call(this, context, ['Transform', 'Camera']);
         };
 
-        CameraSystem.prototype = _.extend(Object.create(SubSystem.prototype), {
-            constructor: CameraSystem,
+        CameraController.prototype = _.extend(Object.create(Controller.prototype), {
+            constructor: CameraController,
 
             updateProjectionMatrix: function(entity) {
                 var camera = entity.getComponent('Camera');
@@ -87,6 +87,6 @@ define([
             }
         });
 
-        return CameraSystem;
+        return CameraController;
     }
 );

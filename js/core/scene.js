@@ -2,7 +2,7 @@ define([
         'math/rectangle',
         'graphics/texture',
         'graphics/sprite',
-        'entities/block',
+        'entities/blockEntity',
     ],
     function(
         Rectangle,

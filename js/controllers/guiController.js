@@ -2,7 +2,7 @@ define([
         'lodash',
         'math/vector2',
         'math/vector3',
-        'core/subSystem',
+        'core/controller',
         'graphics/device',
         'graphics/vertexElement',
         'graphics/vertexDeclaration',
@@ -17,7 +17,7 @@ define([
         _,
         Vector2,
         Vector3,
-        SubSystem,
+        Controller,
         GraphicsDevice,
         VertexElement,
         VertexDeclaration,
@@ -30,15 +30,15 @@ define([
     ) {
         'use strict';
 
-        var GUISystem = function(context) {
-            SubSystem.call(this, context, ['GUIElement']);
+        var GUIController = function(context) {
+            Controller.call(this, context, ['GUIElement']);
 
             this.fontCache = {};
             this.meshFactory = new MeshFactory(this.device);
         };
 
-        GUISystem.prototype = _.extend(Object.create(SubSystem.prototype), {
-            constructor: GUISystem,
+        GUIController.prototype = _.extend(Object.create(Controller.prototype), {
+            constructor: GUIController,
 
             update: function() {
                 var entities = this.entityManager.getAllUsingFilterName(this.filterHash);
@@ -158,6 +158,6 @@ define([
             }
         });
 
-        return GUISystem;
+        return GUIController;
     }
 );

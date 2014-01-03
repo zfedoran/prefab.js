@@ -2,7 +2,7 @@ define([
         'lodash',
         'math/vector2',
         'math/vector3',
-        'core/subSystem',
+        'core/controller',
         'graphics/meshFactory',
         'graphics/mesh'
     ], 
@@ -10,20 +10,20 @@ define([
         _,
         Vector2,
         Vector3,
-        SubSystem,
+        Controller,
         MeshFactory,
         Mesh
     ) {
         'use strict';
 
-        var BlockSystem = function(context) {
-            SubSystem.call(this, context, ['Block', 'MeshFilter']);
+        var BlockController = function(context) {
+            Controller.call(this, context, ['Block', 'MeshFilter']);
 
             this.meshFactory = new MeshFactory(this.device);
         };
 
-        BlockSystem.prototype = _.extend(Object.create(SubSystem.prototype), {
-            constructor: BlockSystem,
+        BlockController.prototype = _.extend(Object.create(Controller.prototype), {
+            constructor: BlockController,
 
             update: function() {
                 var entities = this.entityManager.getAllUsingFilterName(this.filterHash);
@@ -220,6 +220,6 @@ define([
             }
         });
 
-        return BlockSystem;
+        return BlockController;
     }
 );

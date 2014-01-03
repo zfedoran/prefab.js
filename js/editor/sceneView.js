@@ -3,10 +3,10 @@ define([
         'math/rectangle',
         'math/vector3',
         'core/view',
-        'entities/camera',
-        'entities/guiLayer',
-        'entities/guiText',
-        'entities/grid'
+        'entities/cameraEntity',
+        'entities/guiLayerEntity',
+        'entities/guiTextEntity',
+        'entities/gridEntity'
     ],
     function(
         _,

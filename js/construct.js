@@ -3,11 +3,11 @@ define([
         'lodash',
         'math/Rectangle',
         'core/application',
-        'systems/cameraSystem',
-        'systems/guiSystem',
-        'systems/blockSystem',
-        'systems/gridSystem',
-        'systems/renderSystem',
+        'controllers/cameraController',
+        'controllers/guiController',
+        'controllers/blockController',
+        'controllers/gridController',
+        'controllers/renderController',
         'editor/sceneView',
         'editor/textureView'
     ],
@@ -16,11 +16,11 @@ define([
         _,
         Rectangle,
         Application,
-        CameraSystem,
-        GUISystem,
-        BlockSystem,
-        GridSystem,
-        RenderSystem,
+        CameraController,
+        GUIController,
+        BlockController,
+        GridController,
+        RenderController,
         SceneView,
         TextureView
     ) {
@@ -40,13 +40,13 @@ define([
             },
 
             init: function() {
-                this.cameraSystem       = new CameraSystem(this.context);
-                this.guiSystem          = new GUISystem(this.context);
-                this.blockSystem        = new BlockSystem(this.context);
-                this.gridSystem         = new GridSystem(this.context);
-                this.renderSystem       = new RenderSystem(this.context);
+                this.cameraController       = new CameraController(this.context);
+                this.guiController          = new GUIController(this.context);
+                this.blockController        = new BlockController(this.context);
+                this.gridController         = new GridController(this.context);
+                this.renderController       = new RenderController(this.context);
 
-                this.context.addBlock(1, 5, 2);
+                this.context.addBlock(2, 4, 5);
 
                 var w, h;
                 w = this.width / 2;
@@ -62,10 +62,10 @@ define([
             },
 
             update: function(elapsed) {
-                this.cameraSystem.update();
-                this.blockSystem.update();
-                this.gridSystem.update();
-                this.guiSystem.update();
+                this.cameraController.update();
+                this.blockController.update();
+                this.gridController.update();
+                this.guiController.update();
 
                 this.sceneViewTop.update(elapsed);
                 this.sceneViewLeft.update(elapsed);
@@ -77,7 +77,7 @@ define([
             draw: function(elapsed) {
                 this.device.clear(this.backgroundColor);
                 
-                this.renderSystem.render();
+                this.renderController.render();
             },
 
             onWindowResize: function(evt) {

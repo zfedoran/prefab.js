@@ -3,7 +3,7 @@ define([
         'math/vector2',
         'math/vector3',
         'math/vector4',
-        'core/subSystem',
+        'core/controller',
         'graphics/meshFactory',
         'graphics/mesh'
     ], 
@@ -12,20 +12,20 @@ define([
         Vector2,
         Vector3,
         Vector4,
-        SubSystem,
+        Controller,
         MeshFactory,
         Mesh
     ) {
         'use strict';
 
-        var GridSystem = function(context) {
-            SubSystem.call(this, context, ['Grid', 'MeshFilter']);
+        var GridController = function(context) {
+            Controller.call(this, context, ['Grid', 'MeshFilter']);
             
             this.meshFactory = new MeshFactory(this.device);
         };
 
-        GridSystem.prototype = _.extend(Object.create(SubSystem.prototype), {
-            constructor: GridSystem,
+        GridController.prototype = _.extend(Object.create(Controller.prototype), {
+            constructor: GridController,
 
             update: function() {
                 var entities = this.entityManager.getAllUsingFilterName(this.filterHash);
@@ -210,6 +210,6 @@ define([
 
         });
 
-        return GridSystem;
+        return GridController;
     }
 );
