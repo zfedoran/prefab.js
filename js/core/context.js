@@ -22,6 +22,24 @@ define([
                 this.entityManager.addEntityToGroup(blockEntity, 'CurrentSelection');
             },
 
+            getOneSelectedBlock: function() {
+                var currentSelection = this.entityManager.getAllUsingGroupName('CurrentSelection');
+
+                // Find "one" currently selected block
+                var entityId, entity;
+                for (entityId in currentSelection) {
+                    if (currentSelection.hasOwnProperty(entityId)) {
+                        entity = currentSelection[entityId];
+                        if (entity.hasComponent('Block')) {
+                            return entity;
+                        }
+                    }
+                }
+            },
+
+            getSelectedEntities: function() {
+                return this.entityManager.getAllUsingGroupName('CurrentSelection');
+            }
         };
 
         return Context;

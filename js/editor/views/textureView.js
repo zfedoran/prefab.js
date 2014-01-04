@@ -48,27 +48,13 @@ define([
 
                 this.unwrapController = new UnwrapController(this.context);
 
-                this.currentSelection = this.entityManager.getAllUsingGroupName('CurrentSelection');
-
-                // Find "one" currently selected block
-                var entityId, entity;
-                for (entityId in this.currentSelection) {
-                    if (this.currentSelection.hasOwnProperty(entityId)) {
-                        entity = this.currentSelection[entityId];
-                        if (entity.hasComponent('Block')) {
-                            this.currentBlock = entity;
-                            break;
-                        }
-                    }
-                }
-
+                this.currentBlock = this.context.getOneSelectedBlock();
                 if (typeof this.currentBlock !== 'undefined') {
                     this.unwrapEntity = new UnwrapEntity(this.currentBlock);
                     this.entityManager.addEntity(this.unwrapEntity);
                     this.entityManager.addEntityToGroup(this.unwrapEntity, this.groupName2D);
                 }
             },
-
 
             initGUI: function() {
                 this.guiLayer = new GUILayerEntity(this.viewRect);
