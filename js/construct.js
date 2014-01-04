@@ -8,8 +8,8 @@ define([
         'controllers/blockController',
         'controllers/gridController',
         'controllers/renderController',
-        'editor/sceneView',
-        'editor/textureView'
+        'editor/views/sceneView',
+        'editor/views/textureView'
     ],
     function(
         $,
