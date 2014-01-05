@@ -8,6 +8,7 @@ define([
         'controllers/blockController',
         'controllers/gridController',
         'controllers/renderController',
+        'controllers/inputController',
         'editor/views/sceneView',
         'editor/views/textureView'
     ],
@@ -21,6 +22,7 @@ define([
         BlockController,
         GridController,
         RenderController,
+        InputController,
         SceneView,
         TextureView
     ) {
@@ -45,8 +47,9 @@ define([
                 this.blockController        = new BlockController(this.context);
                 this.gridController         = new GridController(this.context);
                 this.renderController       = new RenderController(this.context);
+                this.inputController        = new InputController(this.context);
 
-                this.context.addBlock(2, 4, 5);
+                this.context.addBlock(1, 4, 5);
 
                 var w, h;
                 w = this.width / 2;
@@ -55,10 +58,12 @@ define([
                 this.sceneViewTop          = new SceneView(this.context, new Rectangle(0, 0, w, h), SceneView.VIEW_DIRECTION_TOP);
                 this.sceneViewLeft         = new SceneView(this.context, new Rectangle(0, h, w, h), SceneView.VIEW_DIRECTION_LEFT);
                 this.sceneViewFront        = new SceneView(this.context, new Rectangle(w, h, w, h), SceneView.VIEW_DIRECTION_FRONT);
-                //this.sceneViewPerspective  = new SceneView(this.context, new Rectangle(w, 0, w, h), SceneView.VIEW_DIRECTION_BACK, SceneView.VIEW_PROJECTION_ORTHO);
                 this.textureView           = new TextureView(this.context, new Rectangle(w, 0, w, h));
 
                 $(window).on('resize', this.onWindowResize.bind(this));
+                $(window).on('click', this.onMouseClick.bind(this));
+                $(window).on('mousemove', this.onMouseMove.bind(this));
+                $(window).on('mouseout', this.onMouseLeave.bind(this));
             },
 
             update: function(elapsed) {
@@ -70,7 +75,6 @@ define([
                 this.sceneViewTop.update(elapsed);
                 this.sceneViewLeft.update(elapsed);
                 this.sceneViewFront.update(elapsed);
-                //this.sceneViewPerspective.update(elapsed);
                 this.textureView.update(elapsed);
             },
 
@@ -88,6 +92,18 @@ define([
                 this.context.height = this.height;
 
                 this.device.setSize(this.width, this.height);
+            },
+
+            onMouseMove: function(evt) {
+                this.inputController.onMouseMove(evt.pageX, evt.pageY);
+            },
+
+            onMouseClick: function(evt) {
+                this.inputController.onMouseClick();
+            },
+
+            onMouseLeave: function(evt) {
+                this.inputController.onMouseLeave();
             }
         });
 

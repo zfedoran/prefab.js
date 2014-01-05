@@ -2,6 +2,7 @@ define([
     ],
     function(
     ) {
+        'use strict';
 
         var Vector2 = function(x, y) {
             this.x = x || 0;

@@ -211,6 +211,8 @@ define([
             setViewport: function(x, y, width, height) {
                 var gl = this.state.getContext();
 
+                y = this.canvas.height - y - height;
+
                 this.viewportX = x !== undefined ? x : 0;
                 this.viewportY = y !== undefined ? y : 0;
                 this.viewportWidth = width !== undefined ? width : this.canvas.width;

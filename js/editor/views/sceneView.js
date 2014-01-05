@@ -46,9 +46,18 @@ define([
             constructor: SceneView,
 
             init: function() {
-                this.guiText = new GUITextEntity(new Rectangle(0, 0, 1000, 100), this.uuid + ' ' + this.viewDirection);
+                this.guiText = new GUITextEntity(new Rectangle(0, 0, 100, 100), this.uuid + ' ' + this.viewDirection);
                 this.entityManager.addEntity(this.guiText);
                 this.entityManager.addEntityToGroup(this.guiText, this.groupNameGUI);
+                this.guiText.on('click', function() {
+                    console.log('click: ' + this.viewDirection);
+                }, this);
+                this.guiText.on('mouseenter', function() {
+                    console.log('mouseenter: ' + this.viewDirection);
+                }, this);
+                this.guiText.on('mouseleave', function() {
+                    console.log('mouseleave: ' + this.viewDirection);
+                }, this);
             },
 
             initCamera: function() {

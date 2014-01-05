@@ -40,14 +40,14 @@ define([
                 window.requestAnimationFrame(loop);
                 var elapsed = time - prevTime;
                 if (window.hasFocus) {
-                    console.log('active');
+                    //console.log('active');
                     elapsedList.push(elapsed);
                     if (elapsedList.length >= 60) {
                         var i, avg = 0;
                         for (i = 0; i<elapsedList.length; i++) {
                             avg += elapsedList[i];
                         }
-                        console.log('fps: ' + (1000 / (avg / 60)));
+                        //console.log('fps: ' + (1000 / (avg / 60)));
                         elapsedList.length = 0;
                     }
                     self.time = time;

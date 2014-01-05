@@ -42,7 +42,7 @@ define([
             constructor: TextureView,
 
             init: function() {
-                this.guiText = new GUITextEntity(new Rectangle(0, 0, 1000, 100), this.uuid + ' Texture');
+                this.guiText = new GUITextEntity(new Rectangle(0, 0, 100, 100), this.uuid + ' Texture');
                 this.entityManager.addEntity(this.guiText);
                 this.entityManager.addEntityToGroup(this.guiText, this.groupNameGUI);
 

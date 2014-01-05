@@ -42,9 +42,9 @@ define([
 
             contains: function(position) {
                 return (position.x >= this.x 
-                     || position.x <= this.x + this.width
-                     || position.y >= this.y
-                     || position.y <= this.x + this.height);
+                     && position.x <= this.x + this.width
+                     && position.y >= this.y
+                     && position.y <= this.y + this.height);
             },
 
             toArray: function() {
