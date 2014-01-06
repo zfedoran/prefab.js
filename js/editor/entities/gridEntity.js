@@ -2,7 +2,7 @@ define([
         'core/entity',
         'graphics/material',
         'components/transform',
-        'components/grid',
+        'editor/components/grid',
         'components/meshFilter',
         'components/meshRenderer',
         'graphics/mesh'

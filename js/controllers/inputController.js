@@ -66,12 +66,15 @@ define([
                                     group = camera.renderGroups[i];
                                     this.testGroupForMouseOverEvents(group, camera);
                                 }
+
+                                this.testViewportForMouseOverEvents(entity, camera);
                             }
                         }
                     }
                 }
                 
                 this.testForMouseLeaveEvents();
+                this.testForMouseEnterEvents();
             },
 
             testForMouseLeaveEvents: function() {
@@ -94,17 +97,29 @@ define([
                 }
             },
 
-            testForMouseEnterEvent: function(entity) {
-                var i, currEntity, hasEntityAlreadyBeenAdded = false;
-                for (i = 0; i < this.prevHitTestCache.length; i++) {
-                    currEntity = this.prevHitTestCache[i];
-                    if (currEntity === entity) {
-                        hasEntityAlreadyBeenAdded = true;
+            testForMouseEnterEvents: function() {
+                var i, j, prevEntity, currEntity, isEntityInsideBothCacheLists;
+                for (i = 0; i < this.currHitTestCache.length; i++) {
+                    currEntity = this.currHitTestCache[i];
+                    isEntityInsideBothCacheLists = false;
+
+                    for (j = 0; j < this.prevHitTestCache.length; j++) {
+                        prevEntity = this.prevHitTestCache[j];
+                        if (prevEntity === currEntity) {
+                            isEntityInsideBothCacheLists = true;
+                            break;
+                        }
+                    }
+
+                    if (!isEntityInsideBothCacheLists) {
+                        currEntity.trigger('mouseenter');
                     }
                 }
+            },
 
-                if (!hasEntityAlreadyBeenAdded) {
-                    entity.trigger('mouseenter');
+            testViewportForMouseOverEvents: function(entity, cameraComponent) {
+                if (cameraComponent.viewRect.contains(this.mousePosition)) {
+                    this.currHitTestCache.push(entity);
                 }
             },
 
@@ -116,13 +131,13 @@ define([
                         entity = entities[o];
 
                         if (entity.hasComponent('GUIElement')) {
-                            this.testEntityForMouseOverEvent(entity, cameraComponent);
+                            this.testEntityForMouseOverEvents(entity, cameraComponent);
                         }
                     }
                 }
             },
 
-            testEntityForMouseOverEvent: function(entity, cameraComponent) {
+            testEntityForMouseOverEvents: function(entity, cameraComponent) {
                 var guiElement = entity.getComponent('GUIElement');
                 var boundingRect = guiElement.boundingBox;
             
@@ -134,7 +149,6 @@ define([
                  && this.mousePosition.y >= y
                  && this.mousePosition.y <= y + boundingRect.height) {
                     this.currHitTestCache.push(entity);
-                    this.testForMouseEnterEvent(entity);
                 }
             },
         });

@@ -6,9 +6,11 @@ define([
         'controllers/cameraController',
         'controllers/guiController',
         'controllers/blockController',
-        'controllers/gridController',
         'controllers/renderController',
         'controllers/inputController',
+        'editor/controllers/gridController',
+        'editor/controllers/orbitController',
+        'editor/controllers/unwrapController',
         'editor/views/sceneView',
         'editor/views/textureView'
     ],
@@ -20,9 +22,11 @@ define([
         CameraController,
         GUIController,
         BlockController,
-        GridController,
         RenderController,
         InputController,
+        GridController,
+        OrbitController,
+        UnwrapController,
         SceneView,
         TextureView
     ) {
@@ -46,8 +50,10 @@ define([
                 this.guiController          = new GUIController(this.context);
                 this.blockController        = new BlockController(this.context);
                 this.gridController         = new GridController(this.context);
+                this.orbitController        = new OrbitController(this.context);
                 this.renderController       = new RenderController(this.context);
                 this.inputController        = new InputController(this.context);
+                this.unwrapController       = new UnwrapController(this.context);
 
                 this.context.addBlock(1, 4, 5);
 
@@ -64,6 +70,8 @@ define([
                 $(window).on('click', this.onMouseClick.bind(this));
                 $(window).on('mousemove', this.onMouseMove.bind(this));
                 $(window).on('mouseout', this.onMouseLeave.bind(this));
+                $(window).on('mousedown', this.onMouseDown.bind(this));
+                $(window).on('mouseup', this.onMouseUp.bind(this));
             },
 
             update: function(elapsed) {
@@ -71,6 +79,7 @@ define([
                 this.blockController.update();
                 this.gridController.update();
                 this.guiController.update();
+                this.unwrapController.update();
 
                 this.sceneViewTop.update(elapsed);
                 this.sceneViewLeft.update(elapsed);
@@ -96,6 +105,15 @@ define([
 
             onMouseMove: function(evt) {
                 this.inputController.onMouseMove(evt.pageX, evt.pageY);
+                this.orbitController.onMouseMove(evt.pageX, evt.pageY);
+            },
+
+            onMouseDown: function(evt) {
+                this.orbitController.onMouseDown(evt.button);
+            },
+
+            onMouseUp: function(evt) {
+                this.orbitController.onMouseUp(evt.button);
             },
 
             onMouseClick: function(evt) {
@@ -104,6 +122,7 @@ define([
 
             onMouseLeave: function(evt) {
                 this.inputController.onMouseLeave();
+                this.orbitController.onMouseLeave();
             }
         });
 

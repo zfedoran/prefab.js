@@ -6,7 +6,8 @@ define([
         'entities/cameraEntity',
         'entities/guiLayerEntity',
         'entities/guiTextEntity',
-        'entities/gridEntity'
+        'editor/entities/gridEntity',
+        'editor/components/orbit'
     ],
     function(
         _,
@@ -16,7 +17,8 @@ define([
         CameraEntity,
         GUILayerEntity,
         GUITextEntity,
-        GridEntity
+        GridEntity,
+        Orbit
     ) {
         'use strict';
     
@@ -32,7 +34,12 @@ define([
             this.entityManager.addEntity(this.guiLayer);
 
             this.camera = new CameraEntity(viewRect, 0.1, 500, 75);
+            this.camera.addComponent(new Orbit());
             this.entityManager.addEntity(this.camera);
+
+            this.camera.on('click', function() { console.log('cam click: ' + this.viewDirection); }, this);
+            this.camera.on('mouseenter', function() { console.log('cam mouseenter: ' + this.viewDirection); }, this);
+            this.camera.on('mouseleave', function() { console.log('cam mouseleave: ' + this.viewDirection); }, this);
 
             this.viewDirection = viewDirection;
             this.viewProjection = viewProjection;
@@ -49,15 +56,10 @@ define([
                 this.guiText = new GUITextEntity(new Rectangle(0, 0, 100, 100), this.uuid + ' ' + this.viewDirection);
                 this.entityManager.addEntity(this.guiText);
                 this.entityManager.addEntityToGroup(this.guiText, this.groupNameGUI);
-                this.guiText.on('click', function() {
-                    console.log('click: ' + this.viewDirection);
-                }, this);
-                this.guiText.on('mouseenter', function() {
-                    console.log('mouseenter: ' + this.viewDirection);
-                }, this);
-                this.guiText.on('mouseleave', function() {
-                    console.log('mouseleave: ' + this.viewDirection);
-                }, this);
+
+                this.guiText.on('click', function() { console.log('gui click: ' + this.viewDirection); }, this);
+                this.guiText.on('mouseenter', function() { console.log('gui mouseenter: ' + this.viewDirection); }, this);
+                this.guiText.on('mouseleave', function() { console.log('gui mouseleave: ' + this.viewDirection); }, this);
             },
 
             initCamera: function() {
@@ -70,6 +72,7 @@ define([
                 }
                 cameraComponent.target = new Vector3(0,0,0);
                 cameraComponent.setDirty(true);
+
 
                 var cameraTransform = this.camera.getComponent('Transform');
                 if (this.viewDirection === SceneView.VIEW_DIRECTION_TOP) {
@@ -131,11 +134,13 @@ define([
             },
 
             update: function(elapsed) {
+                /*
                 var transform = this.camera.getComponent('Transform');
                 transform.localPosition.x = Math.sin(this.context.time * 0.001) * 5;
                 transform.localPosition.y = Math.sin(this.context.time * 0.0001) * 5;
                 transform.localPosition.z = Math.cos(this.context.time * 0.001) * 5;
                 transform.setDirty(true);
+                */
 
                 var camera = this.camera.getComponent('Camera');
                 camera.target = new Vector3(0,0,0);

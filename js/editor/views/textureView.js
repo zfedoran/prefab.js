@@ -7,9 +7,8 @@ define([
         'entities/cameraEntity',
         'entities/guiLayerEntity',
         'entities/guiTextEntity',
-        'entities/gridEntity',
-        'editor/entities/unwrapEntity',
-        'editor/controllers/unwrapController'
+        'editor/entities/gridEntity',
+        'editor/entities/unwrapEntity'
     ],
     function(
         _,
@@ -21,8 +20,7 @@ define([
         GUILayerEntity,
         GUITextEntity,
         GridEntity,
-        UnwrapEntity,
-        UnwrapController
+        UnwrapEntity
     ) {
         'use strict';
     
@@ -45,8 +43,6 @@ define([
                 this.guiText = new GUITextEntity(new Rectangle(0, 0, 100, 100), this.uuid + ' Texture');
                 this.entityManager.addEntity(this.guiText);
                 this.entityManager.addEntityToGroup(this.guiText, this.groupNameGUI);
-
-                this.unwrapController = new UnwrapController(this.context);
 
                 this.currentBlock = this.context.getOneSelectedBlock();
                 if (typeof this.currentBlock !== 'undefined') {
@@ -82,7 +78,6 @@ define([
             },
 
             update: function(elapsed) {
-                this.unwrapController.update();
             },
 
             setSize: function(width, height) {
