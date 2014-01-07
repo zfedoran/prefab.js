@@ -2,12 +2,14 @@ define([
         'lodash',
         'math/vector2',
         'math/vector3',
+        'math/matrix4',
         'core/controller'
     ], 
     function(
         _,
         Vector2,
         Vector3,
+        Matrix4,
         Controller
     ) {
         'use strict';
@@ -63,13 +65,24 @@ define([
 
                 if (this.state === OrbitController.STATE_ROTATE) {
                     this.rotate(deltaX, deltaY);
-                } else if (this.state === OrbitController.STATE_ZOOM) {
-                    this.zoom(deltaX, deltaY);
+              //} else if (this.state === OrbitController.STATE_ZOOM) {
+              //    this.zoom(deltaY);
                 } else if (this.state === OrbitController.STATE_PAN) {
                     this.pan(deltaX, deltaY);
                 } else {
                     this.testForMouseOverEvents();
                 } 
+            },
+            
+            onMouseWheel: function(deltaX, deltaY) {
+                if (this.hasCurrentEntity()) {
+                    if (this.state === OrbitController.STATE_NONE) {
+                        this.state = OrbitController.STATE_ZOOM;
+                    }
+                    if (this.state === OrbitController.STATE_ZOOM) {
+                        this.zoom(deltaY);
+                    }
+                }
             },
 
             testForMouseOverEvents: function() {
@@ -100,18 +113,33 @@ define([
             focus: function() {
             },
 
-            zoom: function() {
+            zoom: function(delta) {
+                var entity    = this.getCurrentEntity();
+                var transform = entity.getComponent('Transform');
+                var camera    = entity.getComponent('Camera');
+                var center    = camera.getTargetPosition();
+
+                Vector3.subtract(transform.getPosition(), center, /*out*/ vector);
+                
+                /*
+                var sign     = delta && delta / Math.abs(delta);
+                var distance = sign * vector.length() * 0.001;
+                */
+                var distance = -delta * 0.001;
+
+                Vector3.multiplyScalar(vector, distance, /*out*/ vector);
+                Vector3.add(transform.localPosition, vector, /*out*/ transform.localPosition);
+                transform.setDirty(true);
             },
 
             pan: function() {
             },
 
             rotate: function(deltaX, deltaY) {
-                var entity = this.getCurrentEntity();
+                var entity    = this.getCurrentEntity();
                 var transform = entity.getComponent('Transform');
                 var camera    = entity.getComponent('Camera');
                 var center    = camera.getTargetPosition();
-                var vector    = new Vector3();
 
                 // vector = cameraPosition - center;
                 Vector3.subtract(transform.getPosition(), center, /*out*/ vector);
@@ -145,6 +173,10 @@ define([
         OrbitController.STATE_ZOOM   = 'zoom';
         OrbitController.STATE_ROTATE = 'rotate';
         OrbitController.STATE_PAN    = 'pan';
+
+        // Cahce vector class so that it does not need to be re-created each function call
+        var vector    = new Vector3();
+        var matrix    = new Matrix4();
 
         return OrbitController;
     }

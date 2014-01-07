@@ -37,10 +37,6 @@ define([
             this.camera.addComponent(new Orbit());
             this.entityManager.addEntity(this.camera);
 
-            this.camera.on('click', function() { console.log('cam click: ' + this.viewDirection); }, this);
-            this.camera.on('mouseenter', function() { console.log('cam mouseenter: ' + this.viewDirection); }, this);
-            this.camera.on('mouseleave', function() { console.log('cam mouseleave: ' + this.viewDirection); }, this);
-
             this.viewDirection = viewDirection;
             this.viewProjection = viewProjection;
 
@@ -56,10 +52,6 @@ define([
                 this.guiText = new GUITextEntity(new Rectangle(0, 0, 100, 100), this.uuid + ' ' + this.viewDirection);
                 this.entityManager.addEntity(this.guiText);
                 this.entityManager.addEntityToGroup(this.guiText, this.groupNameGUI);
-
-                this.guiText.on('click', function() { console.log('gui click: ' + this.viewDirection); }, this);
-                this.guiText.on('mouseenter', function() { console.log('gui mouseenter: ' + this.viewDirection); }, this);
-                this.guiText.on('mouseleave', function() { console.log('gui mouseleave: ' + this.viewDirection); }, this);
             },
 
             initCamera: function() {

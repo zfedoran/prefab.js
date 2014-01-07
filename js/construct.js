@@ -72,6 +72,7 @@ define([
                 $(window).on('mouseout', this.onMouseLeave.bind(this));
                 $(window).on('mousedown', this.onMouseDown.bind(this));
                 $(window).on('mouseup', this.onMouseUp.bind(this));
+                $(window).on('mousewheel', this.onMouseWheel.bind(this));
             },
 
             update: function(elapsed) {
@@ -118,6 +119,10 @@ define([
 
             onMouseClick: function(evt) {
                 this.inputController.onMouseClick();
+            },
+
+            onMouseWheel: function(evt) {
+                this.orbitController.onMouseWheel(evt.originalEvent.wheelDeltaX, evt.originalEvent.wheelDeltaY);
             },
 
             onMouseLeave: function(evt) {

@@ -15,6 +15,9 @@ define([
         'use strict';
 
         var Application = function() {
+            // Disable scrolling
+            $('html, body').css({ 'overflow': 'hidden', 'height': '100%' });
+
             this.width = 720;
             this.height = 480;
 
