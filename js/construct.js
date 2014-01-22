@@ -11,8 +11,12 @@ define([
         'editor/controllers/gridController',
         'editor/controllers/orbitController',
         'editor/controllers/unwrapController',
-        'editor/views/sceneView',
-        'editor/views/textureView'
+        'editor/controllers/viewController',
+        'editor/controllers/sceneViewController',
+        'editor/controllers/textureViewController',
+        'editor/components/sceneView',
+        'editor/entities/sceneViewEntity',
+        'editor/entities/textureViewEntity',
     ],
     function(
         $,
@@ -27,8 +31,12 @@ define([
         GridController,
         OrbitController,
         UnwrapController,
+        ViewController,
+        SceneViewController,
+        TextureViewController,
         SceneView,
-        TextureView
+        SceneViewEntity,
+        TextureViewEntity
     ) {
         'use strict';
 
@@ -46,6 +54,9 @@ define([
             },
 
             init: function() {
+                this.viewController         = new ViewController(this.context);
+                this.sceneViewController    = new SceneViewController(this.context);
+                this.textureViewController  = new TextureViewController(this.context);
                 this.cameraController       = new CameraController(this.context);
                 this.guiController          = new GUIController(this.context);
                 this.blockController        = new BlockController(this.context);
@@ -61,10 +72,15 @@ define([
                 w = this.width / 2;
                 h = this.height / 2;
 
-                this.sceneViewTop          = new SceneView(this.context, new Rectangle(0, 0, w, h), SceneView.VIEW_DIRECTION_TOP);
-                this.sceneViewLeft         = new SceneView(this.context, new Rectangle(0, h, w, h), SceneView.VIEW_DIRECTION_LEFT);
-                this.sceneViewFront        = new SceneView(this.context, new Rectangle(w, h, w, h), SceneView.VIEW_DIRECTION_FRONT);
-                this.textureView           = new TextureView(this.context, new Rectangle(w, 0, w, h));
+                var viewTop     = new SceneViewEntity(new Rectangle(0,0,w,h), SceneView.VIEW_DIRECTION_TOP);
+                var viewLeft    = new SceneViewEntity(new Rectangle(0,h,w,h), SceneView.VIEW_DIRECTION_LEFT);
+                var viewFront   = new SceneViewEntity(new Rectangle(w,h,w,h), SceneView.VIEW_DIRECTION_FRONT);
+                var viewTexture = new TextureViewEntity(new Rectangle(w,0,w,h));
+
+                this.context.entityManager.addEntity(viewTop);
+                this.context.entityManager.addEntity(viewLeft);
+                this.context.entityManager.addEntity(viewFront);
+                this.context.entityManager.addEntity(viewTexture);
 
                 $(window).on('resize', this.onWindowResize.bind(this));
                 $(window).on('click', this.onMouseClick.bind(this));
@@ -76,16 +92,14 @@ define([
             },
 
             update: function(elapsed) {
+                this.viewController.update();
+                this.sceneViewController.update();
+                this.textureViewController.update();
                 this.cameraController.update();
                 this.blockController.update();
                 this.gridController.update();
                 this.guiController.update();
                 this.unwrapController.update();
-
-                this.sceneViewTop.update(elapsed);
-                this.sceneViewLeft.update(elapsed);
-                this.sceneViewFront.update(elapsed);
-                this.textureView.update(elapsed);
             },
 
             draw: function(elapsed) {

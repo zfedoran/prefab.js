@@ -20,6 +20,7 @@ define([
             addEntity: function(entity) {
                 this.entities[entity.id] = entity;
                 this.updateFiltersForEntity(entity);
+                entity.on('component.added', function() { this.updateFiltersForEntity(entity); }, this);
             },
 
             getEntity: function(id) {

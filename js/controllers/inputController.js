@@ -139,7 +139,7 @@ define([
 
             testEntityForMouseOverEvents: function(entity, cameraComponent) {
                 var guiElement = entity.getComponent('GUIElement');
-                var boundingRect = guiElement.boundingBox;
+                var boundingRect = guiElement.boundingRect;
             
                 var x = boundingRect.x + cameraComponent.viewRect.x;
                 var y = boundingRect.y + cameraComponent.viewRect.y;

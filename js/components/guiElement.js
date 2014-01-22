@@ -9,7 +9,7 @@ define([
         var GUIElement = function(rect) {
             Component.call(this);
 
-            this.boundingBox = rect;
+            this.boundingRect = rect;
 
             this.setDirty(true);
         };
@@ -21,7 +21,7 @@ define([
         GUIElement.prototype.constructor = GUIElement;
 
         GUIElement.prototype.hitTest = function(position) {
-            return this.boundingBox.contains(position);
+            return this.boundingRect.contains(position);
         };
 
         return GUIElement;

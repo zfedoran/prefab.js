@@ -123,7 +123,7 @@ define([
                     } else {
                         sprite = guiText._spriteFont.getSprite(character);
 
-                        if (currentWidth + sprite.width > guiElement.boundingBox.width) {
+                        if (currentWidth + sprite.width > guiElement.boundingRect.width) {
                             currentWidth = 0;
                             currentHeight += guiText.lineHeight;
                         }

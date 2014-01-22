@@ -2,7 +2,6 @@ define([
         'math/vector2',
         'math/vector3',
         'math/vector4',
-        'math/boundingBox',
         'graphics/vertexDeclaration',
         'graphics/vertexElement',
         'graphics/mesh'
@@ -11,7 +10,6 @@ define([
         Vector2,
         Vector3,
         Vector4,
-        BoundingBox,
         VertexDeclaration,
         VertexElement,
         Mesh
