@@ -65,7 +65,7 @@ define([
                 h = this.height / 2;
 
                 var viewTop     = new SceneViewEntity(new Rectangle(0,0,w,h), SceneView.VIEW_DIRECTION_TOP);
-                var viewLeft    = new SceneViewEntity(new Rectangle(0,h,w,h), SceneView.VIEW_DIRECTION_LEFT);
+                var viewLeft    = new SceneViewEntity(new Rectangle(0,h,w,h), SceneView.VIEW_DIRECTION_BOTTOM);
                 var viewFront   = new SceneViewEntity(new Rectangle(w,h,w,h), SceneView.VIEW_DIRECTION_FRONT);
                 var viewTexture = new TextureViewEntity(new Rectangle(w,0,w,h));
 

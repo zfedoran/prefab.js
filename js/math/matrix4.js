@@ -549,20 +549,17 @@ define([
             var te = result.elements;
 
             var z = Vector3.subtract(eye, target);
-            z.normalize();
-
             if (z.length() === 0) {
                 z.z = 1;
             }
+            z.normalize();
 
             var x = Vector3.cross(up, z);
-            x.normalize();
-
             if (x.length() === 0) {
-                z.x += 0.0001;
+                z.z += 0.0001;
                 x = Vector3.cross(up, z);
-                x.normalize();
             }
+            x.normalize();
 
             var y = Vector3.cross(z, x);
 

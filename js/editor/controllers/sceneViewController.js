@@ -36,7 +36,7 @@ define([
                     if (entities.hasOwnProperty(o)) {
                         entity = entities[o];
 
-                        var sceneView       = entity.getComponent('SceneView');
+                        var sceneView = entity.getComponent('SceneView');
 
                         if (!sceneView.isInitialized) {
                             this.initSceneView(entity);
@@ -45,12 +45,15 @@ define([
                         if (sceneView.isDirty()) {
                             this.updateSceneView(entity);
                         }
+
+                        sceneView.setDirty(false);
                     }
                 }
             },
 
             updateSceneView: function(entity) {
-                var sceneView = entity.getComponent('SceneView');
+                this.updateGrid(entity);
+                this.updateViewLabel(entity);
             },
 
             initSceneView: function(entity) {
@@ -67,12 +70,19 @@ define([
                 var sceneView = entity.getComponent('SceneView');
                 var view      = entity.getComponent('View');
 
-                var text = entity.uuid + ' Scene';
-                var guiText = new GUITextEntity(new Rectangle(0, 0, 100, 100), text);
+                var guiText = new GUITextEntity(new Rectangle(0, 0, 100, 100));
                 this.entityManager.addEntity(guiText);
                 this.entityManager.addEntityToGroup(guiText, view.groupNameGUI);
 
                 sceneView.viewLabel = guiText;
+            },
+
+            updateViewLabel: function(entity) {
+                var sceneView = entity.getComponent('SceneView');
+                var guiText = sceneView.viewLabel.getComponent('GUIText');
+
+                guiText.content = sceneView.direction;
+                guiText.setDirty(true);
             },
 
             initGrid: function(entity) {
@@ -83,31 +93,34 @@ define([
                 this.entityManager.addEntity(gridEntity);
                 this.entityManager.addEntityToGroup(gridEntity, view.groupNameCamera);
 
-                var gridComponent = gridEntity.getComponent('Grid');
+                sceneView.gridEntity = gridEntity;
+            },
+
+            updateGrid: function(entity) {
+                var sceneView = entity.getComponent('SceneView');
+                var gridComponent = sceneView.gridEntity.getComponent('Grid');
+
+                gridComponent.hasXYPlane = false;
+                gridComponent.hasYZPlane = false;
+                gridComponent.hasXZPlane = false;
 
                 if (sceneView.direction === SceneView.VIEW_DIRECTION_TOP) {
-                    gridComponent.hasXYPlane = false;
-                    gridComponent.hasYZPlane = false;
+                    gridComponent.hasXZPlane = true;
                 } else if (sceneView.direction === SceneView.VIEW_DIRECTION_BOTTOM) {
-                    gridComponent.hasXYPlane = false;
-                    gridComponent.hasYZPlane = false;
+                    gridComponent.hasXZPlane = true;
                 } else if (sceneView.direction === SceneView.VIEW_DIRECTION_LEFT) {
-                    gridComponent.hasXYPlane = false;
-                    gridComponent.hasXZPlane = false;
+                    gridComponent.hasYZPlane = true;
                 } else if (sceneView.direction === SceneView.VIEW_DIRECTION_RIGHT) {
-                    gridComponent.hasXYPlane = false;
-                    gridComponent.hasXZPlane = false;
+                    gridComponent.hasYZPlane = true;
                 } else if (sceneView.direction === SceneView.VIEW_DIRECTION_FRONT) {
-                    gridComponent.hasXZPlane = false;
-                    gridComponent.hasYZPlane = false;
+                    gridComponent.hasXYPlane = true;
                 } else if (sceneView.direction === SceneView.VIEW_DIRECTION_BACK) {
-                    gridComponent.hasXZPlane = false;
-                    gridComponent.hasYZPlane = false;
+                    gridComponent.hasXYPlane = true;
+                } else {
+                    gridComponent.hasXZPlane = true;
                 }
 
                 gridComponent.setDirty(true);
-
-                sceneView.gridEntity = gridEntity;
             },
 
             initCamera: function(entity) {
@@ -134,12 +147,12 @@ define([
                     cameraTransform.localPosition.x = 0;
                     cameraTransform.localPosition.y = 10;
                     cameraTransform.localPosition.z = 0;
-                    cameraComponent.up = Vector3.LEFT;
+                //    cameraComponent.up = Vector3.LEFT;
                 } else if (sceneView.direction === SceneView.VIEW_DIRECTION_BOTTOM) {
                     cameraTransform.localPosition.x = 0;
                     cameraTransform.localPosition.y = -10;
                     cameraTransform.localPosition.z = 0;
-                    cameraComponent.up = Vector3.LEFT;
+                //    cameraComponent.up = Vector3.LEFT;
                 } else if (sceneView.direction === SceneView.VIEW_DIRECTION_LEFT) {
                     cameraTransform.localPosition.x = 10;
                     cameraTransform.localPosition.y = 0;

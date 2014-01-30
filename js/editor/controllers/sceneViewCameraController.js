@@ -76,6 +76,10 @@ define([
                         // Handle state logic
                         if (sceneView.state === SceneView.STATE_ROTATE) {
                             this.rotateSceneView(entity);
+                            if (sceneView.direction !== SceneView.VIEW_DIRECTION_CUSTOM) {
+                                sceneView.direction = SceneView.VIEW_DIRECTION_CUSTOM;
+                                sceneView.setDirty(true);
+                            }
                       //} else if (this.state === SceneView.STATE_ZOOM) {
                       //    this.zoomSceneView(entity);
                       //} else if (this.state === SceneView.STATE_PAN) {

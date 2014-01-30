@@ -36,6 +36,7 @@ define([
         SceneView.VIEW_DIRECTION_RIGHT  = 'right';
         SceneView.VIEW_DIRECTION_FRONT  = 'front';
         SceneView.VIEW_DIRECTION_BACK   = 'back';
+        SceneView.VIEW_DIRECTION_CUSTOM = 'custom';
 
         SceneView.STATE_NONE   = 'none';
         SceneView.STATE_ZOOM   = 'zoom';
