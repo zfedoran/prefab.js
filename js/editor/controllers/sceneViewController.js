@@ -8,7 +8,6 @@ define([
         'entities/cameraEntity',
         'editor/entities/gridEntity',
         'editor/components/sceneView',
-        'editor/components/orbit'
     ], 
     function(
         _,
@@ -19,8 +18,7 @@ define([
         GUITextEntity,
         CameraEntity,
         GridEntity,
-        SceneView,
-        Orbit
+        SceneView
     ) {
         'use strict';
 
@@ -116,8 +114,6 @@ define([
                 var view         = entity.getComponent('View');
                 var sceneView    = entity.getComponent('SceneView');
                 var cameraEntity = view.cameraEntity;
-
-                cameraEntity.addComponent(new Orbit());
 
                 var cameraComponent = cameraEntity.getComponent('Camera');
                 cameraComponent.addRenderGroup(sceneView.groupNameScene);

@@ -3,154 +3,95 @@ define([
         'math/vector2',
         'math/vector3',
         'core/controller',
+        'core/buttonState',
+        'core/mouseState'
     ], 
     function(
         _,
         Vector2,
         Vector3,
-        Controller
+        Controller,
+        ButtonState,
+        MouseState
     ) {
         'use strict';
 
         var InputController = function(context) {
-            Controller.call(this, context, ['Transform', 'Camera']);
+            Controller.call(this, context, ['InputMouse']);
 
-            this.currHitTestCache = [];
-            this.prevHitTestCache = [];
-
-            this.mousePosition = new Vector2();
+            this.mouseState = new MouseState();
         };
 
         InputController.prototype = _.extend(Object.create(Controller.prototype), {
             constructor: InputController,
 
-            onMouseLeave: function() {
-                // Swap and clear the hit test cache list
-                var tmp = this.prevHitTestCache;
-                this.prevHitTestCache = this.currHitTestCache;
-                this.currHitTestCache = tmp;
-                this.currHitTestCache.length = 0;
-
-                this.testForMouseLeaveEvents();
+            onMouseMove: function(evt) {
+                this.mouseState.mousePosition.x = evt.pageX;
+                this.mouseState.mousePosition.y = evt.pageY;
             },
 
-            onMouseClick: function() {
-                var i, entity;
-                for (i = 0; i < this.currHitTestCache.length; i++) {
-                    entity = this.currHitTestCache[i];
-                    entity.trigger('click');
+            onMouseDown: function(evt) {
+                if (evt.button === 0) {
+                    this.mouseState.buttonLeft = ButtonState.BUTTON_DOWN;
+                } else if (evt.button === 1) {
+                    this.mouseState.buttonMiddle = ButtonState.BUTTON_DOWN;
+                } else {
+                    this.mouseState.buttonRight = ButtonState.BUTTON_DOWN;
                 }
             },
 
-            onMouseMove: function(pageX, pageY) {
-                this.mousePosition.x = pageX;
-                this.mousePosition.y = pageY;
+            onMouseUp: function(evt) {
+                if (evt.button === 0) {
+                    this.mouseState.buttonLeft = ButtonState.BUTTON_UP;
+                } else if (evt.button === 1) {
+                    this.mouseState.buttonMiddle = ButtonState.BUTTON_UP;
+                } else {
+                    this.mouseState.buttonRight = ButtonState.BUTTON_UP;
+                }
+            },
 
+            onMouseWheel: function(evt) {
+                this.mouseState.mouseWheel.x = evt.originalEvent.wheelDeltaX;
+                this.mouseState.mouseWheel.y = evt.originalEvent.wheelDeltaY;
+            },
+
+            onMouseLeave: function(evt) {
+                this.mouseState.buttonLeft = ButtonState.BUTTON_UP;
+                this.mouseState.buttonMiddle = ButtonState.BUTTON_UP;
+                this.mouseState.buttonRight = ButtonState.BUTTON_UP;
+            },
+
+            update: function() {
                 var entities = this.entityManager.getAllUsingFilterName(this.filterHash);
 
-                // Swap and clear the hit test cache list
-                var tmp = this.prevHitTestCache;
-                this.prevHitTestCache = this.currHitTestCache;
-                this.currHitTestCache = tmp;
-                this.currHitTestCache.length = 0;
-
                 var o, entity;
                 for (o in entities) {
                     if (entities.hasOwnProperty(o)) {
                         entity = entities[o];
-                        if (entity.hasComponent('Camera')) {
-                            var camera = entity.getComponent('Camera');
-                            if (camera.isEnabled() && camera.renderGroups.length > 0) {
-                                var i, group;
-                                for (i = 0; i < camera.renderGroups.length; i++) {
-                                    group = camera.renderGroups[i];
-                                    this.testGroupForMouseOverEvents(group, camera);
-                                }
-
-                                this.testViewportForMouseOverEvents(entity, camera);
-                            }
-                        }
-                    }
-                }
-                
-                this.testForMouseLeaveEvents();
-                this.testForMouseEnterEvents();
-            },
-
-            testForMouseLeaveEvents: function() {
-                var i, j, prevEntity, currEntity, isEntityInsideBothCacheLists;
-                for (i = 0; i < this.prevHitTestCache.length; i++) {
-                    prevEntity = this.prevHitTestCache[i];
-                    isEntityInsideBothCacheLists = false;
-
-                    for (j = 0; j < this.currHitTestCache.length; j++) {
-                        currEntity = this.currHitTestCache[j];
-                        if (prevEntity === currEntity) {
-                            isEntityInsideBothCacheLists = true;
-                            break;
-                        }
-                    }
-
-                    if (!isEntityInsideBothCacheLists) {
-                        prevEntity.trigger('mouseleave');
-                    }
-                }
-            },
-
-            testForMouseEnterEvents: function() {
-                var i, j, prevEntity, currEntity, isEntityInsideBothCacheLists;
-                for (i = 0; i < this.currHitTestCache.length; i++) {
-                    currEntity = this.currHitTestCache[i];
-                    isEntityInsideBothCacheLists = false;
-
-                    for (j = 0; j < this.prevHitTestCache.length; j++) {
-                        prevEntity = this.prevHitTestCache[j];
-                        if (prevEntity === currEntity) {
-                            isEntityInsideBothCacheLists = true;
-                            break;
-                        }
-                    }
-
-                    if (!isEntityInsideBothCacheLists) {
-                        currEntity.trigger('mouseenter');
-                    }
-                }
-            },
-
-            testViewportForMouseOverEvents: function(entity, cameraComponent) {
-                if (cameraComponent.viewRect.contains(this.mousePosition)) {
-                    this.currHitTestCache.push(entity);
-                }
-            },
-
-            testGroupForMouseOverEvents: function(group, cameraComponent) {
-                var entities = this.entityManager.getAllUsingGroupName(group);
-                var o, entity;
-                for (o in entities) {
-                    if (entities.hasOwnProperty(o)) {
-                        entity = entities[o];
-
-                        if (entity.hasComponent('GUIElement')) {
-                            this.testEntityForMouseOverEvents(entity, cameraComponent);
+                        if (entity.hasComponent('InputMouse')) {
+                            this.updateInputMouse(entity);
                         }
                     }
                 }
             },
 
-            testEntityForMouseOverEvents: function(entity, cameraComponent) {
-                var guiElement = entity.getComponent('GUIElement');
-                var boundingRect = guiElement.boundingRect;
-            
-                var x = boundingRect.x + cameraComponent.viewRect.x;
-                var y = boundingRect.y + cameraComponent.viewRect.y;
+            updateInputMouse: function(entity) {
+                var inputMouse = entity.getComponent('InputMouse');
 
-                if (this.mousePosition.x >= x 
-                 && this.mousePosition.x <= x + boundingRect.width
-                 && this.mousePosition.y >= y
-                 && this.mousePosition.y <= y + boundingRect.height) {
-                    this.currHitTestCache.push(entity);
-                }
-            },
+                // swap states
+                var tmp              = inputMouse.prevState;
+                inputMouse.prevState = inputMouse.currState;
+                inputMouse.currState = tmp;
+
+                // set current state
+                inputMouse.currState.mousePosition.x = this.mouseState.mousePosition.x;
+                inputMouse.currState.mousePosition.y = this.mouseState.mousePosition.y;
+                inputMouse.currState.mouseWheel.x    = this.mouseState.mouseWheel.x;
+                inputMouse.currState.mouseWheel.y    = this.mouseState.mouseWheel.y;
+                inputMouse.currState.buttonLeft      = this.mouseState.buttonLeft;
+                inputMouse.currState.buttonMiddle    = this.mouseState.buttonMiddle;
+                inputMouse.currState.buttonRight     = this.mouseState.buttonRight;
+            }
         });
 
         return InputController;

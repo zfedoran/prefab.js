@@ -1,13 +1,15 @@
 define([
         'core/entity',
         'components/guiElement',
-        'editor/components/view',
+        'components/view',
+        'components/inputMouse',
         'editor/components/sceneView'
     ],
     function(
         Entity,
         GUIElement,
         View,
+        InputMouse,
         SceneView
     ) {
         'use strict';
@@ -21,6 +23,7 @@ define([
             this.addComponent(new GUIElement(viewRect));
             this.addComponent(new View(View.TYPE_TEXTURE));
             this.addComponent(new SceneView(direction, projection));
+            this.addComponent(new InputMouse());
         };
 
         SceneViewEntity.prototype = Object.create(Entity.prototype);

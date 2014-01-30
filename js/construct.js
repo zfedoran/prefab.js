@@ -8,11 +8,12 @@ define([
         'controllers/blockController',
         'controllers/renderController',
         'controllers/inputController',
+        'controllers/mouseOverController',
+        'controllers/viewController',
         'editor/controllers/gridController',
-        'editor/controllers/orbitController',
         'editor/controllers/unwrapController',
-        'editor/controllers/viewController',
         'editor/controllers/sceneViewController',
+        'editor/controllers/sceneViewCameraController',
         'editor/controllers/textureViewController',
         'editor/components/sceneView',
         'editor/entities/sceneViewEntity',
@@ -28,11 +29,12 @@ define([
         BlockController,
         RenderController,
         InputController,
-        GridController,
-        OrbitController,
-        UnwrapController,
+        MouseOverController,
         ViewController,
+        GridController,
+        UnwrapController,
         SceneViewController,
+        SceneViewCameraController,
         TextureViewController,
         SceneView,
         SceneViewEntity,
@@ -54,17 +56,7 @@ define([
             },
 
             init: function() {
-                this.viewController         = new ViewController(this.context);
-                this.sceneViewController    = new SceneViewController(this.context);
-                this.textureViewController  = new TextureViewController(this.context);
-                this.cameraController       = new CameraController(this.context);
-                this.guiController          = new GUIController(this.context);
-                this.blockController        = new BlockController(this.context);
-                this.gridController         = new GridController(this.context);
-                this.orbitController        = new OrbitController(this.context);
-                this.renderController       = new RenderController(this.context);
-                this.inputController        = new InputController(this.context);
-                this.unwrapController       = new UnwrapController(this.context);
+                this.initControllers();
 
                 this.context.addBlock(1, 4, 5);
 
@@ -82,8 +74,11 @@ define([
                 this.context.entityManager.addEntity(viewFront);
                 this.context.entityManager.addEntity(viewTexture);
 
+                this.initEvents();
+            },
+
+            initEvents: function() {
                 $(window).on('resize', this.onWindowResize.bind(this));
-                $(window).on('click', this.onMouseClick.bind(this));
                 $(window).on('mousemove', this.onMouseMove.bind(this));
                 $(window).on('mouseout', this.onMouseLeave.bind(this));
                 $(window).on('mousedown', this.onMouseDown.bind(this));
@@ -91,21 +86,69 @@ define([
                 $(window).on('mousewheel', this.onMouseWheel.bind(this));
             },
 
+            initControllers: function() {
+                this.controllerList = [];
+                this.controllerClassList = [
+                    ViewController,
+                    SceneViewController,
+                    SceneViewCameraController,
+                    TextureViewController,
+                    CameraController,
+                    GUIController,
+                    BlockController,
+                    GridController,
+                    UnwrapController,
+                    MouseOverController
+                ];
+
+                var i, controller;
+                for (i = 0; i < this.controllerClassList.length; i++) {
+                    controller = this.controllerClassList[i];
+                    this.addController(new controller(this.context));
+                }
+
+                this.renderController = new RenderController(this.context);
+                this.inputController  = new InputController(this.context);
+            },
+
+            addController: function(controller) {
+                this.controllerList.push(controller);
+            },
+
             update: function(elapsed) {
-                this.viewController.update();
-                this.sceneViewController.update();
-                this.textureViewController.update();
-                this.cameraController.update();
-                this.blockController.update();
-                this.gridController.update();
-                this.guiController.update();
-                this.unwrapController.update();
+                var i, controller;
+                for (i = 0; i < this.controllerList.length; i++) {
+                    controller = this.controllerList[i];
+                    controller.update(elapsed);
+                }
+
+                this.inputController.update(elapsed);
             },
 
             draw: function(elapsed) {
                 this.device.clear(this.backgroundColor);
                 
-                this.renderController.render();
+                this.renderController.render(elapsed);
+            },
+
+            onMouseMove: function(evt) {
+                this.inputController.onMouseMove(evt);
+            },
+
+            onMouseDown: function(evt) {
+                this.inputController.onMouseDown(evt);
+            },
+
+            onMouseUp: function(evt) {
+                this.inputController.onMouseUp(evt);
+            },
+
+            onMouseWheel: function(evt) {
+                this.inputController.onMouseWheel(evt);
+            },
+
+            onMouseLeave: function(evt) {
+                this.inputController.onMouseLeave(evt);
             },
 
             onWindowResize: function(evt) {
@@ -117,32 +160,6 @@ define([
 
                 this.device.setSize(this.width, this.height);
             },
-
-            onMouseMove: function(evt) {
-                this.inputController.onMouseMove(evt.pageX, evt.pageY);
-                this.orbitController.onMouseMove(evt.pageX, evt.pageY);
-            },
-
-            onMouseDown: function(evt) {
-                this.orbitController.onMouseDown(evt.button);
-            },
-
-            onMouseUp: function(evt) {
-                this.orbitController.onMouseUp(evt.button);
-            },
-
-            onMouseClick: function(evt) {
-                this.inputController.onMouseClick();
-            },
-
-            onMouseWheel: function(evt) {
-                this.orbitController.onMouseWheel(evt.originalEvent.wheelDeltaX, evt.originalEvent.wheelDeltaY);
-            },
-
-            onMouseLeave: function(evt) {
-                this.inputController.onMouseLeave();
-                this.orbitController.onMouseLeave();
-            }
         });
 
         return Construct;

@@ -30,8 +30,8 @@ define([
                     if (entities.hasOwnProperty(o)) {
                         entity = entities[o];
 
-                        var view            = entity.getComponent('View');
-                        var guiElement      = entity.getComponent('GUIElement');
+                        var view       = entity.getComponent('View');
+                        var guiElement = entity.getComponent('GUIElement');
 
                         if (!view.isInitialized) {
                             this.initView(entity);
@@ -47,25 +47,19 @@ define([
             updateView: function(entity) {
                 var view       = entity.getComponent('View');
                 var guiElement = entity.getComponent('GUIElement');
-                var viewRect   = guiElement.boundingRect;
 
-                var cameraEntity = view.cameraEntity;
-                var guiLayerEntity = view.guiLayerEntity;
-
-                var cameraComponent;
-
-                cameraComponent = cameraEntity.getComponent('Camera');
-                cameraComponent.width  = viewRect.width;
-                cameraComponent.height = viewRect.height;
-                cameraComponent.setDirty(true);
-
-                cameraComponent = guiLayerEntity.getComponent('Camera');
-                cameraComponent.width  = viewRect.width;
-                cameraComponent.height = viewRect.height;
-                cameraComponent.setDirty(true);
+                this.updateCameraViewRect(view.cameraEntity, guiElement.boundingRect);
+                this.updateCameraViewRect(view.guiLayerEntity, guiElement.boundingRect);
 
                 view.setDirty(false);
                 guiElement.setDirty(false);
+            },
+
+            updateCameraViewRect: function(entity, viewRect) {
+                var camera = entity.getComponent('Camera');
+                camera.width  = viewRect.width;
+                camera.height = viewRect.height;
+                camera.setDirty(true);
             },
 
             initView: function(entity) {

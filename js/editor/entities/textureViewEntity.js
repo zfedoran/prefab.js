@@ -1,7 +1,7 @@
 define([
         'core/entity',
         'components/guiElement',
-        'editor/components/view',
+        'components/view',
         'editor/components/textureView'
     ],
     function(
