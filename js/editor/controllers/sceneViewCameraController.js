@@ -44,7 +44,7 @@ define([
                             sceneView.state = SceneView.STATE_ROTATE;
                         } else if (inputMouse.hasButtonDownEvent(InputMouse.BUTTON_RIGHT)) {
                             sceneView.state = SceneView.STATE_PAN;
-                        } else if (inputMouse.hasButtonDownEvent(InputMouse.BUTTON_MIDDLE)) {
+                        } else if (inputMouse.hasScrollEvent()) {
                             sceneView.state = SceneView.STATE_ZOOM;
                         }
                     }
@@ -63,6 +63,19 @@ define([
                         var sceneView  = entity.getComponent('SceneView');
                         var inputMouse = entity.getComponent('InputMouse');
 
+                        // Handle state logic
+                        if (sceneView.state === SceneView.STATE_ROTATE) {
+                            this.rotateSceneView(entity);
+                            if (sceneView.direction !== SceneView.VIEW_DIRECTION_CUSTOM) {
+                                sceneView.direction = SceneView.VIEW_DIRECTION_CUSTOM;
+                                sceneView.setDirty(true);
+                            }
+                        } else if (sceneView.state === SceneView.STATE_ZOOM) {
+                            this.zoomSceneView(entity);
+                      //} else if (this.state === SceneView.STATE_PAN) {
+                      //    this.panSceneView(entity);
+                        } 
+
                         // Restore default state if the mouse has been released
                         var areAllButtonsReleased = 
                             (inputMouse.currState.buttonLeft === ButtonState.BUTTON_UP) &&
@@ -72,19 +85,6 @@ define([
                         if (areAllButtonsReleased) {
                             sceneView.state = SceneView.STATE_NONE;
                         }
-
-                        // Handle state logic
-                        if (sceneView.state === SceneView.STATE_ROTATE) {
-                            this.rotateSceneView(entity);
-                            if (sceneView.direction !== SceneView.VIEW_DIRECTION_CUSTOM) {
-                                sceneView.direction = SceneView.VIEW_DIRECTION_CUSTOM;
-                                sceneView.setDirty(true);
-                            }
-                      //} else if (this.state === SceneView.STATE_ZOOM) {
-                      //    this.zoomSceneView(entity);
-                      //} else if (this.state === SceneView.STATE_PAN) {
-                      //    this.panSceneView(entity);
-                        } 
                     }
                 }
             },
@@ -129,6 +129,29 @@ define([
                 //TODO: the set the local position correctly
                 // cameraPosition = center + vector;
                 Vector3.add(center, vector, /*out*/ transform.localPosition);
+                transform.setDirty(true);
+            },
+
+            zoomSceneView: function(entity) {
+                var view         = entity.getComponent('View');
+                var inputMouse   = entity.getComponent('InputMouse');
+
+                var camera       = view.cameraEntity.getComponent('Camera');
+                var center       = camera.getTargetPosition();
+                var transform    = view.cameraEntity.getComponent('Transform');
+
+                var dy;
+                dy = -inputMouse.currState.mouseWheel.y;
+                dy *= 0.005;
+
+                // vector = cameraPosition - center;
+                Vector3.subtract(transform.getPosition(), center, /*out*/ vector);
+                vector.normalize();
+                Vector3.multiplyScalar(vector, dy, /*out*/ vector);
+
+                //TODO: the set the local position correctly
+                // cameraPosition = center + vector;
+                Vector3.add(transform.localPosition, vector, /*out*/ transform.localPosition);
                 transform.setDirty(true);
             },
 
