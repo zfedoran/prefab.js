@@ -36,7 +36,7 @@ define([
                     if (entities.hasOwnProperty(o)) {
                         entity = entities[o];
 
-                        var textureView     = entity.getComponent('TextureView');
+                        var textureView = entity.getComponent('TextureView');
 
                         if (!textureView.isInitialized) {
                             this.initTextureView(entity);
@@ -56,6 +56,7 @@ define([
             initTextureView: function(entity) {
                 var textureView = entity.getComponent('TextureView');
 
+                this.initCamera(entity);
                 this.initCurrentSelection(entity);
                 this.initGrid(entity);
                 this.initViewLabel(entity);
@@ -101,6 +102,26 @@ define([
                 gridComponent.setDirty(true);
 
                 textureView.gridEntity = gridEntity;
+            },
+
+            initCamera: function(entity) {
+                var view         = entity.getComponent('View');
+                var textureView  = entity.getComponent('TextureView');
+                var cameraEntity = view.cameraEntity;
+
+                var camera = cameraEntity.getComponent('Camera');
+                camera.ortho = false;
+                camera.fov   = 75;
+                camera.far   = 500;
+                camera.near  = 0.1;
+                camera.target = new Vector3(0,0,0);
+                camera.setDirty(true);
+
+                var transform = cameraEntity.getComponent('Transform');
+                transform.localPosition.x = 0;
+                transform.localPosition.y = 0;
+                transform.localPosition.z = -textureView.zoom;
+                transform.setDirty(true);
             },
 
         });

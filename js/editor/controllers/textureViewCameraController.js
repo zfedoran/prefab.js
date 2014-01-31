@@ -6,7 +6,7 @@ define([
         'core/controller',
         'core/buttonState',
         'controllers/mouseOverController',
-        'editor/components/sceneView',
+        'editor/components/textureView',
         'components/inputMouse'
     ], 
     function(
@@ -17,17 +17,17 @@ define([
         Controller,
         ButtonState,
         MouseOverController,
-        SceneView,
+        TextureView,
         InputMouse
     ) {
         'use strict';
 
-        var SceneViewCameraController = function(context) {
-            Controller.call(this, context, ['View', 'SceneView', 'InputMouse']);
+        var TextureViewCameraController = function(context) {
+            Controller.call(this, context, ['View', 'TextureView', 'InputMouse']);
         };
 
-        SceneViewCameraController.prototype = _.extend(Object.create(Controller.prototype), {
-            constructor: SceneViewCameraController,
+        TextureViewCameraController.prototype = _.extend(Object.create(Controller.prototype), {
+            constructor: TextureViewCameraController,
 
             updateMouseOverViews: function() {
                 var entities = this.entityManager.getAllUsingGroupName(MouseOverController.GROUP_VIEWS);
@@ -37,16 +37,17 @@ define([
                     if (entities.hasOwnProperty(o)) {
                         entity = entities[o];
 
-                        if (entity.hasComponent('SceneView')) {
-                            var sceneView  = entity.getComponent('SceneView');
+                        if (entity.hasComponent('TextureView')) {
+                            var textureView  = entity.getComponent('TextureView');
                             var inputMouse = entity.getComponent('InputMouse');
 
                             if (inputMouse.hasButtonDownEvent(InputMouse.BUTTON_LEFT)) {
-                                sceneView.state = SceneView.STATE_ROTATE;
+                                textureView.state = TextureView.STATE_PAN;
                             } else if (inputMouse.hasButtonDownEvent(InputMouse.BUTTON_RIGHT)) {
-                                sceneView.state = SceneView.STATE_PAN;
+                                //textureView.state = TextureView.STATE_ROTATE;
+                                console.log('');
                             } else if (inputMouse.hasScrollEvent()) {
-                                sceneView.state = SceneView.STATE_ZOOM;
+                                textureView.state = TextureView.STATE_ZOOM;
                             }
                         }
                     }
@@ -62,19 +63,16 @@ define([
                     if (entities.hasOwnProperty(o)) {
                         entity = entities[o];
 
-                        var sceneView  = entity.getComponent('SceneView');
+                        var textureView  = entity.getComponent('TextureView');
                         var inputMouse = entity.getComponent('InputMouse');
 
                         // Handle state logic
-                        if (sceneView.state === SceneView.STATE_ROTATE) {
-                            this.rotateSceneView(entity);
-                            if (sceneView.direction !== SceneView.VIEW_DIRECTION_CUSTOM) {
-                                sceneView.direction = SceneView.VIEW_DIRECTION_CUSTOM;
-                                sceneView.setDirty(true);
-                            }
-                        } else if (sceneView.state === SceneView.STATE_ZOOM) {
+                        if (textureView.state === TextureView.STATE_PAN) {
+                            //this.rotateSceneView(entity);
+                            console.log('');
+                        } else if (textureView.state === TextureView.STATE_ZOOM) {
                             this.zoomSceneView(entity);
-                      //} else if (sceneView.state === SceneView.STATE_PAN) {
+                      //} else if (textureView.state === TextureView.STATE_ROTATE) {
                       //    this.panSceneView(entity);
                         } 
 
@@ -85,49 +83,10 @@ define([
                             (inputMouse.currState.buttonMiddle === ButtonState.BUTTON_UP);
 
                         if (areAllButtonsReleased) {
-                            sceneView.state = SceneView.STATE_NONE;
+                            textureView.state = TextureView.STATE_NONE;
                         }
                     }
                 }
-            },
-
-            rotateSceneView: function(entity) {
-                var view       = entity.getComponent('View');
-                var inputMouse = entity.getComponent('InputMouse');
-
-                var camera     = view.cameraEntity.getComponent('Camera');
-                var center     = camera.getTargetPosition();
-                var transform  = view.cameraEntity.getComponent('Transform');
-
-                var dx, dy;
-                dx = inputMouse.prevState.mousePosition.x - inputMouse.currState.mousePosition.x;
-                dy = inputMouse.prevState.mousePosition.y - inputMouse.currState.mousePosition.y;
-
-                dx *= 0.005;
-                dy *= 0.005;
-
-                // vector = cameraPosition - center;
-                Vector3.subtract(transform.getPosition(), center, /*out*/ vector);
-
-                var theta = Math.atan2( vector.x, vector.z );
-                var phi   = Math.atan2( Math.sqrt( vector.x * vector.x + vector.z * vector.z ), vector.y );
-
-                theta += dx;
-                phi   += dy;
-
-                var EPS = 0.000001;
-                phi = Math.max( EPS, Math.min( Math.PI - EPS, phi ) );
-
-                var radius = vector.length();
-
-                vector.x = radius * Math.sin( phi ) * Math.sin( theta );
-                vector.y = radius * Math.cos( phi );
-                vector.z = radius * Math.sin( phi ) * Math.cos( theta );
-
-                //TODO: the set the local position correctly
-                // cameraPosition = center + vector;
-                Vector3.add(center, vector, /*out*/ transform.localPosition);
-                transform.setDirty(true);
             },
 
             zoomSceneView: function(entity) {
@@ -156,9 +115,9 @@ define([
         });
 
         // Cahce vector class so that it does not need to be re-created each function call
-        var vector    = new Vector3();
-        var matrix    = new Matrix4();
+        var vector = new Vector3();
+        var matrix = new Matrix4();
 
-        return SceneViewCameraController;
+        return TextureViewCameraController;
     }
 );

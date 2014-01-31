@@ -24,6 +24,10 @@ define([
 
         TextureView.prototype.constructor = TextureView;
 
+        TextureView.STATE_NONE   = 'none';
+        TextureView.STATE_ZOOM   = 'zoom';
+        TextureView.STATE_PAN    = 'pan';
+
         return TextureView;
     }
 );

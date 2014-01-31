@@ -135,9 +135,9 @@ define([
                     cameraComponent.ortho = true;
                 } else {
                     cameraComponent.ortho = false;
-                    cameraComponent.fov = 75;
-                    cameraComponent.far = 500;
-                    cameraComponent.near = 0.1;
+                    cameraComponent.fov   = 75;
+                    cameraComponent.far   = 500;
+                    cameraComponent.near  = 0.1;
                 }
                 cameraComponent.target = new Vector3(0,0,0);
                 cameraComponent.setDirty(true);

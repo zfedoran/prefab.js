@@ -15,6 +15,7 @@ define([
         'editor/controllers/sceneViewController',
         'editor/controllers/sceneViewCameraController',
         'editor/controllers/textureViewController',
+        'editor/controllers/textureViewCameraController',
         'editor/components/sceneView',
         'editor/entities/sceneViewEntity',
         'editor/entities/textureViewEntity',
@@ -36,6 +37,7 @@ define([
         SceneViewController,
         SceneViewCameraController,
         TextureViewController,
+        TextureViewCameraController,
         SceneView,
         SceneViewEntity,
         TextureViewEntity
@@ -93,6 +95,7 @@ define([
                     SceneViewController,
                     SceneViewCameraController,
                     TextureViewController,
+                    TextureViewCameraController,
                     CameraController,
                     GUIController,
                     BlockController,
