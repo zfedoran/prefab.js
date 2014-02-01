@@ -512,7 +512,7 @@ define([
 
             var re = result.elements;
             var w = right - left;
-            var h = top - bottom;
+            var h = bottom - top;
             var p = far - near;
 
             var x = ( right + left ) / w;

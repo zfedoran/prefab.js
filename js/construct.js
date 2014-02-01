@@ -3,19 +3,8 @@ define([
         'lodash',
         'math/Rectangle',
         'core/application',
-        'controllers/cameraController',
-        'controllers/guiController',
-        'controllers/blockController',
         'controllers/renderController',
         'controllers/inputController',
-        'controllers/mouseOverController',
-        'controllers/viewController',
-        'editor/controllers/gridController',
-        'editor/controllers/unwrapController',
-        'editor/controllers/sceneViewController',
-        'editor/controllers/sceneViewCameraController',
-        'editor/controllers/textureViewController',
-        'editor/controllers/textureViewCameraController',
         'editor/components/sceneView',
         'editor/entities/sceneViewEntity',
         'editor/entities/textureViewEntity',
@@ -25,19 +14,8 @@ define([
         _,
         Rectangle,
         Application,
-        CameraController,
-        GUIController,
-        BlockController,
         RenderController,
         InputController,
-        MouseOverController,
-        ViewController,
-        GridController,
-        UnwrapController,
-        SceneViewController,
-        SceneViewCameraController,
-        TextureViewController,
-        TextureViewCameraController,
         SceneView,
         SceneViewEntity,
         TextureViewEntity
@@ -52,15 +30,15 @@ define([
             constructor: Construct,
 
             loadAssets: function() {
+                this.initControllers();
             },
 
             unloadAssets: function() {
+
             },
 
             init: function() {
-                this.initControllers();
-
-                this.context.addBlock(1, 4, 5);
+                this.context.addBlock(2, 4, 5);
 
                 var w, h;
                 w = this.width / 2;
@@ -91,24 +69,26 @@ define([
             initControllers: function() {
                 this.controllerList = [];
                 this.controllerClassList = [
-                    ViewController,
-                    SceneViewController,
-                    SceneViewCameraController,
-                    TextureViewController,
-                    TextureViewCameraController,
-                    CameraController,
-                    GUIController,
-                    BlockController,
-                    GridController,
-                    UnwrapController,
-                    MouseOverController
+                    'controllers/viewController',
+                    'controllers/cameraController',
+                    'controllers/guiController',
+                    'controllers/blockController',
+                    'controllers/mouseOverController',
+                    'editor/controllers/gridController',
+                    'editor/controllers/unwrapController',
+                    'editor/controllers/sceneViewController',
+                    'editor/controllers/sceneViewCameraController',
+                    'editor/controllers/textureViewController',
+                    'editor/controllers/textureViewCameraController',
                 ];
 
-                var i, controller;
-                for (i = 0; i < this.controllerClassList.length; i++) {
-                    controller = this.controllerClassList[i];
-                    this.addController(new controller(this.context));
-                }
+                requirejs(this.controllerClassList, (function() { 
+                    var i, controller;
+                    for (i = 0; i < arguments.length; i++) {
+                        controller = arguments[i];
+                        this.addController(new controller(this.context));
+                    }
+                }).bind(this));
 
                 this.renderController = new RenderController(this.context);
                 this.inputController  = new InputController(this.context);

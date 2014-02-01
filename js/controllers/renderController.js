@@ -106,6 +106,10 @@ define([
                 var material     = meshRenderer.material;
                 var shader       = material._shader;
 
+                if (typeof mesh === 'undefined') {
+                    return;
+                }
+
                 // update shader uniforms with material values
                 for (var prop in shader.uniforms) {
                     if (material.hasOwnProperty(prop)) {

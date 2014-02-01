@@ -82,6 +82,10 @@ define([
                 cameraComponent.addRenderGroup(view.groupNameCamera);
 
                 view.cameraEntity = cameraEntity;
+                if (!window.cameraList) {
+                    window.cameraList = [];
+                }
+                window.cameraList.push(cameraComponent);
             },
 
             initGUILayer: function(entity) {

@@ -1,11 +1,13 @@
 define([
         'lodash',
         'math/matrix4',
+        'math/vector3',
         'core/controller'
     ],
     function(
         _,
         Matrix4,
+        Vector3,
         Controller
     ) {
         'use strict';
@@ -33,14 +35,33 @@ define([
                                 camera.far, 
                         /*out*/ camera._projectionMatrix);
                         } else {
+                            var width, height;
+                            if (typeof camera.fov !== 'undefined') {
+                                // Get target depth
+                                var transform = entity.getComponent('Transform');
+                                var vector = new Vector3();
+                                Vector3.subtract(transform.getPosition(), camera.getTargetPosition(), /*out*/ vector);
+                                var objectDepth = vector.length();
+
+                                // Get perspective width/height
+                                var ymax = Math.tan(camera.fov * Math.PI / 360);
+                                var xmax = ymax * camera.aspect;
+                                width = objectDepth * xmax;
+                                height = objectDepth * ymax;
+                            } else {
+                                width = camera.width;
+                                height = camera.height;
+                            }
+
                             Matrix4.createOrthographic(
-                               -camera.width/35, 
-                                camera.width/35, 
-                               -camera.height/35, 
-                                camera.height/35, 
+                               -width, 
+                                width, 
+                               -height, 
+                                height, 
                                 camera.near, 
                                 camera.far, 
                         /*out*/ camera._projectionMatrix);
+
                         }
                     } else {
                         Matrix4.createPerspective(
