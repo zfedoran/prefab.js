@@ -69,7 +69,7 @@ define([
             initControllers: function() {
                 this.controllerList = [];
                 this.controllerClassList = [
-                    'controllers/viewController',
+                    //'controllers/viewController',
                     'controllers/cameraController',
                     'controllers/guiController',
                     'controllers/blockController',

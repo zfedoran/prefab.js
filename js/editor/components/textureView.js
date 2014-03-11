@@ -6,8 +6,13 @@ define([
     ) {
         'use strict';
 
-        var TextureView = function(zoom, grid, unwrap) {
+        var _textureViewCount = 0;
+
+        var TextureView = function(zoom, grid, unwrap, camera) {
             Component.call(this);
+
+            this.groupNameTextureView = 'TextureView' + _textureViewCount;
+            this.cameraEntity = camera;
 
             this.zoom = zoom;
             
@@ -16,6 +21,8 @@ define([
             this.currentBlock = null;
 
             this.isInitialized = false;
+
+            _textureViewCount++;
         };
 
         TextureView.__name__ = 'TextureView';

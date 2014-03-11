@@ -1,21 +1,50 @@
 define([
         'core/entityManager',
-        'core/scene'
+        'core/scene',
+        'math/rectangle',
+        'entities/guiLayerEntity'
     ],
     function(
         EntityManager,
-        Scene
+        Scene,
+        Rectangle,
+        GUILayerEntity
     ) {
         'use strict';
 
         var Context = function(device) {
-            this.device = device;
             this.entityManager = new EntityManager();
-            this.scene = new Scene(this.entityManager, this.device);
+            this.device        = device;
+            this.width         = device.getWidth();
+            this.height        = device.getHeight();
+            this.time          = 0;
+            this.groupNameGUI  = 'GUIRenderGroup';
+
+            this.initScene();
+            this.initGUILayer();
         };
 
         Context.prototype = {
             constructor: Context,
+
+            initScene: function() {
+                this.scene = new Scene(this.entityManager, this.device);
+            },
+
+            initGUILayer: function() {
+                var boundingRect = new Rectangle(0, 0, this.width, this.height);
+
+                this.guiLayerEntity = new GUILayerEntity(boundingRect);
+                this.entityManager.addEntity(this.guiLayerEntity);
+
+                var cameraComponent = this.guiLayerEntity.getComponent('Camera');
+                cameraComponent.addRenderGroup(this.groupNameGUI);
+            },
+
+            addGUIElement: function(entity) {
+                this.entityManager.addEntity(entity);
+                this.entityManager.addEntityToGroup(entity, this.groupNameGUI);
+            },
 
             addBlock: function(width, height, depth) {
                 var blockEntity = this.scene.addBlock(width, height, depth);

@@ -66,35 +66,31 @@ define([
 
             initViewLabel: function(entity) {
                 var textureView = entity.getComponent('TextureView');
-                var view        = entity.getComponent('View');
 
                 var text = entity.uuid + ' Texture';
                 var guiText = new GUITextEntity(new Rectangle(0, 0, 100, 100), text);
-                this.entityManager.addEntity(guiText);
-                this.entityManager.addEntityToGroup(guiText, view.groupNameGUI);
+                this.context.addGUIElement(guiText);
 
                 textureView.viewLabel = guiText;
             },
 
             initCurrentSelection: function(entity) {
                 var textureView = entity.getComponent('TextureView');
-                var view        = entity.getComponent('View');
 
                 textureView.currentBlock = this.context.getOneSelectedBlock();
                 if (typeof textureView.currentBlock !== 'undefined') {
                     textureView.unwrapEntity = new UnwrapEntity(textureView.currentBlock);
                     this.entityManager.addEntity(textureView.unwrapEntity);
-                    this.entityManager.addEntityToGroup(textureView.unwrapEntity, view.groupNameCamera);
+                    this.entityManager.addEntityToGroup(textureView.unwrapEntity, textureView.groupNameTextureView);
                 }
             },
 
             initGrid: function(entity) {
                 var textureView = entity.getComponent('TextureView');
-                var view        = entity.getComponent('View');
 
                 var gridEntity = new GridEntity(100, 100, 100);
                 this.entityManager.addEntity(gridEntity);
-                this.entityManager.addEntityToGroup(gridEntity, view.groupNameCamera);
+                this.entityManager.addEntityToGroup(gridEntity, textureView.groupNameTextureView);
 
                 var gridComponent = gridEntity.getComponent('Grid');
                 gridComponent.hasXZPlane = false;
@@ -105,9 +101,17 @@ define([
             },
 
             initCamera: function(entity) {
-                var view         = entity.getComponent('View');
+                var guiElement = entity.getComponent('GUIElement');
                 var textureView  = entity.getComponent('TextureView');
-                var cameraEntity = view.cameraEntity;
+
+                // Create camera entity
+                var cameraEntity = new CameraEntity(guiElement.boundingRect, 0, 100);
+                this.entityManager.addEntity(cameraEntity);
+
+                var cameraComponent = cameraEntity.getComponent('Camera');
+                cameraComponent.addRenderGroup(textureView.groupNameTextureView);
+
+                textureView.cameraEntity = cameraEntity;
 
                 var camera = cameraEntity.getComponent('Camera');
                 camera.ortho = false;

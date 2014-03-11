@@ -78,8 +78,8 @@ define([
                 //gl.blendEquation( gl.FUNC_ADD );
                 //gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 
-                gl.cullFace(gl.BACK);
-                gl.enable(gl.CULL_FACE);
+                //gl.cullFace(gl.BACK);
+                //gl.enable(gl.CULL_FACE);
 
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
             },
@@ -199,6 +199,12 @@ define([
 
                 this.applyState();
                 gl.drawElements(primitiveType, numIndices, dataType, offset);
+            },
+            getWidth: function() {
+                return this.canvas.width;
+            },
+            getHeight: function() {
+                return this.canvas.height;
             },
             setSize: function(width, height) {
                 var gl = this.state.getContext();

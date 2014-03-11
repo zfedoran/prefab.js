@@ -6,10 +6,14 @@ define([
     ) {
         'use strict';
 
-        var SceneView = function(direction, projection, grid) {
+        var _sceneViewCount = 0;
+
+        var SceneView = function(direction, projection, grid, camera) {
             Component.call(this);
 
-            this.groupNameScene = 'Scene';
+            this.groupNameScene     = 'Scene';
+            this.groupNameSceneView = 'SceneView' + _sceneViewCount;
+            this.cameraEntity = camera;
 
             this.direction  = direction;
             this.projection = projection;
@@ -19,6 +23,8 @@ define([
             this.state = SceneView.STATE_NONE;
 
             this.isInitialized = false;
+
+            _sceneViewCount++;
         };
 
         SceneView.__name__ = 'SceneView';

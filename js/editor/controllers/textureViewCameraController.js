@@ -23,7 +23,7 @@ define([
         'use strict';
 
         var TextureViewCameraController = function(context) {
-            Controller.call(this, context, ['View', 'TextureView', 'InputMouse']);
+            Controller.call(this, context, ['TextureView', 'InputMouse']);
         };
 
         TextureViewCameraController.prototype = _.extend(Object.create(Controller.prototype), {
@@ -90,12 +90,12 @@ define([
             },
 
             zoomSceneView: function(entity) {
-                var view       = entity.getComponent('View');
-                var inputMouse = entity.getComponent('InputMouse');
+                var textureView = entity.getComponent('TextureView');
+                var inputMouse  = entity.getComponent('InputMouse');
 
-                var camera     = view.cameraEntity.getComponent('Camera');
-                var center     = camera.getTargetPosition();
-                var transform  = view.cameraEntity.getComponent('Transform');
+                var camera      = textureView.cameraEntity.getComponent('Camera');
+                var transform   = textureView.cameraEntity.getComponent('Transform');
+                var center      = camera.getTargetPosition();
 
                 var dy;
                 dy = -inputMouse.currState.mouseWheel.y;

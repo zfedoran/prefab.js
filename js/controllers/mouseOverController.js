@@ -31,9 +31,8 @@ define([
                     if (entities.hasOwnProperty(o)) {
                         entity = entities[o];
 
-                        var view       = entity.getComponent('View');
                         var inputMouse = entity.getComponent('InputMouse');
-                        var guiCamera  = view.guiLayerEntity.getComponent('Camera');
+                        var guiCamera  = this.context.guiLayerEntity.getComponent('Camera');
 
                         if (guiCamera.isEnabled() && guiCamera.renderGroups.length > 0) {
                             var isMouseOnTopOfView = this.testEntity(entity, inputMouse, guiCamera);

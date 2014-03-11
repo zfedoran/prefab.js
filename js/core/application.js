@@ -27,9 +27,6 @@ define([
             this.device.initDefaultState();
 
             this.context = new Context(this.device);
-            this.context.width  = this.width;
-            this.context.height = this.height;
-            this.context.time = 0;
 
             window.context = this.context;
 

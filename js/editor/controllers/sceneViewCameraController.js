@@ -23,7 +23,7 @@ define([
         'use strict';
 
         var SceneViewCameraController = function(context) {
-            Controller.call(this, context, ['View', 'SceneView', 'InputMouse']);
+            Controller.call(this, context, ['SceneView', 'InputMouse']);
         };
 
         SceneViewCameraController.prototype = _.extend(Object.create(Controller.prototype), {
@@ -92,12 +92,12 @@ define([
             },
 
             rotateSceneView: function(entity) {
-                var view       = entity.getComponent('View');
+                var sceneView  = entity.getComponent('SceneView');
                 var inputMouse = entity.getComponent('InputMouse');
 
-                var camera     = view.cameraEntity.getComponent('Camera');
+                var camera     = sceneView.cameraEntity.getComponent('Camera');
+                var transform  = sceneView.cameraEntity.getComponent('Transform');
                 var center     = camera.getTargetPosition();
-                var transform  = view.cameraEntity.getComponent('Transform');
 
                 var dx, dy;
                 dx = inputMouse.prevState.mousePosition.x - inputMouse.currState.mousePosition.x;
@@ -131,12 +131,12 @@ define([
             },
 
             zoomSceneView: function(entity) {
-                var view       = entity.getComponent('View');
+                var sceneView  = entity.getComponent('SceneView');
                 var inputMouse = entity.getComponent('InputMouse');
 
-                var camera     = view.cameraEntity.getComponent('Camera');
+                var camera     = sceneView.cameraEntity.getComponent('Camera');
+                var transform  = sceneView.cameraEntity.getComponent('Transform');
                 var center     = camera.getTargetPosition();
-                var transform  = view.cameraEntity.getComponent('Transform');
 
                 var dy;
                 dy = -inputMouse.currState.mouseWheel.y;
