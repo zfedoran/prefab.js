@@ -45,7 +45,7 @@ define([
                 var meshFilter = entity.getComponent('MeshFilter');
 
                 if (unwrap.isDirty()) {
-                    var unwrapEntity = unwrap.entity;
+                    var unwrapEntity = unwrap.blockEntity;
                     if (typeof unwrapEntity !== 'undefined') {
                         var block = unwrapEntity.getComponent('Block');
                         if (typeof block !== 'undefined') {

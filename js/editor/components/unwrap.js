@@ -9,7 +9,7 @@ define([
         var Unwrap = function(entity) {
             Component.call(this);
 
-            this.entity  = entity;
+            this.blockEntity  = entity;
         };
 
         Unwrap.__name__ = 'Unwrap';

@@ -1,32 +1,28 @@
 define([
-        'core/entity',
-        'components/guiElement',
         'components/view',
-        'components/inputMouse',
+        'entities/viewEntity',
         'editor/components/sceneView'
     ],
     function(
-        Entity,
-        GUIElement,
         View,
-        InputMouse,
+        ViewEntity,
         SceneView
     ) {
         'use strict';
     
         var SceneViewEntity = function(viewRect, direction, projection) {
-            Entity.call(this);
+            ViewEntity.apply(this, [viewRect]);
 
             direction = direction || SceneView.VIEW_DIRECTION_FRONT;
             projection = projection || SceneView.PROJECTION_PERSPECTIVE;
 
-            this.addComponent(new GUIElement(viewRect));
-            this.addComponent(new View(View.TYPE_TEXTURE));
+            var view = this.getComponent('View');
+            view.type = View.TYPE_SCENE;
+
             this.addComponent(new SceneView(direction, projection));
-            this.addComponent(new InputMouse());
         };
 
-        SceneViewEntity.prototype = Object.create(Entity.prototype);
+        SceneViewEntity.prototype = Object.create(ViewEntity.prototype);
 
         SceneViewEntity.prototype.constructor = SceneViewEntity;
 

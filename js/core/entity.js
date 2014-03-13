@@ -17,16 +17,47 @@ define([
             this.name = '';
             this.id = _entityCount++;
             this.components = {};
+
+            this.parent = null;
+            this.children = [];
         };
 
         Entity.prototype = {
             constructor: Entity,
+
+            hasParent: function() {
+                return this.parent !== null;
+            },
+
+            getParent: function() {
+                return this.parent;
+            },
+
+            setParent: function(entity) {
+                this.parent = entity;
+            },
+
+            addChild: function(entity) {
+                if (entity instanceof Entity) {
+                    this.children.push(entity);
+                    entity.setParent(this);
+                }
+            },
+
+            removeChild: function(entity) {
+                var index = this.children.indexOf(entity);
+                if (index > -1) {
+                    this.children.splice(index, 0);
+                    entity.setParent(null);
+                }
+            },
 
             addComponent: function(component) {
                 if (component instanceof Component) {
                     if (typeof component.constructor.__name__ === 'undefined') {
                         throw 'Entity: addComponent(), cannot add component with undefined constructor.__name__';
                     }
+                    component.setEntity(this);
                     this.components[component.constructor.__name__] = component;
                     this.trigger('component.added', component);
                 }

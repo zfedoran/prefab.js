@@ -15,9 +15,6 @@ define([
         var Transform = function(position, scale, rotation) {
             Component.call(this);
 
-            this.parent = null;
-            this.children = [];
-
             this.localPosition = position || new Vector3();
             this.localScale = scale || new Vector3(1,1,1);
             this.localRotation = rotation || new Quaternion();
@@ -37,7 +34,8 @@ define([
         Transform.prototype.constructor = Transform;
 
         Transform.prototype.update = function() {
-            var transform, parent = this.parent;
+            var entity = this.getEntity();
+            var transform, parent = entity.getParent();
             if (this.isDirty()) {
                 this._localMatrix.compose(this.localPosition, this.localRotation, this.localScale);
 
@@ -52,14 +50,6 @@ define([
                 this._worldMatrix.decompose(this._position, this._rotation, this._scale);
                 this.setDirty(false);
             }
-        };
-
-        Transform.prototype.hasParent = function() {
-            return typeof this.parent !== 'undefined';
-        };
-
-        Transform.prototype.getParent = function() {
-            return this.parent;
         };
 
         Transform.prototype.getPosition = function() {
