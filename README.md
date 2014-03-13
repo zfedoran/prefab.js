@@ -4,7 +4,7 @@
 
 The goal of this project is to make it as easy as posible to create block based 3d assets. Prefab.js should have built in texturing support as well. Animations will be handled by external tools, such as Blender.
 
-As a personal challenge, I chose not to use the HTML for UI elements on this project. All rendering is done through WebGL. This may result in performance gains down the line.
+As a personal challenge, I chose not to use HTML for UI elements on this project. All rendering is done through WebGL. This may result in performance gains down the line.
 
 ###Technologies
 
@@ -14,7 +14,7 @@ As a personal challenge, I chose not to use the HTML for UI elements on this pro
 
 ###Samples
 
-The following 3d models was created in Blender. It took more time and effort than it should have as Blender is simply not designed to work with Blocks.
+The following 3d models were created in Blender. It took more time and effort than it should have as Blender is simply not designed to work with Blocks. These models and the effort taken to create them are primary driving factors behind this project.
 
 ####Attempt 1
 <img src="https://github.com/zfedoran/prefab.js/raw/master/doc/images/sample01.png" alt="" />
@@ -24,6 +24,6 @@ The following 3d models was created in Blender. It took more time and effort tha
 
 ##Current Status
 
-This project is very early in development stages and should not be used yet.
+This project is *very* early in development stages and should not be used at this time (other than as a reference).
 
 <img src="https://github.com/zfedoran/prefab.js/raw/master/doc/images/screenshot.png" alt="" />
