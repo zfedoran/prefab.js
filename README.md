@@ -8,11 +8,11 @@ The goal of this project is to make it as easy as posible to create block based 
 
 The following 3d models was created in Blender. It took more time and effort than it should have as Blender is simply not designed to work with Blocks.
 
-####Attempt 0
-<img src="https://github.com/zfedoran/prefab.js/raw/master/doc/images/sample01.png" alt="" />
-
 ####Attempt 1
 <img src="https://github.com/zfedoran/prefab.js/raw/master/doc/images/sample01.png" alt="" />
+
+####Attempt 2
+<img src="https://github.com/zfedoran/prefab.js/raw/master/doc/images/sample02.png" alt="" />
 
 ##Current Status
 
