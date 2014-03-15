@@ -26,7 +26,7 @@ define([
             Controller.call(this, context, ['GUIElement', 'View', 'SceneView']);
         };
 
-        SceneViewController.prototype = _.extend(Object.create(Controller.prototype), {
+        SceneViewController.prototype = _.create(Controller.prototype, {
             constructor: SceneViewController,
 
             update: function() {

@@ -28,7 +28,7 @@ define([
             this.shaderCache = {};
         };
 
-        RenderController.prototype = _.extend(Object.create(Controller.prototype), {
+        RenderController.prototype = _.create(Controller.prototype, {
             constructor: RenderController,
 
             render: function() {

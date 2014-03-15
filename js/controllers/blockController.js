@@ -22,7 +22,7 @@ define([
             this.meshFactory = new MeshFactory(this.device);
         };
 
-        BlockController.prototype = _.extend(Object.create(Controller.prototype), {
+        BlockController.prototype = _.create(Controller.prototype, {
             constructor: BlockController,
 
             update: function() {

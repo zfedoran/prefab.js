@@ -20,7 +20,7 @@ define([
             Controller.call(this, context, ['GUIElement', 'View']);
         };
 
-        ViewController.prototype = _.extend(Object.create(Controller.prototype), {
+        ViewController.prototype = _.create(Controller.prototype, {
             constructor: ViewController,
 
             update: function() {

@@ -37,7 +37,7 @@ define([
             this.meshFactory = new MeshFactory(this.device);
         };
 
-        GUIController.prototype = _.extend(Object.create(Controller.prototype), {
+        GUIController.prototype = _.create(Controller.prototype, {
             constructor: GUIController,
 
             update: function() {

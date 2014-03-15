@@ -21,12 +21,14 @@ define([
 
         VertexDeclaration.prototype = {
             constructor: VertexDeclaration,
+
             push: function(element) {
                 this.elements.push(element);
                 this.stride += element.size;
                 this._currentOffset += element.numElem;
                 this.length++;
             },
+
             getCurrentOffset: function() {
                 return this._currentOffset;
             }

@@ -22,7 +22,7 @@ define([
             this.mouseState = new MouseState();
         };
 
-        InputController.prototype = _.extend(Object.create(Controller.prototype), {
+        InputController.prototype = _.create(Controller.prototype, {
             constructor: InputController,
 
             onMouseMove: function(evt) {

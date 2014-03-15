@@ -22,7 +22,7 @@ define([
             this.meshFactory = new MeshFactory(this.device);
         };
 
-        UnwrapController.prototype = _.extend(Object.create(Controller.prototype), {
+        UnwrapController.prototype = _.create(Controller.prototype, {
             constructor: UnwrapController,
 
             update: function() {

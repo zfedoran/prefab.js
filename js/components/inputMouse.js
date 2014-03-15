@@ -1,10 +1,12 @@
 define([
+        'lodash',
         'core/component',
         'core/mouseState',
         'core/buttonState',
         'math/vector2'
     ],
     function(
+        _,
         Component,
         MouseState,
         ButtonState,
@@ -21,53 +23,53 @@ define([
 
         InputMouse.__name__ = 'InputMouse';
 
-        InputMouse.prototype = Object.create(Component.prototype);
+        InputMouse.prototype = _.create(Component.prototype, {
+            constructor: InputMouse,
 
-        InputMouse.prototype.constructor = InputMouse;
+            hasClickEvent: function(button) {
+                return this.hasButtonUpEvent(button);
+            },
 
-        InputMouse.prototype.hasClickEvent = function(button) {
-            return this.hasButtonUpEvent(button);
-        };
+            hasButtonUpEvent: function(button) {
+                if (button === InputMouse.BUTTON_RIGHT) {
+                    return (this.prevState.buttonRight === ButtonState.BUTTON_DOWN) &&
+                           (this.currState.buttonRight === ButtonState.BUTTON_UP);
+                } else if (button === InputMouse.BUTTON_LEFT) {
+                    return (this.prevState.buttonLeft === ButtonState.BUTTON_DOWN) &&
+                           (this.currState.buttonLeft === ButtonState.BUTTON_UP);
+                } else if (button === InputMouse.BUTTON_MIDDLE) {
+                    return (this.prevState.buttonMiddle === ButtonState.BUTTON_DOWN) &&
+                           (this.currState.buttonMiddle === ButtonState.BUTTON_UP);
+                } 
+                return this.hasButtonUpEvent(InputMouse.BUTTON_RIGHT) 
+                    && this.hasButtonUpEvent(InputMouse.BUTTON_LEFT)
+                    && this.hasButtonUpEvent(InputMouse.BUTTON_MIDDLE);
+            },
 
-        InputMouse.prototype.hasButtonUpEvent = function(button) {
-            if (button === InputMouse.BUTTON_RIGHT) {
-                return (this.prevState.buttonRight === ButtonState.BUTTON_DOWN) &&
-                       (this.currState.buttonRight === ButtonState.BUTTON_UP);
-            } else if (button === InputMouse.BUTTON_LEFT) {
-                return (this.prevState.buttonLeft === ButtonState.BUTTON_DOWN) &&
-                       (this.currState.buttonLeft === ButtonState.BUTTON_UP);
-            } else if (button === InputMouse.BUTTON_MIDDLE) {
-                return (this.prevState.buttonMiddle === ButtonState.BUTTON_DOWN) &&
-                       (this.currState.buttonMiddle === ButtonState.BUTTON_UP);
-            } 
-            return this.hasButtonUpEvent(InputMouse.BUTTON_RIGHT) 
-                && this.hasButtonUpEvent(InputMouse.BUTTON_LEFT)
-                && this.hasButtonUpEvent(InputMouse.BUTTON_MIDDLE);
-        };
+            hasButtonDownEvent: function(button) {
+                if (button === InputMouse.BUTTON_RIGHT) {
+                    return (this.prevState.buttonRight === ButtonState.BUTTON_UP) &&
+                           (this.currState.buttonRight === ButtonState.BUTTON_DOWN);
+                } else if (button === InputMouse.BUTTON_LEFT) {
+                    return (this.prevState.buttonLeft === ButtonState.BUTTON_UP) &&
+                           (this.currState.buttonLeft === ButtonState.BUTTON_DOWN);
+                } else if (button === InputMouse.BUTTON_MIDDLE) {
+                    return (this.prevState.buttonMiddle === ButtonState.BUTTON_UP) &&
+                           (this.currState.buttonMiddle === ButtonState.BUTTON_DOWN);
+                } 
+                return this.hasButtonDownEvent(InputMouse.BUTTON_RIGHT) 
+                    && this.hasButtonDownEvent(InputMouse.BUTTON_LEFT)
+                    && this.hasButtonDownEvent(InputMouse.BUTTON_MIDDLE);
+            },
 
-        InputMouse.prototype.hasButtonDownEvent = function(button) {
-            if (button === InputMouse.BUTTON_RIGHT) {
-                return (this.prevState.buttonRight === ButtonState.BUTTON_UP) &&
-                       (this.currState.buttonRight === ButtonState.BUTTON_DOWN);
-            } else if (button === InputMouse.BUTTON_LEFT) {
-                return (this.prevState.buttonLeft === ButtonState.BUTTON_UP) &&
-                       (this.currState.buttonLeft === ButtonState.BUTTON_DOWN);
-            } else if (button === InputMouse.BUTTON_MIDDLE) {
-                return (this.prevState.buttonMiddle === ButtonState.BUTTON_UP) &&
-                       (this.currState.buttonMiddle === ButtonState.BUTTON_DOWN);
-            } 
-            return this.hasButtonDownEvent(InputMouse.BUTTON_RIGHT) 
-                && this.hasButtonDownEvent(InputMouse.BUTTON_LEFT)
-                && this.hasButtonDownEvent(InputMouse.BUTTON_MIDDLE);
-        };
+            hasScrollEvent: function() {
+                return !this.prevState.mouseWheel.equals(this.currState.mouseWheel);
+            },
 
-        InputMouse.prototype.hasScrollEvent = function() {
-            return !this.prevState.mouseWheel.equals(this.currState.mouseWheel);
-        };
-
-        InputMouse.prototype.hasMoveEvent = function() {
-            return !this.prevState.mousePosition.equals(this.currState.mousePosition);
-        };
+            hasMoveEvent: function() {
+                return !this.prevState.mousePosition.equals(this.currState.mousePosition);
+            }
+        });
 
         InputMouse.BUTTON_RIGHT  = 'right';
         InputMouse.BUTTON_LEFT   = 'left';

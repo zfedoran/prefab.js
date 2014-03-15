@@ -1,9 +1,11 @@
 define([
+        'lodash',
         'core/entity',
         'components/transform',
         'components/camera'
     ],
     function(
+        _,
         Entity,
         Transform,
         Camera
@@ -17,9 +19,9 @@ define([
             this.addComponent(new Camera(viewRect, near, far, fov));
         };
 
-        CameraEntity.prototype = Object.create(Entity.prototype);
-
-        CameraEntity.prototype.constructor = CameraEntity;
+        CameraEntity.prototype = _.create(Entity.prototype, {
+            constructor: CameraEntity
+        });
 
         return CameraEntity;
     }

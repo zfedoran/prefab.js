@@ -1,10 +1,12 @@
 define([
+        'lodash',
         'core/entity',
         'components/guiElement',
         'components/view',
         'components/inputMouse',
     ],
     function(
+        _,
         Entity,
         GUIElement,
         View,
@@ -21,9 +23,9 @@ define([
             this.addComponent(new InputMouse());
         };
 
-        ViewEntity.prototype = Object.create(Entity.prototype);
-
-        ViewEntity.prototype.constructor = ViewEntity;
+        ViewEntity.prototype = _.create(Entity.prototype, {
+            constructor: ViewEntity
+        });
 
         return ViewEntity;
     }

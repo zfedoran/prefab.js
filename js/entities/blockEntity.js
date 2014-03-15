@@ -1,4 +1,5 @@
 define([
+        'lodash',
         'core/entity',
         'graphics/material',
         'components/transform',
@@ -8,6 +9,7 @@ define([
         'graphics/mesh'
     ],
     function(
+        _,
         Entity,
         Material,
         Transform,
@@ -29,9 +31,9 @@ define([
             this.addComponent(new MeshRenderer(material));
         };
 
-        BlockEntity.prototype = Object.create(Entity.prototype);
-
-        BlockEntity.prototype.constructor = BlockEntity;
+        BlockEntity.prototype = _.create(Entity.prototype, {
+            construct: BlockEntity
+        });
 
         return BlockEntity;
     }

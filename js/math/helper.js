@@ -2,6 +2,7 @@ define([
     ],
     function(
     ) {
+        'use strict';
 
         var MathHelper = function() {
         };

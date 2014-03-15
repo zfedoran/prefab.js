@@ -1,8 +1,10 @@
 define([
+        'lodash',
         'core/component',
         'graphics/material'
     ],
     function(
+        _,
         Component,
         Material
     ) {
@@ -18,9 +20,9 @@ define([
 
         MeshRenderer.__name__ = 'MeshRenderer';
 
-        MeshRenderer.prototype = Object.create(Component.prototype);
-
-        MeshRenderer.prototype.constructor = MeshRenderer;
+        MeshRenderer.prototype = _.create(Component.prototype, {
+            constructor: MeshRenderer
+        });
 
         return MeshRenderer;
     }

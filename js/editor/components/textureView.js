@@ -1,7 +1,9 @@
 define([
+        'lodash',
         'core/component'
     ],
     function(
+        _,
         Component
     ) {
         'use strict';
@@ -27,9 +29,9 @@ define([
 
         TextureView.__name__ = 'TextureView';
 
-        TextureView.prototype = Object.create(Component.prototype);
-
-        TextureView.prototype.constructor = TextureView;
+        TextureView.prototype = _.create(Component.prototype, {
+            constructor: TextureView
+        });
 
         TextureView.STATE_NONE   = 'none';
         TextureView.STATE_ZOOM   = 'zoom';

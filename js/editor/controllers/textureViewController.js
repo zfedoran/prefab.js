@@ -26,7 +26,7 @@ define([
             Controller.call(this, context, ['GUIElement', 'View', 'TextureView']);
         };
 
-        TextureViewController.prototype = _.extend(Object.create(Controller.prototype), {
+        TextureViewController.prototype = _.create(Controller.prototype, {
             constructor: TextureViewController,
 
             update: function() {

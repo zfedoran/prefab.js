@@ -2,6 +2,7 @@ define([
     ],
     function(
     ) {
+        'use strict';
 
         var Quaternion = function(x, y, z, w) {
             this.x = x || 0;

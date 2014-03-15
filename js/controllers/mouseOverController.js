@@ -16,7 +16,7 @@ define([
             Controller.call(this, context, ['View', 'InputMouse']);
         };
 
-        MouseOverController.prototype = _.extend(Object.create(Controller.prototype), {
+        MouseOverController.prototype = _.create(Controller.prototype, {
             constructor: MouseOverController,
 
             update: function() {

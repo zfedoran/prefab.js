@@ -16,7 +16,7 @@ define([
             Controller.call(this, context, ['Transform', 'Camera']);
         };
 
-        CameraController.prototype = _.extend(Object.create(Controller.prototype), {
+        CameraController.prototype = _.create(Controller.prototype, {
             constructor: CameraController,
 
             updateProjectionMatrix: function(entity) {

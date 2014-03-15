@@ -1,7 +1,9 @@
 define([
+        'lodash',
         'core/component'
     ],
     function(
+        _,
         Component
     ) {
         'use strict';
@@ -26,9 +28,9 @@ define([
 
         View.__name__ = 'View';
 
-        View.prototype = Object.create(Component.prototype);
-
-        View.prototype.constructor = View;
+        View.prototype = _.create(Component.prototype, {
+            constructor: View
+        });
 
         View.TYPE_SCENE   = 'scene';
         View.TYPE_TEXTURE = 'texture';

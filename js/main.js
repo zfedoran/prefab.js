@@ -12,7 +12,7 @@ requirejs.config({
     }
 });
 
-requirejs(['jquery', 'construct'], function($, Construct) {
+requirejs(['jquery', 'prefab'], function($, PrefabApplication) {
     'use strict';
 
     var requestAnimationFrame = window.requestAnimationFrame
@@ -29,6 +29,6 @@ requirejs(['jquery', 'construct'], function($, Construct) {
     window.hasFocus = true;
 
     $(function() {
-        new Construct();
+        new PrefabApplication();
     });
 });

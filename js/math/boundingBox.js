@@ -4,6 +4,7 @@ define([
     function(
         Vector3
     ) {
+        'use strict';
     
         var BoundingBox = function(min, max) {
             this.min = min || new Vector3(Infinity, Infinity, Infinity);

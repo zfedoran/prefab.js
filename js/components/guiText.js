@@ -1,7 +1,9 @@
 define([
+        'lodash',
         'core/component'
     ],
     function(
+        _,
         Component
     ) {
         'use strict';
@@ -20,13 +22,15 @@ define([
 
         GUIText.__name__ = 'GUIText';
 
-        GUIText.prototype = Object.create(Component.prototype);
+        GUIText.prototype = _.create(Component.prototype, {
+            constructor: GUIText,
+        
+            getFontStyle: function() {
+                return this.fontSize + 'px ' + this.fontFamily;
+            }
+        
+        });
 
-        GUIText.prototype.constructor = GUIText;
-
-        GUIText.prototype.getFontStyle = function() {
-            return this.fontSize + 'px ' + this.fontFamily;
-        };
 
         return GUIText;
     }

@@ -1,4 +1,5 @@
 define([
+        'lodash',
         'math/vector3',
         'core/entity',
         'graphics/material',
@@ -9,6 +10,7 @@ define([
         'components/meshRenderer'
     ],
     function(
+        _,
         Vector3,
         Entity,
         Material,
@@ -33,9 +35,9 @@ define([
             this.addComponent(new MeshRenderer(material));
         };
 
-        GUITextEntity.prototype = Object.create(Entity.prototype);
-
-        GUITextEntity.prototype.construct = GUITextEntity;
+        GUITextEntity.prototype = _.create(Entity.prototype, {
+            constructor: GUITextEntity
+        });
 
         return GUITextEntity;
     }

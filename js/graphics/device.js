@@ -33,10 +33,12 @@ define([
 
         GraphicsDevice.prototype = {
             constructor: GraphicsDevice,
+
             initCanvas: function() {
                 this.canvas = document.createElement('canvas');
                 document.body.appendChild(this.canvas);
             },
+            
             initWebGL: function() {
                 try {
                     var gl = this.canvas.getContext('webgl', {antialias: false}) || this.canvas.getContext('experimental-webgl', {antialias: false});
@@ -56,6 +58,7 @@ define([
                     console.error(error);
                 }
             },
+            
             initCapabilities: function() {
                 var gl = this.state.getContext();
 
@@ -67,6 +70,7 @@ define([
 
                 this._usedTextureUnits = 0;
             },
+            
             initDefaultState: function() {
                 var gl = this.state.getContext();
 
@@ -83,6 +87,7 @@ define([
 
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
             },
+            
             clear: function(color, depth, stencil) {
                 var gl = this.state.getContext();
 
@@ -101,6 +106,7 @@ define([
                 }
                 gl.clear(options);
             },
+            
             compileShader: function(vsource, fsource) {
                 var gl = this.state.getContext();
 
@@ -154,23 +160,29 @@ define([
 
                 return program;
             },
+            
             bindShader: function(program) {
                 this.state.setShader(program);
             },
+            
             createBuffer: function() {
                 var gl = this.state.getContext();
                 return gl.createBuffer();
             },
+            
             deleteBuffer: function(buffer) {
                 var gl = this.state.getContext();
                 return gl.deleteBuffer(buffer);
             },
+            
             bindVertexDeclaration: function(vertexDeclaration) {
                 this.state.setVertexDeclaration(vertexDeclaration);
             },
+            
             bindVertexBuffer: function(buffer) {
                 this.state.setVertexBuffer(buffer);
             },
+            
             setVertexBufferData: function(buffer, data) {
                 var gl = this.state.getContext();
 
@@ -178,9 +190,11 @@ define([
                 gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
                 buffer.length = data.length;
             },
+            
             bindIndexBuffer: function(buffer) {
                 this.state.setIndexBuffer(buffer);
             },
+            
             setIndexBufferData: function(buffer, data) {
                 var gl = this.state.getContext();
 
@@ -188,24 +202,29 @@ define([
                 gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, data, gl.STATIC_DRAW);
                 buffer.length = data.length;
             },
+            
             drawPrimitives: function(primitiveType, numVertices, offset) {
                 var gl = this.state.getContext();
 
                 this.applyState();
                 gl.drawArrays(primitiveType, offset, numVertices);
             },
+            
             drawIndexedPrimitives: function(primitiveType, numIndices, dataType, offset) {
                 var gl = this.state.getContext();
 
                 this.applyState();
                 gl.drawElements(primitiveType, numIndices, dataType, offset);
             },
+            
             getWidth: function() {
                 return this.canvas.width;
             },
+            
             getHeight: function() {
                 return this.canvas.height;
             },
+            
             setSize: function(width, height) {
                 var gl = this.state.getContext();
 
@@ -214,6 +233,7 @@ define([
 
                 this.setViewport(0, 0, width, height);
             },
+            
             setViewport: function(x, y, width, height) {
                 var gl = this.state.getContext();
 
@@ -226,11 +246,13 @@ define([
 
                 gl.viewport(this.viewportX, this.viewportY, this.viewportWidth, this.viewportHeight);
             },
+            
             setScissor: function(x, y, width, height) {
                 var gl = this.state.getContext();
 
                 gl.scissor(x, y, width, height);
             },
+            
             enableScissorTest: function(enable) {
                 var gl = this.state.getContext();
 
@@ -240,6 +262,7 @@ define([
                     gl.disable(gl.SCISSOR_TEST);
                 }
             },
+            
             getTextureUnit: function() {
                 var currentTextureUnit = this._usedTextureUnits++;
                 if (currentTextureUnit >= this._maxTextures) {
@@ -249,6 +272,7 @@ define([
                 }
                 return currentTextureUnit;
             },
+            
             applyState: function() {
                 var gl = this.state.getContext();
 

@@ -1,10 +1,12 @@
 define([
+        'lodash',
         'math/rectangle',
         'core/entity',
         'components/transform',
         'components/camera'
     ],
     function(
+        _,
         Rectangle,
         Entity,
         Transform,
@@ -25,9 +27,9 @@ define([
             this.addComponent(camera);
         };
 
-        GUILayerEntity.prototype = Object.create(Entity.prototype);
-
-        GUILayerEntity.prototype.construct = GUILayerEntity;
+        GUILayerEntity.prototype = _.create(Entity.prototype, {
+            constructor: GUILayerEntity
+        });
 
         return GUILayerEntity;
     }

@@ -1,4 +1,5 @@
 define([
+        'lodash',
         'core/entity',
         'graphics/material',
         'components/transform',
@@ -8,6 +9,7 @@ define([
         'graphics/mesh'
     ],
     function(
+        _,
         Entity,
         Material,
         Transform,
@@ -29,9 +31,9 @@ define([
             this.addComponent(new MeshRenderer(material));
         };
 
-        GridEntity.prototype = Object.create(Entity.prototype);
-
-        GridEntity.prototype.constructor = GridEntity;
+        GridEntity.prototype = _.create(Entity.prototype, {
+            constructor: GridEntity
+        });
 
         return GridEntity;
     }

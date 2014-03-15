@@ -1,10 +1,12 @@
 define([
+        'lodash',
         'core/entity',
         'core/component',
         'math/vector3',
         'math/matrix4'
     ],
     function(
+        _,
         Entity,
         Component,
         Vector3,
@@ -42,65 +44,66 @@ define([
 
         Camera.__name__ = 'Camera';
 
-        Camera.prototype = Object.create(Component.prototype);
+        Camera.prototype = _.create(Component.prototype, {
+            constructor: Camera,
 
-        Camera.prototype.constructor = Camera;
-
-        Camera.prototype.containsRenderGroup = function(name) {
-            var i, group;
-            for (i = 0; i < this.renderGroups.length; i++) {
-                group = this.renderGroups[i];
-                if (group === 'name') {
-                    return true;
+            containsRenderGroup: function(name) {
+                var i, group;
+                for (i = 0; i < this.renderGroups.length; i++) {
+                    group = this.renderGroups[i];
+                    if (group === 'name') {
+                        return true;
+                    }
                 }
-            }
-            return false;
-        };
+                return false;
+            },
 
-        Camera.prototype.removeRenderGroup = function(name) {
-            var i, group, newGroupList = [];
-            for (i = 0; i < this.renderGroups.length; i++) {
-                group = this.renderGroups[i];
-                if (group !== 'name') {
-                    newGroupList.push(group);
+            removeRenderGroup: function(name) {
+                var i, group, newGroupList = [];
+                for (i = 0; i < this.renderGroups.length; i++) {
+                    group = this.renderGroups[i];
+                    if (group !== 'name') {
+                        newGroupList.push(group);
+                    }
                 }
-            }
-            this.renderGroups = newGroupList;
-        };
+                this.renderGroups = newGroupList;
+            },
 
-        Camera.prototype.addRenderGroup = function(name) {
-            if (!this.containsRenderGroup()) {
-                this.renderGroups.push(name); 
-            }
-        };
+            addRenderGroup: function(name) {
+                if (!this.containsRenderGroup()) {
+                    this.renderGroups.push(name); 
+                }
+            },
 
-        Camera.prototype.isOrthographic = function() {
-            return this.ortho; 
-        };
+            isOrthographic: function() {
+                return this.ortho; 
+            },
 
-        Camera.prototype.isOffCenter = function() {
-            return this.offCenter; 
-        };
+            isOffCenter: function() {
+                return this.offCenter; 
+            },
 
-        Camera.prototype.hasTarget = function() {
-            return this.target instanceof Vector3 || this.target instanceof Entity;
-        };
+            hasTarget: function() {
+                return this.target instanceof Vector3 || this.target instanceof Entity;
+            },
 
-        Camera.prototype.getTargetPosition = function() {
-            if (this.target instanceof Vector3) {
-                return this.target;
-            } 
-
-            var transform;
-            if (this.target instanceof Entity) {
-                transform = this.target.getComponent('Transform');
-                if (transform) {
-                    return transform.getPosition();
+            getTargetPosition: function() {
+                if (this.target instanceof Vector3) {
+                    return this.target;
                 } 
-                throw 'Camera: Target entity has no transform component.';
-            } 
-            throw 'Camera: Unsupported view target type.';
-        };
+
+                var transform;
+                if (this.target instanceof Entity) {
+                    transform = this.target.getComponent('Transform');
+                    if (transform) {
+                        return transform.getPosition();
+                    } 
+                    throw 'Camera: Target entity has no transform component.';
+                } 
+                throw 'Camera: Unsupported view target type.';
+            }
+        });
+
 
         return Camera;
     }

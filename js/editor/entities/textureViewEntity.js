@@ -1,9 +1,11 @@
 define([
+        'lodash',
         'components/view',
         'entities/viewEntity',
         'editor/components/textureView'
     ],
     function(
+        _,
         View,
         ViewEntity,
         TextureView
@@ -21,9 +23,9 @@ define([
             this.addComponent(new TextureView(zoom));
         };
 
-        TextureViewEntity.prototype = Object.create(ViewEntity.prototype);
-
-        TextureViewEntity.prototype.constructor = TextureViewEntity;
+        TextureViewEntity.prototype = _.create(ViewEntity.prototype, {
+            constructor: TextureViewEntity
+        });
 
         return TextureViewEntity;
     }

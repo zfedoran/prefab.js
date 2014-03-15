@@ -1,9 +1,11 @@
 define([
+        'lodash',
         'components/view',
         'entities/viewEntity',
         'editor/components/sceneView'
     ],
     function(
+        _,
         View,
         ViewEntity,
         SceneView
@@ -22,9 +24,9 @@ define([
             this.addComponent(new SceneView(direction, projection));
         };
 
-        SceneViewEntity.prototype = Object.create(ViewEntity.prototype);
-
-        SceneViewEntity.prototype.constructor = SceneViewEntity;
+        SceneViewEntity.prototype = _.create(ViewEntity.prototype, {
+            constructor: SceneViewEntity
+        });
 
         return SceneViewEntity;
     }

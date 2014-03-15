@@ -1,10 +1,12 @@
 define([
+        'lodash',
         'core/component',
         'math/vector3',
         'math/quaternion',
         'math/matrix4'
     ],
     function(
+        _,
         Component,
         Vector3,
         Quaternion,
@@ -29,53 +31,53 @@ define([
 
         Transform.__name__ = 'Transform';
 
-        Transform.prototype = Object.create(Component.prototype);
+        Transform.prototype = _.create(Component.prototype, {
+            constructor: Transform,
 
-        Transform.prototype.constructor = Transform;
+            update: function() {
+                var entity = this.getEntity();
+                var transform, parent = entity.getParent();
+                if (this.isDirty()) {
+                    this._localMatrix.compose(this.localPosition, this.localRotation, this.localScale);
 
-        Transform.prototype.update = function() {
-            var entity = this.getEntity();
-            var transform, parent = entity.getParent();
-            if (this.isDirty()) {
-                this._localMatrix.compose(this.localPosition, this.localRotation, this.localScale);
+                    if (parent) {
+                        transform = parent.getComponent(Transform);
+                        transform.update();
+                        Matrix4.multiply(this._localMatrix, transform._worldMatrix, /*out*/ this._worldMatrix);
+                    } else {
+                        this._worldMatrix.copy(this._localMatrix);
+                    }
 
-                if (parent) {
-                    transform = parent.getComponent(Transform);
-                    transform.update();
-                    Matrix4.multiply(this._localMatrix, transform._worldMatrix, /*out*/ this._worldMatrix);
-                } else {
-                    this._worldMatrix.copy(this._localMatrix);
+                    this._worldMatrix.decompose(this._position, this._rotation, this._scale);
+                    this.setDirty(false);
                 }
+            },
 
-                this._worldMatrix.decompose(this._position, this._rotation, this._scale);
-                this.setDirty(false);
+            getPosition: function() {
+                if (this.isDirty()) { this.update(); }
+                return this._position;
+            },
+
+            getRotation: function() {
+                if (this.isDirty()) { this.update(); }
+                return this._rotation;
+            },
+
+            getScale: function() {
+                if (this.isDirty()) { this.update(); }
+                return this._scale;
+            },
+
+            getWorldMatrix: function() {
+                if (this.isDirty()) { this.update(); }
+                return this._worldMatrix;
+            },
+
+            getLocalMatrix: function() {
+                if (this.isDirty()) { this.update(); }
+                return this._localMatrix;
             }
-        };
-
-        Transform.prototype.getPosition = function() {
-            if (this.isDirty()) { this.update(); }
-            return this._position;
-        };
-
-        Transform.prototype.getRotation = function() {
-            if (this.isDirty()) { this.update(); }
-            return this._rotation;
-        };
-
-        Transform.prototype.getScale = function() {
-            if (this.isDirty()) { this.update(); }
-            return this._scale;
-        };
-
-        Transform.prototype.getWorldMatrix = function() {
-            if (this.isDirty()) { this.update(); }
-            return this._worldMatrix;
-        };
-
-        Transform.prototype.getLocalMatrix = function() {
-            if (this.isDirty()) { this.update(); }
-            return this._localMatrix;
-        };
+        });
 
         return Transform;
     }

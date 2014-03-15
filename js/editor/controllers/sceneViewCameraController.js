@@ -26,7 +26,7 @@ define([
             Controller.call(this, context, ['SceneView', 'InputMouse']);
         };
 
-        SceneViewCameraController.prototype = _.extend(Object.create(Controller.prototype), {
+        SceneViewCameraController.prototype = _.create(Controller.prototype, {
             constructor: SceneViewCameraController,
 
             updateMouseOverViews: function() {

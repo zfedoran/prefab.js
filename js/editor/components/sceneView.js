@@ -1,7 +1,9 @@
 define([
+        'lodash',
         'core/component'
     ],
     function(
+        _,
         Component
     ) {
         'use strict';
@@ -29,9 +31,9 @@ define([
 
         SceneView.__name__ = 'SceneView';
 
-        SceneView.prototype = Object.create(Component.prototype);
-
-        SceneView.prototype.constructor = SceneView;
+        SceneView.prototype = _.create(Component.prototype, {
+            constructor: SceneView
+        });
 
         SceneView.PROJECTION_ORTHOGRAPHIC = 'orthographic';
         SceneView.PROJECTION_PERSPECTIVE  = 'perspective';

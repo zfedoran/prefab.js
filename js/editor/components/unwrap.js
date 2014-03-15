@@ -1,7 +1,9 @@
 define([
+        'lodash',
         'core/component'
     ],
     function(
+        _,
         Component
     ) {
         'use strict';
@@ -14,9 +16,9 @@ define([
 
         Unwrap.__name__ = 'Unwrap';
 
-        Unwrap.prototype = Object.create(Component.prototype);
-
-        Unwrap.prototype.constructor = Unwrap;
+        Unwrap.prototype = _.create(Component.prototype, {
+            constructor: Unwrap
+        });
 
         return Unwrap;
     }

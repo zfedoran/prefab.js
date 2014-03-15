@@ -1,7 +1,9 @@
 define([
+        'lodash',
         'core/component'
     ],
     function(
+        _,
         Component
     ) {
         'use strict';
@@ -25,9 +27,9 @@ define([
 
         Block.__name__ = 'Block';
 
-        Block.prototype = Object.create(Component.prototype);
-
-        Block.prototype.constructor = Block;
+        Block.prototype = _.create(Component.prototype, {
+            constructor: Block
+        });
 
         return Block;
     }

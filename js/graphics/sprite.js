@@ -25,18 +25,22 @@ define([
 
         Sprite.prototype = {
             constructor: Sprite,
+
             getUCoordinate: function() {
                 return this._uvs.x;
             },
+            
             getVCoordinate: function() {
                 return this._uvs.y;
             },
+            
             getUVWidth: function() {
                 return this._uvs.width;
             },
+            
             getUVHeight: function() {
                 return this._uvs.height;
-            },
+            }
         };
 
         return Sprite;

@@ -1,7 +1,9 @@
 define([
+        'lodash',
         'core/component'
     ],
     function(
+        _,
         Component
     ) {
         'use strict';
@@ -14,9 +16,9 @@ define([
 
         MeshFilter.__name__ = 'MeshFilter';
 
-        MeshFilter.prototype = Object.create(Component.prototype);
-
-        MeshFilter.prototype.constructor = MeshFilter;
+        MeshFilter.prototype = _.create(Component.prototype, {
+            constructor: MeshFilter
+        });
 
         return MeshFilter;
     }

@@ -24,7 +24,7 @@ define([
             this.meshFactory = new MeshFactory(this.device);
         };
 
-        GridController.prototype = _.extend(Object.create(Controller.prototype), {
+        GridController.prototype = _.create(Controller.prototype, {
             constructor: GridController,
 
             update: function() {

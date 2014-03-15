@@ -1,4 +1,5 @@
 define([
+        'lodash',
         'core/entity',
         'components/transform',
         'components/meshFilter',
@@ -6,6 +7,7 @@ define([
         'editor/components/unwrap'
     ],
     function(
+        _,
         Entity,
         Transform,
         MeshFilter,
@@ -30,9 +32,9 @@ define([
             this.addComponent(new Unwrap(blockEntity));
         };
 
-        UnwrapEntity.prototype = Object.create(Entity.prototype);
-
-        UnwrapEntity.prototype.constructor = UnwrapEntity;
+        UnwrapEntity.prototype = _.create(Entity.prototype, {
+            constructor: UnwrapEntity
+        });
 
         return UnwrapEntity;
     }

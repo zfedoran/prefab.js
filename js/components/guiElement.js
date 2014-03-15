@@ -1,7 +1,9 @@
 define([
+        'lodash',
         'core/component'
     ],
     function(
+        _,
         Component
     ) {
         'use strict';
@@ -16,13 +18,13 @@ define([
 
         GUIElement.__name__ = 'GUIElement';
 
-        GUIElement.prototype = Object.create(Component.prototype);
+        GUIElement.prototype = _.create(Component.prototype, {
+            constructor: GUIElement,
 
-        GUIElement.prototype.constructor = GUIElement;
-
-        GUIElement.prototype.hitTest = function(position) {
-            return this.boundingRect.contains(position);
-        };
+            hitTest: function(position) {
+                return this.boundingRect.contains(position);
+            }
+        });
 
         return GUIElement;
     }

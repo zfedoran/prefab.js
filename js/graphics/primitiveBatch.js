@@ -20,6 +20,7 @@ define([
 
         PrimitiveBatch.prototype = {
             constructor: PrimitiveBatch,
+            
             begin: function(primitiveType) {
                 if (this.hasBegun) {
                     throw 'PrimitiveBatch: end() must be called before begin() can be called again';
@@ -39,6 +40,7 @@ define([
                 this.positionInBuffer = 0;
                 this.hasBegun = true;
             },
+            
             end: function() {
                 if (!this.hasBegun) {
                     throw 'PrimitiveBatch: begin() must be called end()';
@@ -49,6 +51,7 @@ define([
                 }
                 this.hasBegun = false;
             },
+            
             flush: function() {
                 if (this.positionInBuffer === 0) {
                     throw 'PrimitiveBatch: flush called on 0 elements';
@@ -60,6 +63,7 @@ define([
                 this.device.drawPrimitives(this.primitiveType, this.positionInBuffer, 0);
                 this.positionInBuffer = 0;
             },
+            
             addVertex: function() {
                 var vertexData = arguments;
                 if (!this.hasBegun) {

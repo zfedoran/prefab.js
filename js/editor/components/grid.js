@@ -1,7 +1,9 @@
 define([
+        'lodash',
         'core/component'
     ],
     function(
+        _,
         Component
     ) {
         'use strict';
@@ -24,9 +26,9 @@ define([
 
         Grid.__name__ = 'Grid';
 
-        Grid.prototype = Object.create(Component.prototype);
-
-        Grid.prototype.constructor = Grid;
+        Grid.prototype = _.create(Component.prototype, {
+            constructor: Grid
+        });
 
         return Grid;
     }

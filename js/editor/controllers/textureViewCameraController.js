@@ -26,7 +26,7 @@ define([
             Controller.call(this, context, ['TextureView', 'InputMouse']);
         };
 
-        TextureViewCameraController.prototype = _.extend(Object.create(Controller.prototype), {
+        TextureViewCameraController.prototype = _.create(Controller.prototype, {
             constructor: TextureViewCameraController,
 
             updateMouseOverViews: function() {

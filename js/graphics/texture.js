@@ -48,7 +48,9 @@ define([
             constructor: Texture,
 
             getWidth: function() { return this._textureWidth; },
+
             getHeight: function() { return this._textureHeight; },
+
             setTextureSize: function(width, height) {
                 this._textureWidth = width;
                 this._textureHeight = height;
@@ -58,6 +60,7 @@ define([
             getTextureTarget: function() {
                 return this._textureTarget; 
             },
+
             getTextureObject: function() { 
                 if (typeof this._textureObject === 'undefined') {
                     this.apply();
