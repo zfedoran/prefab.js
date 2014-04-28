@@ -9,10 +9,10 @@
     "tests"
   ],
   "dependencies": {
-    "jquery"         : "*",
-    "lodash"         : "*",
-    "requirejs"      : "*",
-    "threejs"        : "*",
-    "requirejs-text" : "*"
+    "jquery": "*",
+    "lodash": "*",
+    "requirejs": "*",
+    "requirejs-text": "*",
+    "requirejs-plugins": "~1.0.2"
   }
 }
