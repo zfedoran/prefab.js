@@ -1,14 +1,12 @@
 define([
         'lodash',
         'core/factory',
-        'core/entity',
         'components/transform',
         'components/camera'
     ],
     function(
         _,
         Factory,
-        Entity,
         Transform,
         Camera
     ) {
@@ -22,12 +20,10 @@ define([
             constructor: CameraFactory,
 
             create: function(viewRect, near, far, fov) {
-                var entity = new Entity();
+                var entity = this.getNewEntity();
 
                 entity.addComponent(new Transform());
                 entity.addComponent(new Camera(viewRect, near, far, fov));
-
-                this.addEntity(entity);
 
                 return entity;
             }

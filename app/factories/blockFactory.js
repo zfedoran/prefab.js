@@ -1,7 +1,6 @@
 define([
         'lodash',
         'core/factory',
-        'core/entity',
         'graphics/material',
         'components/transform',
         'components/block',
@@ -12,7 +11,6 @@ define([
     function(
         _,
         Factory,
-        Entity,
         Material,
         Transform,
         Block,
@@ -30,7 +28,7 @@ define([
             construct: BlockFactory,
 
             create: function(width, height, depth) {
-                var entity = new Entity();
+                var entity = this.getNewEntity();
 
                 var material = new Material(Material.LAMBERT);
 
@@ -38,8 +36,6 @@ define([
                 entity.addComponent(new Block(width, height, depth));
                 entity.addComponent(new MeshFilter());
                 entity.addComponent(new MeshRenderer(material));
-
-                this.addEntity(entity);
 
                 return entity;
             }

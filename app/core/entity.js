@@ -19,14 +19,25 @@ define([
         *   @class
         *   @constructor
         */
-        var Entity = function(){
-            this.uuid = Entity.generateUUID();
-            this.name = '';
-            this.id = _entityCount++;
-            this.components = {};
+        var Entity = function(entityManager){
+            if (typeof entityManager === 'undefined') {
+                throw 'Entity: cannot create entities without a manager.';
+            }
 
-            this.parent = null;
+            this.entityManager = entityManager;
+            this.uuid          = Entity.generateUUID();
+
+            // Entity properties
+            this.name          = '';
+            this.id            = _entityCount++;
+            this.components    = {};
+
+            // Entity hierarchy
+            this.parent   = null;
             this.children = [];
+
+            // Add this entity to the manager
+            this.entityManager.addEntity(this);
         };
 
         Entity.prototype = {
@@ -100,6 +111,28 @@ define([
                     this.children.splice(index, 0);
                     entity.setParent(null);
                 }
+            },
+
+            /**
+            *   Add this entity to the provided group name.
+            *
+            *   @method addToGroup
+            *   @param {name}
+            *   @returns {undefined}
+            */
+            addToGroup: function(name) {
+                this.entityManager.addEntityToGroup(this, name);
+            },
+
+            /**
+            *   Remove this entity from the provided group name.
+            *
+            *   @method removeFromGroup
+            *   @param {name}
+            *   @returns {undefined}
+            */
+            removeFromGroup: function(name) {
+                this.entityManager.removeFromGroup(this, name);
             },
 
             /**

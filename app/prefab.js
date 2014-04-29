@@ -128,8 +128,7 @@ define([
                 material.diffuseMap = texture;
                 material.setDirty(true);
 
-                this.context.entityManager.addEntity(entity);
-                this.context.entityManager.addEntityToGroup(entity, 'Scene');
+                entity.addToGroup('Scene');
             },
 
             /**
@@ -145,9 +144,7 @@ define([
                 cameraComponent.addRenderGroup('Scene');
                 cameraComponent.target = new Vector3(0,0,0);
 
-                this.camera.getComponent('Transform').localPosition = new Vector3(0, 5, 5);
-
-                this.context.entityManager.addEntity(this.camera);
+                this.camera.addToGroup('Scene');
             },
 
             /**
@@ -202,8 +199,11 @@ define([
                     this.controllerList[i].update(elapsed);
                 }
 
-                this.camera.getComponent('Transform').localPosition = new Vector3(Math.cos(this.time*0.001)*2, Math.sin(this.time*0.003)*2, Math.sin(this.time*0.005)*2);
-                this.camera.getComponent('Transform').setDirty(true);
+                var transform = this.camera.getComponent('Transform');
+                transform.localPosition.x = Math.cos(this.time*0.001)*2
+                transform.localPosition.y = Math.sin(this.time*0.003)*2
+                transform.localPosition.z = Math.sin(this.time*0.005)*2;
+                transform.setDirty(true);
             },
 
         });

@@ -1,6 +1,8 @@
 define([
+        'core/entity'
     ],
     function(
+        Entity
     ) {
         'use strict';
 
@@ -30,14 +32,13 @@ define([
             },
 
             /**
-            *   Add an entity to the context.
+            *   This method returns a new entity instance.
             *
-            *   @method addEntity
-            *   @param {entity}
+            *   @method getNewEntity
             *   @returns {undefined}
             */
-            addEntity: function(entity) {
-                this.context.addEntity(entity);
+            getNewEntity: function() {
+                return (new Entity(this.context.entityManager));
             }
 
         };
