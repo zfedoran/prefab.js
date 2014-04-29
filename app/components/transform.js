@@ -40,7 +40,8 @@ define([
                 if (this.isDirty()) {
                     this._localMatrix.compose(this.localPosition, this.localRotation, this.localScale);
 
-                    if (parent) {
+                    // TODO: not all entities have transforms, this method needs to account for that
+                    if (parent && parent.hasComponent(Transform)) {
                         transform = parent.getComponent(Transform);
                         transform.update();
                         Matrix4.multiply(this._localMatrix, transform._worldMatrix, /*out*/ this._worldMatrix);

@@ -20,7 +20,7 @@ define([
             constructor: CameraFactory,
 
             create: function(viewRect, near, far, fov) {
-                var entity = this.getNewEntity();
+                var entity = this.context.createNewEntity();
 
                 entity.addComponent(new Transform());
                 entity.addComponent(new Camera(viewRect, near, far, fov));

@@ -84,6 +84,9 @@ define([
             */
             initContext: function() {
                 this.context = new Context(this.device);
+
+                // Useful debug access
+                window.context = this.context;
             },
 
             /**

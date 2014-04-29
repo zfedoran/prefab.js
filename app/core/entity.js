@@ -19,7 +19,7 @@ define([
         *   @class
         *   @constructor
         */
-        var Entity = function(entityManager){
+        var Entity = function(entityManager, name){
             if (typeof entityManager === 'undefined') {
                 throw 'Entity: cannot create entities without a manager.';
             }
@@ -28,7 +28,7 @@ define([
             this.uuid          = Entity.generateUUID();
 
             // Entity properties
-            this.name          = '';
+            this.name          = name || '';
             this.id            = _entityCount++;
             this.components    = {};
 
@@ -64,14 +64,13 @@ define([
             },
 
             /**
-            *   Set the parent entity to the provided entity.
+            *   Check if this entity has any children.
             *
-            *   @method setParent
-            *   @param {entity}
-            *   @returns {undefined}
+            *   @method hasChildren
+            *   @returns {boolean}
             */
-            setParent: function(entity) {
-                this.parent = entity;
+            hasChildren: function() {
+                return this.children.length > 0;
             },
 
             /**
@@ -84,18 +83,10 @@ define([
             addChild: function(entity) {
                 if (entity instanceof Entity) {
                     this.children.push(entity);
-                    entity.setParent(this);
+                    entity.parent = this;
+                } else {
+                    throw 'Entity: cannot addChild() if the child is not an instance of Entity.';
                 }
-            },
-
-            /**
-            *   Check if this entity has any children.
-            *
-            *   @method hasChildren
-            *   @returns {boolean}
-            */
-            hasChildren: function() {
-                return this.children.length > 0;
             },
 
             /**
@@ -106,10 +97,14 @@ define([
             *   @returns {undefined}
             */
             removeChild: function(entity) {
-                var index = this.children.indexOf(entity);
-                if (index > -1) {
-                    this.children.splice(index, 0);
-                    entity.setParent(null);
+                if (entity instanceof Entity) {
+                    var index = this.children.indexOf(entity);
+                    if (index > -1) {
+                        this.children.splice(index, 0);
+                        entity.parent = null;
+                    }
+                } else {
+                    throw 'Entity: cannot removeChild() if the child is not an instance of Entity.';
                 }
             },
 

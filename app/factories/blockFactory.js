@@ -28,7 +28,7 @@ define([
             construct: BlockFactory,
 
             create: function(width, height, depth) {
-                var entity = this.getNewEntity();
+                var entity = this.context.createNewEntity();
 
                 var material = new Material(Material.LAMBERT);
 

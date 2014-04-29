@@ -1,8 +1,6 @@
 define([
-        'core/entity'
     ],
     function(
-        Entity
     ) {
         'use strict';
 
@@ -29,18 +27,7 @@ define([
             */
             create: function() {
                 throw 'Factory: create() function not implemented.';
-            },
-
-            /**
-            *   This method returns a new entity instance.
-            *
-            *   @method getNewEntity
-            *   @returns {undefined}
-            */
-            getNewEntity: function() {
-                return (new Entity(this.context.entityManager));
             }
-
         };
 
         return Factory;

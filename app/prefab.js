@@ -108,27 +108,35 @@ define([
             *   @returns {undefined}
             */
             initScene: function() {
+                this.root = this.context.createNewEntity('root');
+                this.root.addToGroup('scene');
+
+                // TODO: make this (or something like it) work
+                //var block = this.root.createChild('block');
+                //this.blockFactory.using(block).create(width, height, depth);
+                
                 var width, height, depth;
                 width = height = depth = 1;
 
-                var entity  = this.blockFactory.create(width, height, depth);
-                var block   = entity.getComponent('Block');
+                var block  = this.blockFactory.create(width, height, depth);
                 var texture = new Texture(this.device, this.assetLib['assets/block.png']);
                 var sprite  = new Sprite(new Rectangle(0, 0, 8, 8), texture);
 
-                block.front   = sprite;
-                block.left    = sprite;
-                block.back    = sprite;
-                block.right   = sprite;
-                block.top     = sprite;
-                block.bottom  = sprite;
-                block.texture = texture;
+                var blockComponent = block.getComponent('Block');
+                blockComponent.front   = sprite;
+                blockComponent.left    = sprite;
+                blockComponent.back    = sprite;
+                blockComponent.right   = sprite;
+                blockComponent.top     = sprite;
+                blockComponent.bottom  = sprite;
+                blockComponent.texture = texture;
 
-                var material = entity.getComponent('MeshRenderer').material;
+                var material = block.getComponent('MeshRenderer').material;
                 material.diffuseMap = texture;
                 material.setDirty(true);
 
-                entity.addToGroup('Scene');
+                // Add to scene
+                this.root.addChild(block);
             },
 
             /**
@@ -141,10 +149,11 @@ define([
                 this.camera = this.cameraFactory.create(new Rectangle(0, 0, this.width, this.height), 0.1, 100, 75);
 
                 var cameraComponent = this.camera.getComponent('Camera');
-                cameraComponent.addRenderGroup('Scene');
+                cameraComponent.addRenderGroup('scene');
                 cameraComponent.target = new Vector3(0,0,0);
 
-                this.camera.addToGroup('Scene');
+                // Add to scene
+                this.root.addChild(this.camera);
             },
 
             /**
@@ -200,8 +209,8 @@ define([
                 }
 
                 var transform = this.camera.getComponent('Transform');
-                transform.localPosition.x = Math.cos(this.time*0.001)*2
-                transform.localPosition.y = Math.sin(this.time*0.003)*2
+                transform.localPosition.x = Math.cos(this.time*0.001)*2;
+                transform.localPosition.y = Math.sin(this.time*0.003)*2;
                 transform.localPosition.z = Math.sin(this.time*0.005)*2;
                 transform.setDirty(true);
             },

@@ -1,8 +1,10 @@
 define([
-        'core/entityManager'
+        'core/entityManager',
+        'core/entity'
     ],
     function(
-        EntityManager
+        EntityManager,
+        Entity
     ) {
         'use strict';
 
@@ -14,16 +16,39 @@ define([
         Context.prototype = {
             constructor: Context,
 
+            /**
+            *   This method returns a hashmap of all entities that contain the
+            *   provided component list.
+            *
+            *   @method filterByComponents
+            *   @param {components}
+            *   @returns {object}
+            */
             filterByComponents: function(components) {
                 return this.entityManager.filterByComponents(components);
             },
 
+            /**
+            *   This method returns a hashmap of all entities that belong to
+            *   the provided group name.
+            *
+            *   @method filterByGroupName
+            *   @param {name}
+            *   @returns {object}
+            */
             filterByGroupName: function(name) {
                 return this.entityManager.filterByGroupName(name);
             },
 
-            addEntity: function(entity) {
-                return this.entityManager.addEntity(entity);
+            /**
+            *   This method returns a new entity instance.
+            *
+            *   @method createNewEntity
+            *   @param {name}
+            *   @returns {entity}
+            */
+            createNewEntity: function(name) {
+                return (new Entity(this.entityManager, name));
             }
         };
 
