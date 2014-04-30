@@ -99,7 +99,7 @@ define([
 
                 if (camera.isDirty()) {
                     if (camera.hasTarget()) {
-                        Matrix4.createLookAt(transform.getPosition(), camera.getTargetPosition(), camera.up, /*out*/ camera._viewMatrix);
+                        Matrix4.createLookAt(transform.getWorldPosition(), camera.getTargetPosition(), camera.up, /*out*/ camera._viewMatrix);
                     } else {
                         // If you only have the camera transformation and you want
                         // to compute the view matrix that will correctly transform

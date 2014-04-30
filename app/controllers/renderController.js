@@ -175,12 +175,11 @@ define([
                 var view = camera._viewMatrix;
                 var proj = camera._projectionMatrix;
 
-                shader.uniforms.uMMatrix.set(transform._worldMatrix);
+                shader.uniforms.uMMatrix.set(transform.getWorldMatrix());
                 shader.uniforms.uVMatrix.set(view);
                 shader.uniforms.uPMatrix.set(proj);
 
                 this.device.bindShader(shader);
-
                 this.device.setViewport(camera.viewRect.x, camera.viewRect.y, camera.viewRect.width, camera.viewRect.height);
 
                 mesh.draw();

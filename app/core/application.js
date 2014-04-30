@@ -2,13 +2,19 @@ define([
         'jquery',
         'lodash',
         'graphics/device',
-        'core/context'
+        'core/context',
+        'core/assetLibrary',
+        'core/entityManager',
+        'core/controllerManager'
     ],
     function(
         $,
         _,
         GraphicsDevice,
-        Context
+        Context,
+        AssetLibrary,
+        EntityManager,
+        ControllerManager
     ) {
         'use strict';
 
@@ -21,6 +27,19 @@ define([
         *   @class 
         */
         var Application = function() {
+            // Create the application context
+            this.context = new Context(this);
+
+            // Create the asset library
+            this.assetLibrary = new AssetLibrary(this.context);
+
+            // Create the entity manager
+            this.entityManager = new EntityManager();
+
+            // Create the controller manager
+            this.controllerManager = new ControllerManager(this.context);
+
+            // Call the parent init() function
             this.init();
         };
 
@@ -74,19 +93,6 @@ define([
                     }
                     prevTime = time;
                 })(0);
-            },
-
-            /**
-            *   This method initializes the application context.
-            *
-            *   @method initContext
-            *   @returns {undefined}
-            */
-            initContext: function() {
-                this.context = new Context(this.device);
-
-                // Useful debug access
-                window.context = this.context;
             },
 
             /**

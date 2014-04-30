@@ -14,6 +14,10 @@ requirejs.config({
 requirejs(['jquery', 'prefab'], function($, Prefab) {
     'use strict';
 
+    // Disable scrolling
+    $('html, body').css({ 'overflow': 'hidden', 'height': '100%' });
+
+    // Setup focus events
     var gui = require('nw.gui'); 
     var win = gui.Window.get();
 
@@ -22,6 +26,7 @@ requirejs(['jquery', 'prefab'], function($, Prefab) {
 
     window.hasFocus = true;
 
+    // Create the application
     $(function() {
         var prefab = new Prefab();
     });

@@ -8,13 +8,53 @@ define([
     ) {
         'use strict';
 
-        var Context = function(device) {
-            this.entityManager = new EntityManager();
-            this.device = device;
+        /**
+        *   The Context class maintains the current application state.
+        *
+        *   @method 
+        *   @param {device}
+        *   @returns {undefined}
+        */
+        var Context = function(app) {
+            this._application = app;
+
+            // Useful debug access
+            window.context = this;
         };
 
         Context.prototype = {
             constructor: Context,
+
+            /**
+            *   This method returns the total time that has elapsed since the
+            *   application started running.
+            *
+            *   @method getTotalTimeInSeconds
+            *   @returns {float}
+            */
+            getTotalTimeInSeconds: function() {
+                return this._application.time;
+            },
+
+            /**
+            *   This method returns the current graphics device.
+            *
+            *   @method getGraphicsDevice
+            *   @returns {GraphicsDevice}
+            */
+            getGraphicsDevice: function() {
+                return this._application.device;
+            },
+
+            /**
+            *   This method returns the application asset library.
+            *
+            *   @method getAssetLibrary
+            *   @returns {object}
+            */
+            getAssetLibrary: function() {
+                return this._application.assetLibrary;
+            },
 
             /**
             *   This method returns a hashmap of all entities that contain the
@@ -25,7 +65,7 @@ define([
             *   @returns {object}
             */
             filterByComponents: function(components) {
-                return this.entityManager.filterByComponents(components);
+                return this._application.entityManager.filterByComponents(components);
             },
 
             /**
@@ -37,7 +77,7 @@ define([
             *   @returns {object}
             */
             filterByGroupName: function(name) {
-                return this.entityManager.filterByGroupName(name);
+                return this._application.entityManager.filterByGroupName(name);
             },
 
             /**
@@ -48,7 +88,7 @@ define([
             *   @returns {entity}
             */
             createNewEntity: function(name) {
-                return (new Entity(this.entityManager, name));
+                return (new Entity(this._application.entityManager, name));
             }
         };
 

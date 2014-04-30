@@ -28,7 +28,17 @@ define([
         Block.__name__ = 'Block';
 
         Block.prototype = _.create(Component.prototype, {
-            constructor: Block
+            constructor: Block,
+
+            setAllFacesTo: function(sprite) {
+                this.front   = sprite;
+                this.left    = sprite;
+                this.back    = sprite;
+                this.right   = sprite;
+                this.top     = sprite;
+                this.bottom  = sprite;
+                this.texture = sprite.texture;
+            }
         });
 
         return Block;

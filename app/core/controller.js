@@ -13,7 +13,7 @@ define([
         */
         var Controller = function(context) {
             this.context = context;
-            this.device  = context.device;
+            this.device  = context.getGraphicsDevice();
         };
 
         Controller.prototype = {

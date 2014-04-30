@@ -94,7 +94,7 @@ define([
                 if (this.target instanceof Entity) {
                     transform = this.target.getComponent('Transform');
                     if (transform) {
-                        return transform.getPosition();
+                        return transform.getWorldPosition();
                     } 
                     throw 'Camera: Target entity has no transform component.';
                 } 
