@@ -7,7 +7,8 @@ define([
         'graphics/texture',
         'components/transform',
         'factories/blockFactory',
-        'factories/cameraFactory'
+        'factories/cameraFactory',
+        'editor/factories/gridFactory'
     ],
     function(
         $,
@@ -18,7 +19,8 @@ define([
         Texture,
         Transform,
         BlockFactory,
-        CameraFactory
+        CameraFactory,
+        GridFactory
     ) {
         'use strict';
 
@@ -57,6 +59,7 @@ define([
             initFactories: function() {
                 this.cameraFactory = new CameraFactory(this.context);
                 this.blockFactory  = new BlockFactory(this.context);
+                this.gridFactory   = new GridFactory(this.context);
             },
 
             /**
@@ -69,6 +72,10 @@ define([
                 this.root = this.context.createNewEntity('root');
                 this.root.addComponent(new Transform());
                 this.root.addToGroup('scene');
+
+                var grid = this.gridFactory.create(20, 0, 20);
+                grid.name = 'grid';
+                grid.addToGroup('scene');
 
                 this.initCamera();
                 this.initBlocks();
@@ -87,38 +94,21 @@ define([
                 var texture = assetLibrary.getTexture('assets/block.png');
                 var sprite  = new Sprite(new Rectangle(0, 0, 8, 8), texture);
 
-                var b1 = this.blockFactory.create(1, 1, 1);
-                var b2 = this.blockFactory.create(1, 1, 1);
-                var b3 = this.blockFactory.create(1, 1, 1);
+                var prev = this.root;
+                for (var i = 0; i < 100; i++) {
+                    var block = this.blockFactory.create(1, 1, 1);
+                    block.name = 'block';
+                    block.getComponent('Block').setAllFacesTo(sprite);
+                    block.getComponent('MeshRenderer').material.diffuseMap = texture;
 
-                b1.name = 'b1';
-                b2.name = 'b2';
+                    var transform = block.getComponent('Transform');
+                    transform.setPosition(0, 0.1, 0);
+                    transform.setRotationFromEuler(0.1, 0.1, 0.1);
 
-                b1.getComponent('Block').setAllFacesTo(sprite);
-                b2.getComponent('Block').setAllFacesTo(sprite);
-                b3.getComponent('Block').setAllFacesTo(sprite);
+                    prev.addChild(block);
+                    prev = block;
+                }
 
-                b1.getComponent('MeshRenderer').material.diffuseMap = texture;
-                b2.getComponent('MeshRenderer').material.diffuseMap = texture;
-                b3.getComponent('MeshRenderer').material.diffuseMap = texture;
-                
-                // offset b2
-                b1.getComponent('Transform').setPosition(0, 0, 0);
-                b2.getComponent('Transform').setPosition(0, 2, 0);
-                b3.getComponent('Transform').setPosition(0, 2, 0);
-
-                // make b2 a child of b1
-                b1.addChild(b2);
-
-                // make b3 a child of b2
-                b2.addChild(b3);
-
-                // Add to scene
-                this.root.addChild(b1);
-
-                this.b1 = b1;
-                this.b2 = b2;
-                this.b3 = b3;
             },
 
             /**
@@ -155,21 +145,12 @@ define([
                 var time = this.context.getTotalTimeInSeconds();
 
                 var transform = this.camera.getComponent('Transform');
-                transform.localPosition.x = Math.sin(time*0.00001) * 10;
+                transform.localPosition.x = Math.sin(time*0.0001) * 10;
                 transform.localPosition.y = 3;
-                transform.localPosition.z = Math.cos(time*0.00001) * 10;
+                transform.localPosition.z = Math.cos(time*0.0002) * 20;
                 transform.setDirty(true);
 
-                this.camera.getComponent('Camera').target = this.b1;
-
-                transform = this.b1.getComponent('Transform');
-                transform.setRotationFromEuler(Math.cos(time*0.0001)*3, Math.sin(time*0.0002)*3, Math.sin(time*0.0003)*3);
-
-                transform = this.b2.getComponent('Transform');
-                transform.setRotationFromEuler(Math.cos(time*0.0002)*3, Math.sin(time*0.0001)*3, Math.sin(time*0.0001)*3);
-
-                transform = this.b3.getComponent('Transform');
-                transform.setRotationFromEuler(Math.cos(time*0.0001)*3, Math.sin(time*0.0002)*3, Math.sin(time*0.0003)*3);
+                this.camera.getComponent('Camera').target = this.root;
 
             }
 

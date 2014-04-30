@@ -88,7 +88,8 @@ define([
                 // Load all required controllers
                 this.controllerManager.asyncLoadControllers([
                     'controllers/cameraController',
-                    'controllers/blockController'
+                    'controllers/blockController',
+                    'editor/controllers/gridController'
                 ], callback);
 
                 // The render controller is a special case, we need to call its
