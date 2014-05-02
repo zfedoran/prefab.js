@@ -7,6 +7,7 @@ define([
         'graphics/texture',
         'components/transform',
         'factories/blockFactory',
+        'factories/quadFactory',
         'factories/cameraFactory',
         'editor/factories/gridFactory'
     ],
@@ -19,6 +20,7 @@ define([
         Texture,
         Transform,
         BlockFactory,
+        QuadFactory,
         CameraFactory,
         GridFactory
     ) {
@@ -59,6 +61,7 @@ define([
             initFactories: function() {
                 this.cameraFactory = new CameraFactory(this.context);
                 this.blockFactory  = new BlockFactory(this.context);
+                this.quadFactory   = new QuadFactory(this.context);
                 this.gridFactory   = new GridFactory(this.context);
             },
 
@@ -94,14 +97,16 @@ define([
                 var texture = assetLibrary.getTexture('assets/block.png');
                 var sprite  = new Sprite(new Rectangle(0, 0, 8, 8), texture);
 
-                var prev = this.root;
+                var prev, transform;
+
+                prev = this.root;
                 for (var i = 0; i < 100; i++) {
                     var block = this.blockFactory.create(1, 1, 1);
-                    block.name = 'block';
+                    block.name = 'block-' + i;
                     block.getComponent('Block').setAllFacesTo(sprite);
                     block.getComponent('MeshRenderer').material.diffuseMap = texture;
 
-                    var transform = block.getComponent('Transform');
+                    transform = block.getComponent('Transform');
                     transform.setPosition(0, 0.1, 0);
                     transform.setRotationFromEuler(0.1, 0.1, 0.1);
 
@@ -109,6 +114,19 @@ define([
                     prev = block;
                 }
 
+                prev = this.root;
+                for (i = 0; i < 100; i++) {
+                    var quad = this.quadFactory.create(0.1, 10, sprite);
+                    quad.name = 'quad-' + i;
+                    quad.getComponent('MeshRenderer').material.diffuseMap = texture;
+
+                    transform = quad.getComponent('Transform');
+                    transform.setPosition(0, 0.5, 0);
+                    transform.setRotationFromEuler(-0.1, -0.1, -0.1);
+
+                    prev.addChild(quad);
+                    prev = quad;
+                }
             },
 
             /**
@@ -145,9 +163,9 @@ define([
                 var time = this.context.getTotalTimeInSeconds();
 
                 var transform = this.camera.getComponent('Transform');
-                transform.localPosition.x = Math.sin(time*0.0001) * 10;
-                transform.localPosition.y = 3;
-                transform.localPosition.z = Math.cos(time*0.0002) * 20;
+                transform.localPosition.x = Math.sin(time*0.0001) * 3;
+                transform.localPosition.y = 1;
+                transform.localPosition.z = Math.cos(time*0.0001) * 3;
                 transform.setDirty(true);
 
                 this.camera.getComponent('Camera').target = this.root;

@@ -89,6 +89,7 @@ define([
                 this.controllerManager.asyncLoadControllers([
                     'controllers/cameraController',
                     'controllers/blockController',
+                    'controllers/quadController',
                     'editor/controllers/gridController'
                 ], callback);
 

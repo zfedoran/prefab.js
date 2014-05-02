@@ -1,13 +1,27 @@
 define([
         'lodash',
-        'core/component'
+        'core/component',
+        'math/vector3'
     ],
     function(
         _,
-        Component
+        Component,
+        Vector3
     ) {
         'use strict';
 
+        /**
+        *   Block component class.
+        *
+        *   Any entity with a block component will have its MeshFilter
+        *   automatically updated with a matching box Mesh.
+        *
+        *   @class 
+        *   @param {width}
+        *   @param {height}
+        *   @param {depth}
+        *   @constructor
+        */
         var Block = function(width, height, depth) {
             Component.call(this);
 
@@ -23,6 +37,8 @@ define([
             this.back   = null;
 
             this.texture = null;
+
+            this.anchor  = new Vector3(0, 0, 0);
         };
 
         Block.__name__ = 'Block';
