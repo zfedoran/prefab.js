@@ -51,6 +51,18 @@ define([
             */
             getFontName: function(label) {
                 return this.fontSize + 'px ' + this.fontFamily;
+            },
+
+            /**
+            *   This method sets this labels text to the provided string
+            *
+            *   @method setText
+            *   @param {text}
+            *   @returns {undefined}
+            */
+            setText: function(text) {
+                this.text = text;
+                this.setDirty(true);
             }
 
         });

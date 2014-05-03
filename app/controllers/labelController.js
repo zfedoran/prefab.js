@@ -99,33 +99,43 @@ define([
                 var charWidth  = font.getCharWidth();
                 var charHeight = font.getCharWidth();
 
-                w = charWidth;
-                h = charHeight;
-
-                hw = w / 2;
-                hh = h / 2;
-
                 var dx = 0, dy = 0;
 
                 // Create the label mesh
                 for (var i = 0; i < label.text.length; i++) {
                     var current = label.text.charAt(i);
 
-                    // Get the kerning for the current glyph
-                    var kerning = font.getCharKerning(current);
+                    if (current !== '\n') {
 
-                    // Get the sprite for the current glyph
-                    var sprite  = font.getCharSprite(current);
+                        if (current === '\t') {
+                            current = ' ';
+                        }
 
-                    // Generate the glyph face
-                    this.generateFace(kerning / 2, hh, dx, dy, sprite);
+                        // Get the kerning for the current glyph
+                        var kerning = font.getCharKerning(current);
 
-                    // Set the offset values for the next glyph
-                    dx += kerning;
-                    if (dx >= label.width) {
+                        // Get the sprite for the current glyph
+                        var sprite  = font.getCharSprite(current);
+
+                        if (current === '\t') {
+                            kerning *= 4;
+                        }
+
+                        // Generate the glyph face
+                        this.generateFace(kerning, charHeight / 2, dx, dy, sprite);
+
+                        // Set the offset values for the next glyph
+                        dx += kerning;
+                        if (dx >= label.width) {
+                            dx = 0;
+                            dy -= label.lineHeight || charHeight;
+                        }
+
+                    } else {
                         dx = 0;
-                        dy += label.lineHeight || charHeight;
+                        dy -= label.lineHeight || charHeight;
                     }
+
                 }
 
                 this.meshFactory.end();
@@ -155,8 +165,8 @@ define([
 
                 this.meshFactory.addVertex(new Vector3( 0 + dx, -h + dy, 0));
                 this.meshFactory.addVertex(new Vector3( 0 + dx,  h + dy, 0));
-                this.meshFactory.addVertex(new Vector3(2*w + dx,  h + dy, 0));
-                this.meshFactory.addVertex(new Vector3(2*w + dx, -h + dy, 0));
+                this.meshFactory.addVertex(new Vector3( w + dx,  h + dy, 0));
+                this.meshFactory.addVertex(new Vector3( w + dx, -h + dy, 0));
 
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));

@@ -19,7 +19,7 @@ define([
             this.device     = device;
             this.fontFamily = family;
             this.fontSize   = size;
-            this.firstChar  = first || 32;
+            this.firstChar  = first || 9;
             this.lastChar   = last || 126;
 
             this.charString = '';
