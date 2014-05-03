@@ -111,10 +111,15 @@ define([
                 s = sprite.getUVWidth();
                 t = sprite.getUVHeight();
 
-                this.meshFactory.addVertex(new Vector3(-w + anchor.x, -h + anchor.y, d + anchor.z));
-                this.meshFactory.addVertex(new Vector3(-w + anchor.x,  h + anchor.y, d + anchor.z));
-                this.meshFactory.addVertex(new Vector3( w + anchor.x,  h + anchor.y, d + anchor.z));
-                this.meshFactory.addVertex(new Vector3( w + anchor.x, -h + anchor.y, d + anchor.z));
+                var ax, ay, az;
+                ax = anchor.x * w;
+                ay = anchor.y * h;
+                az = anchor.z * d;
+
+                this.meshFactory.addVertex(new Vector3(-w + ax, -h + ay, d + az));
+                this.meshFactory.addVertex(new Vector3(-w + ax,  h + ay, d + az));
+                this.meshFactory.addVertex(new Vector3( w + ax,  h + ay, d + az));
+                this.meshFactory.addVertex(new Vector3( w + ax, -h + ay, d + az));
 
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
@@ -145,10 +150,15 @@ define([
                 s = sprite.getUVWidth();
                 t = sprite.getUVHeight();
 
-                this.meshFactory.addVertex(new Vector3(-w + anchor.x, -h + anchor.y, -d + anchor.z));
-                this.meshFactory.addVertex(new Vector3(-w + anchor.x,  h + anchor.y, -d + anchor.z));
-                this.meshFactory.addVertex(new Vector3( w + anchor.x,  h + anchor.y, -d + anchor.z));
-                this.meshFactory.addVertex(new Vector3( w + anchor.x, -h + anchor.y, -d + anchor.z));
+                var ax, ay, az;
+                ax = anchor.x * w;
+                ay = anchor.y * h;
+                az = anchor.z * d;
+
+                this.meshFactory.addVertex(new Vector3(-w + ax, -h + ay, -d + az));
+                this.meshFactory.addVertex(new Vector3(-w + ax,  h + ay, -d + az));
+                this.meshFactory.addVertex(new Vector3( w + ax,  h + ay, -d + az));
+                this.meshFactory.addVertex(new Vector3( w + ax, -h + ay, -d + az));
 
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
@@ -179,10 +189,15 @@ define([
                 s = sprite.getUVWidth();
                 t = sprite.getUVHeight();
 
-                this.meshFactory.addVertex(new Vector3(-w + anchor.x, -h + anchor.y, -d + anchor.z));
-                this.meshFactory.addVertex(new Vector3(-w + anchor.x,  h + anchor.y, -d + anchor.z));
-                this.meshFactory.addVertex(new Vector3(-w + anchor.x,  h + anchor.y,  d + anchor.z));
-                this.meshFactory.addVertex(new Vector3(-w + anchor.x, -h + anchor.y,  d + anchor.z));
+                var ax, ay, az;
+                ax = anchor.x * w;
+                ay = anchor.y * h;
+                az = anchor.z * d;
+
+                this.meshFactory.addVertex(new Vector3(-w + ax, -h + ay, -d + az));
+                this.meshFactory.addVertex(new Vector3(-w + ax,  h + ay, -d + az));
+                this.meshFactory.addVertex(new Vector3(-w + ax,  h + ay,  d + az));
+                this.meshFactory.addVertex(new Vector3(-w + ax, -h + ay,  d + az));
 
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
@@ -213,10 +228,15 @@ define([
                 s = sprite.getUVWidth();
                 t = sprite.getUVHeight();
 
-                this.meshFactory.addVertex(new Vector3(w + anchor.x, -h + anchor.y, -d + anchor.z));
-                this.meshFactory.addVertex(new Vector3(w + anchor.x,  h + anchor.y, -d + anchor.z));
-                this.meshFactory.addVertex(new Vector3(w + anchor.x,  h + anchor.y,  d + anchor.z));
-                this.meshFactory.addVertex(new Vector3(w + anchor.x, -h + anchor.y,  d + anchor.z));
+                var ax, ay, az;
+                ax = anchor.x * w;
+                ay = anchor.y * h;
+                az = anchor.z * d;
+
+                this.meshFactory.addVertex(new Vector3(w + ax, -h + ay, -d + az));
+                this.meshFactory.addVertex(new Vector3(w + ax,  h + ay, -d + az));
+                this.meshFactory.addVertex(new Vector3(w + ax,  h + ay,  d + az));
+                this.meshFactory.addVertex(new Vector3(w + ax, -h + ay,  d + az));
 
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
@@ -247,10 +267,15 @@ define([
                 s = sprite.getUVWidth();
                 t = sprite.getUVHeight();
 
-                this.meshFactory.addVertex(new Vector3(-w + anchor.x, h + anchor.y, -d + anchor.z));
-                this.meshFactory.addVertex(new Vector3( w + anchor.x, h + anchor.y, -d + anchor.z));
-                this.meshFactory.addVertex(new Vector3( w + anchor.x, h + anchor.y,  d + anchor.z));
-                this.meshFactory.addVertex(new Vector3(-w + anchor.x, h + anchor.y,  d + anchor.z));
+                var ax, ay, az;
+                ax = anchor.x * w;
+                ay = anchor.y * h;
+                az = anchor.z * d;
+
+                this.meshFactory.addVertex(new Vector3(-w + ax, h + ay, -d + az));
+                this.meshFactory.addVertex(new Vector3( w + ax, h + ay, -d + az));
+                this.meshFactory.addVertex(new Vector3( w + ax, h + ay,  d + az));
+                this.meshFactory.addVertex(new Vector3(-w + ax, h + ay,  d + az));
 
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
@@ -281,10 +306,15 @@ define([
                 s = sprite.getUVWidth();
                 t = sprite.getUVHeight();
 
-                this.meshFactory.addVertex(new Vector3(-w + anchor.x, -h + anchor.y, -d + anchor.z));
-                this.meshFactory.addVertex(new Vector3( w + anchor.x, -h + anchor.y, -d + anchor.z));
-                this.meshFactory.addVertex(new Vector3( w + anchor.x, -h + anchor.y,  d + anchor.z));
-                this.meshFactory.addVertex(new Vector3(-w + anchor.x, -h + anchor.y,  d + anchor.z));
+                var ax, ay, az;
+                ax = anchor.x * w;
+                ay = anchor.y * h;
+                az = anchor.z * d;
+
+                this.meshFactory.addVertex(new Vector3(-w + ax, -h + ay, -d + az));
+                this.meshFactory.addVertex(new Vector3( w + ax, -h + ay, -d + az));
+                this.meshFactory.addVertex(new Vector3( w + ax, -h + ay,  d + az));
+                this.meshFactory.addVertex(new Vector3(-w + ax, -h + ay,  d + az));
 
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));

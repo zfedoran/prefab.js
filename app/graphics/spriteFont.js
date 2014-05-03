@@ -12,154 +12,143 @@ define([
     ) {
         'use strict';
     
-        var SpriteFont = function(device, options) {
+        var SpriteFont = function(device, family, size, first, last) {
             if (typeof device === 'undefined') {
                 throw 'SpriteFont: cannot create a sprite font without a graphics device';
             }
+            this.device     = device;
+            this.fontFamily = family;
+            this.fontSize   = size;
+            this.firstChar  = first || 32;
+            this.lastChar   = last || 126;
 
-            this.device = device;
-            this.fontFamily = options.fontFamily;
-            this.fontSize = options.fontSize;
-
-            this.vspace = typeof options.vspace === 'undefined' ? 10 : options.vspace;
-            this.hspace = typeof options.hspace === 'undefined' ? 0 : options.hspace;
-            this.sprites = {};
-
-            if (typeof options.characters === 'string') {
-                this.characters = options.characters;
-            } else {
-                options.characters = options.characters || {};
-                var i = options.characters.from || 32;
-                var len = options.characters.to || 126;
-                this.characters = '';
-                for (i; i <= len; i++) {
-                    this.characters += String.fromCharCode(i);
-                }
+            this.charString = '';
+            for (var i = this.firstChar; i <= this.lastChar; i++) {
+                this.charString += String.fromCharCode(i);
             }
 
-            this.initCanvas();
-            this.initState();
+            this.charPadding = 5;
+            this.charWidth   = 0;
+            this.charHeight  = parseInt(this.fontSize) + this.charPadding;
 
-            this.setTextureSize(5, 5, true);
+            this.kerningMap = {};
+            this.spriteMap  = {};
 
-            this._canvas.width = this._textureWidth;
-            this._canvas.height = this._textureHeight;
-            this._texture = new Texture(this.device, this._canvas);
+            this._canvas  = null;
+            this._ctx     = null;
+            this._texture = null;
 
-            this.initState();
-
-            this.generateTexture(this.textureWidth, this.textureHeight);
+            this.init();
         };
 
         SpriteFont.prototype = {
             constructor: SpriteFont,
 
+            init: function() {
+                this.initCanvas();
+                this.initState();
+                this.initCharWidth();
+                this.initTextureSize();
+                this.initCharBitmap();
+            },
+
             initCanvas: function() {
                 this._canvas = document.createElement('canvas');
-                this._ctx = this._canvas.getContext('2d');
+                this._ctx    = this._canvas.getContext('2d');
             },
 
             initState: function() {
-                this._ctx.fillStyle = '#000';
+                this._ctx.fillStyle = 'black';
                 this._ctx.textAlign = 'left';
                 this._ctx.textBaseline = 'top';
                 this._ctx.font = this.fontSize + 'px ' + this.fontFamily;
             },
 
-            getSprite: function(character) {
-                return this.sprites[character];
+            initCharWidth: function() {
+                for (var i = 0; i <= this.charString.length; i++) {
+                    var currentChar  = this.charString.charAt(i);
+                    var currentWidth = this._ctx.measureText(currentChar).width;
+                    this.charWidth = Math.max(this.charWidth, currentWidth);
+                }
+                this.charWidth += this.charPadding;
             },
 
-            getWidth: function() {
-                return this._textureWidth;
-            },
+            initTextureSize: function() {
+                var total = this.charString.length 
+                          * this.charWidth 
+                          * this.charHeight;
 
-            getHeight: function() {
-                return this._textureHeight;
-            },
+                var widthExp  = 0,
+                    heightExp = 0,
+                    width     = 0,
+                    height    = 0,
+                    index     = 0;
 
-            setTextureSize: function(widthExp, heightExp, swap) {
-                var widthChar, widthWord, widthTexture,
-                    heightChar, heightWord, heightTexture;
-
-                widthTexture = Math.pow(2, widthExp);
-                heightTexture = Math.pow(2, heightExp);
-
-                widthWord = 0;
-                heightWord = this.fontSize + this.vspace;
-                heightChar = this.fontSize + this.vspace;
-
-                var i = 0, len = this.characters.length, character;
-                var tryAgainWithLargerTexture = false;
-
-                // check if all the characters fit the current texture size
-                while (i <= len) {
-                    character = this.characters.charAt(i);
-                    widthChar = this._ctx.measureText(character).width;
-                    widthChar += this.hspace;
-
-                    if (widthWord + widthChar <= widthTexture) {
-                        widthWord += widthChar;
-                    } else if (heightWord + heightChar <= heightTexture) {
-                        widthWord = 0;
-                        widthWord += widthChar;
-                        heightWord += heightChar;
-                    } else {
-                        tryAgainWithLargerTexture = true;
-                        break;
-                    }
-                    i++;
+                while (width * height < total) {
+                    width  = Math.pow(2, widthExp);
+                    height = Math.pow(2, heightExp);
+                    widthExp  += index % 2; index++;
+                    heightExp += index % 2;
                 }
 
-                // if the characters do not fit the current size, try again
-                if (tryAgainWithLargerTexture) {
-                    if (swap) {
-                        widthExp++;
-                    } else {
-                        heightExp++;
-                    }
-                    swap = !swap;
-                    this.setTextureSize(widthExp, heightExp, swap);
-                } else {
-                    this._textureHeight = heightTexture;
-                    this._textureWidth = widthTexture;
-                }
+                this._canvas.width  = width;
+                this._canvas.height = height;
+
             },
 
-            generateTexture: function() {
-                var widthChar, widthWord, heightChar, heightWord;
+            initCharBitmap: function() {
+                // Required for some strange reason
+                this._ctx.font = this.fontSize + 'px ' + this.fontFamily;
 
-                widthWord = 0;
-                heightWord = this.fontSize + this.vspace;
-                heightChar = this.fontSize + this.vspace;
+                // Create the texture resource for this font
+                this._texture = new Texture(this.device, this._canvas);
 
-                var i = 0, len = this.characters.length, character, coords;
+                // Calculate the max row width
+                var max = Math.floor(this._canvas.width / this.charWidth) * this.charWidth;
 
-                while (i <= len) {
-                    character = this.characters.charAt(i);
-                    widthChar = this._ctx.measureText(character).width;
-                    widthChar += this.hspace;
+                // Create the character bitmap
+                for (var i = 0; i <= this.charString.length; i++) {
+                    var currentChar  = this.charString.charAt(i);
+                    var currentWidth = this._ctx.measureText(currentChar).width;
 
-                    if (widthWord + widthChar <= this._textureWidth) {
-                        widthWord += widthChar;
-                    } else if (heightWord + heightChar <= this._textureHeight) {
-                        widthWord = 0;
-                        widthWord += widthChar;
-                        heightWord += heightChar;
-                    } else {
-                        throw 'SpriteFont: cannot fit all characters on the texture size provided';
-                    }
+                    // Calculate the atlas position for the current character
+                    var x   = (this.charWidth * i) % max;
+                    var y   = Math.floor((this.charWidth * i) / max) * this.charHeight + this.charHeight;
+                    
+                    // Draw the character glyph
+                    this._ctx.fillText(currentChar, x + this.charPadding, y);
 
-                    coords = new Rectangle(widthWord - widthChar, 
-                                           heightWord - heightChar, 
-                                           widthChar, 
-                                           heightChar);
+                    // Store kerning meta-data
+                    this.kerningMap[currentChar] = currentWidth;
 
-                    this.sprites[character] = new Sprite(coords, this._texture);
-                    this._ctx.fillText(character, coords.x + Math.ceil(this.hspace / 2), coords.y + Math.ceil(this.vspace / 2));
-                    i++;
+                    // Create the glyph sprite
+                    var coords = new Rectangle(x + this.charPadding, y - this.charHeight + this.charPadding, currentWidth, this.charHeight);
+                    this.spriteMap[currentChar] = new Sprite(coords, this._texture);
+
+                    /* TODO:
+                     * - Get the kerning pairs
+                     */
                 }
+
+                document.body.appendChild(this._canvas);
+            },
+
+            getCharWidth: function() {
+                return this.charWidth;
+            },
+
+            getCharHeight: function() {
+                return this.charHeight;
+            },
+
+            getCharKerning: function(c) {
+                return this.kerningMap[c];
+            },
+
+            getCharSprite: function(c) {
+                return this.spriteMap[c];
             }
+
         };
 
         return SpriteFont;

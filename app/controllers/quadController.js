@@ -103,10 +103,15 @@ define([
                 s = sprite.getUVWidth();
                 t = sprite.getUVHeight();
 
-                this.meshFactory.addVertex(new Vector3(-w + anchor.x, -h + anchor.y, anchor.z));
-                this.meshFactory.addVertex(new Vector3(-w + anchor.x,  h + anchor.y, anchor.z));
-                this.meshFactory.addVertex(new Vector3( w + anchor.x,  h + anchor.y, anchor.z));
-                this.meshFactory.addVertex(new Vector3( w + anchor.x, -h + anchor.y, anchor.z));
+                var ax, ay, az;
+                ax = anchor.x * w;
+                ay = anchor.y * h;
+                az = anchor.z;
+
+                this.meshFactory.addVertex(new Vector3(-w + ax, -h + ay, az));
+                this.meshFactory.addVertex(new Vector3(-w + ax,  h + ay, az));
+                this.meshFactory.addVertex(new Vector3( w + ax,  h + ay, az));
+                this.meshFactory.addVertex(new Vector3( w + ax, -h + ay, az));
 
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));

@@ -90,6 +90,7 @@ define([
                     'controllers/cameraController',
                     'controllers/blockController',
                     'controllers/quadController',
+                    'controllers/labelController',
                     'editor/controllers/gridController'
                 ], callback);
 

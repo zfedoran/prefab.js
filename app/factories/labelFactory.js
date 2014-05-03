@@ -1,0 +1,46 @@
+define([
+        'lodash',
+        'core/factory',
+        'graphics/material',
+        'components/transform',
+        'components/label',
+        'components/meshFilter',
+        'components/meshRenderer',
+        'graphics/mesh'
+    ],
+    function(
+        _,
+        Factory,
+        Material,
+        Transform,
+        Label,
+        MeshFilter,
+        MeshRenderer,
+        Mesh
+    ) {
+        'use strict';
+    
+        var LabelFactory = function(context) {
+            Factory.call(this, context);
+        };
+
+        LabelFactory.prototype = _.create(Factory.prototype, {
+            construct: LabelFactory,
+
+            create: function(text, width, height, fontFamily, fontSize, lineHeight) {
+                var entity = this.context.createNewEntity();
+
+                var material = new Material(Material.LAMBERT);
+
+                entity.addComponent(new Transform());
+                entity.addComponent(new Label(text, width, height, fontFamily, fontSize, lineHeight));
+                entity.addComponent(new MeshFilter());
+                entity.addComponent(new MeshRenderer(material));
+
+                return entity;
+            }
+        });
+
+        return LabelFactory;
+    }
+);

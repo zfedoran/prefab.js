@@ -8,8 +8,10 @@ define([
         'components/transform',
         'factories/blockFactory',
         'factories/quadFactory',
+        'factories/labelFactory',
         'factories/cameraFactory',
-        'editor/factories/gridFactory'
+        'editor/factories/gridFactory',
+        'graphics/spriteFont'
     ],
     function(
         $,
@@ -21,8 +23,10 @@ define([
         Transform,
         BlockFactory,
         QuadFactory,
+        LabelFactory,
         CameraFactory,
-        GridFactory
+        GridFactory,
+        SpriteFont
     ) {
         'use strict';
 
@@ -62,6 +66,7 @@ define([
                 this.cameraFactory = new CameraFactory(this.context);
                 this.blockFactory  = new BlockFactory(this.context);
                 this.quadFactory   = new QuadFactory(this.context);
+                this.labelFactory  = new LabelFactory(this.context);
                 this.gridFactory   = new GridFactory(this.context);
             },
 
@@ -99,10 +104,14 @@ define([
 
                 var prev, transform;
 
+                /*
                 prev = this.root;
                 for (var i = 0; i < 100; i++) {
                     var block = this.blockFactory.create(1, 1, 1);
                     block.name = 'block-' + i;
+                    block.getComponent('Block').anchor.x = 1;
+                    block.getComponent('Block').anchor.y = 1;
+                    block.getComponent('Block').anchor.z = 1;
                     block.getComponent('Block').setAllFacesTo(sprite);
                     block.getComponent('MeshRenderer').material.diffuseMap = texture;
 
@@ -118,15 +127,24 @@ define([
                 for (i = 0; i < 100; i++) {
                     var quad = this.quadFactory.create(0.1, 10, sprite);
                     quad.name = 'quad-' + i;
+                    quad.getComponent('Quad').anchor.x = 1;
+                    quad.getComponent('Quad').anchor.y = 1;
+                    quad.getComponent('Quad').anchor.z = 1;
                     quad.getComponent('MeshRenderer').material.diffuseMap = texture;
 
                     transform = quad.getComponent('Transform');
-                    transform.setPosition(0, 0.5, 0);
-                    transform.setRotationFromEuler(-0.1, -0.1, -0.1);
+                    transform.setPosition(0, 0.1, 0);
+                    transform.setRotationFromEuler(0.1, 0.1, 0.1);
 
                     prev.addChild(quad);
                     prev = quad;
                 }
+                */
+
+                var label = this.labelFactory.create('hello, world', 100, 100, 'arial', 20);
+                label.name = 'label';
+
+                this.root.addChild(label);
             },
 
             /**
@@ -163,9 +181,9 @@ define([
                 var time = this.context.getTotalTimeInSeconds();
 
                 var transform = this.camera.getComponent('Transform');
-                transform.localPosition.x = Math.sin(time*0.0001) * 3;
+                transform.localPosition.x = Math.sin(time*0.0001) * 20;
                 transform.localPosition.y = 1;
-                transform.localPosition.z = Math.cos(time*0.0001) * 3;
+                transform.localPosition.z = Math.cos(time*0.0001) * 20;
                 transform.setDirty(true);
 
                 this.camera.getComponent('Camera').target = this.root;
