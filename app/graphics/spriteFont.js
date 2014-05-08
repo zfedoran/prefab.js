@@ -38,6 +38,8 @@ define([
             this._ctx     = null;
             this._texture = null;
 
+            this._hasSpaceChar = !this.charString.match(/ /);
+
             this.init();
         };
 
@@ -142,11 +144,22 @@ define([
             },
 
             getCharKerning: function(c) {
+                if (c === '\t' && this._hasSpaceChar) { return 4 * this.kerningMap[' ']; }
                 return this.kerningMap[c];
             },
 
             getCharSprite: function(c) {
+                if (c === '\t' && this._hasSpaceChar) { return this.spriteMap[' ']; }
                 return this.spriteMap[c];
+            },
+
+            measureText: function(text) {
+                var width = 0;
+                for (var i = 0; i <= text.length; i++) {
+                    var currentChar = text.charAt(i);
+                    width += this.kerningMap[currentChar];
+                }
+                return width;
             }
 
         };

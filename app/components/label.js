@@ -34,6 +34,7 @@ define([
             this.fontFamily = fontFamily || 'arial';
             this.fontSize   = fontSize || 10;
             this.lineHeight = lineHeight;
+            this.textAlign  = Label.TEXT_ALIGN_LEFT;
 
             this.anchor  = new Vector3(0, 0, 0);
         };
@@ -66,6 +67,10 @@ define([
             }
 
         });
+
+        Label.TEXT_ALIGN_LEFT   = 'left';
+        Label.TEXT_ALIGN_RIGHT  = 'right';
+        Label.TEXT_ALIGN_CENTER = 'center';
 
         return Label;
     }

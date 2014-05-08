@@ -5,7 +5,8 @@ define([
         'core/controller',
         'graphics/meshFactory',
         'graphics/mesh',
-        'graphics/spriteFont'
+        'graphics/spriteFont',
+        'components/label'
     ], 
     function(
         _,
@@ -14,7 +15,8 @@ define([
         Controller,
         MeshFactory,
         Mesh,
-        SpriteFont
+        SpriteFont,
+        Label
     ) {
         'use strict';
 
@@ -88,59 +90,121 @@ define([
             *   @returns {mesh}
             */
             generateLabelMesh: function(label) {
-                var w, h, hw, hh;
-
-
                 var mesh = new Mesh(this.device, Mesh.TRIANGLES);
                 this.meshFactory.begin(mesh);
+
+                // Get the paragraph lines for this label
+                var lines = this.generateParagraphLines(label);
 
                 // Get fontFamily meta-data
                 var font       = label.spriteFont;
                 var charWidth  = font.getCharWidth();
                 var charHeight = font.getCharWidth();
 
-                var dx = 0, dy = 0;
+                var dx, dy = 0;
 
-                // Create the label mesh
-                for (var i = 0; i < label.text.length; i++) {
-                    var current = label.text.charAt(i);
+                // Go through each line
+                for (var lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+                    var currentLine = lines[lineIndex];
 
-                    if (current !== '\n') {
-
-                        if (current === '\t') {
-                            current = ' ';
-                        }
-
-                        // Get the kerning for the current glyph
-                        var kerning = font.getCharKerning(current);
-
-                        // Get the sprite for the current glyph
-                        var sprite  = font.getCharSprite(current);
-
-                        if (current === '\t') {
-                            kerning *= 4;
-                        }
-
-                        // Generate the glyph face
-                        this.generateFace(kerning, charHeight / 2, dx, dy, sprite);
-
-                        // Set the offset values for the next glyph
-                        dx += kerning;
-                        if (dx >= label.width) {
-                            dx = 0;
-                            dy -= label.lineHeight || charHeight;
-                        }
-
+                    // Get the new line offset based on the textAlign property
+                    if (label.textAlign === Label.TEXT_ALIGN_RIGHT) {
+                        // Put the starting position at the end
+                        dx = label.width - font.measureText(currentLine);
+                    } else if (label.textAlign === Label.TEXT_ALIGN_CENTER) {
+                        // Put the starting position half way through
+                        dx = (label.width / 2) - (font.measureText(currentLine) / 2);
                     } else {
                         dx = 0;
-                        dy -= label.lineHeight || charHeight;
                     }
 
+                    // Go through each character
+                    for (var charIndex = 0; charIndex < currentLine.length; charIndex++) {
+                        var currentChar = currentLine.charAt(charIndex);
+
+                        // If the current character is not a newline
+                        if (currentChar !== '\n') { 
+                            // Get the kerning for the current glyph
+                            var kerning = font.getCharKerning(currentChar);
+
+                            // Get the sprite for the current glyph
+                            var sprite  = font.getCharSprite(currentChar);
+
+                            // Generate the glyph face
+                            this.generateFace(kerning, charHeight / 2, dx, dy, sprite);
+
+                            // Set the offset values for the next glyph
+                            dx += kerning;
+                        }
+                    }
+
+                    // Go to the next line
+                    dy -= label.lineHeight || charHeight;
                 }
 
                 this.meshFactory.end();
 
                 return mesh;
+            },
+
+            /**
+            *   This method splits label text into a series of lines according
+            *   to the label width.
+            *
+            *   @method generateParagraphLines
+            *   @param {label}
+            *   @returns {lines} An array of strings
+            */
+            generateParagraphLines: function(label) {
+                var font         = label.spriteFont,
+                    text         = label.text,
+                    maxWidth     = label.width,
+                    lines        = [],
+                    currentLine  = '';
+
+                // Go through all characters in the label text
+                var dx = 0, i, len = text.length;
+                for (i = 0; i < len; i++) {
+                    var current      = text.charAt(i);
+                    var goToNextLine = (i + 1 === len);
+
+                    // If there is a newline char, go to the next line
+                    if (current === '\n') {
+                        goToNextLine = true;
+                    } else {
+
+                        // Get the kerning for the current glyph
+                        var kerning = font.getCharKerning(current);
+
+                        // Only add the character to the current line if there is room for it
+                        if (dx > 0 && (dx+kerning) >= maxWidth) {
+                            goToNextLine = true;
+
+                            // Try again on the next line
+                            i = i - 1;
+                        } else {
+                            currentLine += current;
+                        }
+
+                        // Set the offset values for the next glyph
+                        dx += kerning;
+                    }
+
+                    // Check if the current line is full
+                    if (goToNextLine) {
+
+                        // Add the line to the output array
+                        lines.push(currentLine);
+
+                        // Reset local line
+                        currentLine  = '';
+
+                        // Reset the x-offset
+                        dx = 0;
+                    }
+                }
+
+                return lines;
             },
 
             /**

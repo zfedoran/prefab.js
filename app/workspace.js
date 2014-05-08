@@ -135,9 +135,10 @@ define([
                 }
                 */
 
-                this.label = this.labelFactory.create('hello, world', 1000, 100, 'arial', 30);
+                this.label = this.labelFactory.create('hello, world', 50, 100, 'arial', 30);
                 this.label.name = 'label';
                 this.label.getComponent('Transform').setScale(0.01, 0.01, 0.01);
+                this.label.getComponent('Label').textAlign = 'center';
 
                 this.root.addChild(this.label);
             },
