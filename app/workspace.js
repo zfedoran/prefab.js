@@ -141,7 +141,7 @@ define([
 
                 this.root.addChild(quad);
 
-                this.label = this.labelFactory.create('hello, world', 0, 0, 'arial', 30);
+                this.label = this.labelFactory.create('hello, world', 'arial', 30);
                 this.label.name = 'label';
                 this.label.getComponent('Transform').setScale(0.01, 0.01, 0.01);
                 this.label.getComponent('Label').textAlign = 'left';

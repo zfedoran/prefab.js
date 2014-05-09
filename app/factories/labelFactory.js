@@ -27,13 +27,13 @@ define([
         LabelFactory.prototype = _.create(Factory.prototype, {
             construct: LabelFactory,
 
-            create: function(text, width, height, fontFamily, fontSize, lineHeight) {
+            create: function(text, fontFamily, fontSize, width, height, lineHeight) {
                 var entity = this.context.createNewEntity();
 
                 var material = new Material(Material.LAMBERT);
 
                 entity.addComponent(new Transform());
-                entity.addComponent(new Label(text, width, height, fontFamily, fontSize, lineHeight));
+                entity.addComponent(new Label(text, fontFamily, fontSize, width, height, lineHeight));
                 entity.addComponent(new MeshFilter());
                 entity.addComponent(new MeshRenderer(material));
 
