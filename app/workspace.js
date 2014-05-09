@@ -134,11 +134,18 @@ define([
                     prev = quad;
                 }
                 */
+                var quad = this.quadFactory.create(1, 1, sprite);
+                quad.name = 'quad';
+                quad.getComponent('MeshRenderer').material.diffuseMap = texture;
+                quad.getComponent('Quad').anchor.x = 1;
 
-                this.label = this.labelFactory.create('hello, world', 50, 100, 'arial', 30);
+                this.root.addChild(quad);
+
+                this.label = this.labelFactory.create('hello, world', 0, 0, 'arial', 30);
                 this.label.name = 'label';
                 this.label.getComponent('Transform').setScale(0.01, 0.01, 0.01);
-                this.label.getComponent('Label').textAlign = 'center';
+                this.label.getComponent('Label').textAlign = 'left';
+                this.label.getComponent('Label').anchor.x = 1;
 
                 this.root.addChild(this.label);
             },
@@ -177,9 +184,9 @@ define([
                 var time = this.context.getTotalTimeInSeconds();
 
                 var transform = this.camera.getComponent('Transform');
-                transform.localPosition.x = Math.sin(time*0.0001) * 3;
+                transform.localPosition.x = Math.sin(time*0.0001) * 5;
                 transform.localPosition.y = 1;
-                transform.localPosition.z = Math.cos(time*0.0001) * 3;
+                transform.localPosition.z = Math.cos(time*0.0001) * 5;
                 transform.setDirty(true);
 
                 this.camera.getComponent('Camera').target = this.root;

@@ -22,11 +22,16 @@ define([
         *   @param {sprite}
         *   @constructor
         */
-        var Label = function(text, width, height, fontFamily, fontSize, lineHeight) {
+        var Label = function(text, fontFamily, fontSize, width, height, lineHeight) {
             Component.call(this);
 
-            this.width   = width;
-            this.height  = height;
+            // If no width / height is provided, make this label size automatically
+            this.width  = (typeof width  === 'undefined') ? 0 : width;
+            this.height = (typeof height === 'undefined') ? 0 : height;
+
+            // Use the internal 'auto' representation
+            if (this.width === 'auto') { this.width = 0; }
+            if (this.height === 'auto') { this.height = 0; }
 
             this.text = text;
 

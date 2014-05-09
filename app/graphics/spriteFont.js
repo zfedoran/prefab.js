@@ -12,6 +12,20 @@ define([
     ) {
         'use strict';
     
+        /**
+        *   SpriteFont class.
+        *
+        *   This class generates a bitmap font from a font definition. A 2D
+        *   canvas is used to render the bitmap to a texture object.
+        *
+        *   @class 
+        *   @param {device} Graphics device instance
+        *   @param {family} Font family to be used
+        *   @param {size}   Font size to be used
+        *   @param {first}  Integer value of the first character that is part of this bitmap font
+        *   @param {last}   Integer value of the last character that is part of this bitmap font
+        *   @constructor
+        */
         var SpriteFont = function(device, family, size, first, last) {
             if (typeof device === 'undefined') {
                 throw 'SpriteFont: cannot create a sprite font without a graphics device';
@@ -46,6 +60,13 @@ define([
         SpriteFont.prototype = {
             constructor: SpriteFont,
 
+            /**
+            *   This method initializes the SpriteFont instance.
+            *   (Called automatically)
+            *
+            *   @method init
+            *   @returns {undefined}
+            */
             init: function() {
                 this.initCanvas();
                 this.initState();
@@ -54,11 +75,25 @@ define([
                 this.initCharBitmap();
             },
 
+            /**
+            *   This method creates the 2D canvas required to render the bitmap
+            *   font texture.
+            *
+            *   @method initCanvas
+            *   @returns {undefined}
+            */
             initCanvas: function() {
                 this._canvas = document.createElement('canvas');
                 this._ctx    = this._canvas.getContext('2d');
             },
 
+            /**
+            *   This method initializes the 2D canvas context with the
+            *   appropriate state.
+            *
+            *   @method initState
+            *   @returns {undefined}
+            */
             initState: function() {
                 this._ctx.fillStyle = 'black';
                 this._ctx.textAlign = 'left';
@@ -66,6 +101,13 @@ define([
                 this._ctx.font = this.fontSize + 'px ' + this.fontFamily;
             },
 
+            /**
+            *   This method finds the widest character, and uses that size for
+            *   the texture atlas grid.
+            *
+            *   @method initCharWidth
+            *   @returns {undefined}
+            */
             initCharWidth: function() {
                 for (var i = 0; i <= this.charString.length; i++) {
                     var currentChar  = this.charString.charAt(i);
@@ -75,6 +117,13 @@ define([
                 this.charWidth += this.charPadding;
             },
 
+            /**
+            *   This method finds an appropriate power of two texture size for
+            *   the bitmap font texture.
+            *
+            *   @method initTextureSize
+            *   @returns {undefined}
+            */
             initTextureSize: function() {
                 var total = this.charString.length 
                           * this.charWidth 
@@ -98,6 +147,13 @@ define([
 
             },
 
+            /**
+            *   This method draws the individual characters onto the bitmap
+            *   font texture atlas.
+            *
+            *   @method initCharBitmap
+            *   @returns {undefined}
+            */
             initCharBitmap: function() {
                 // Required for some strange reason
                 this._ctx.font = this.fontSize + 'px ' + this.fontFamily;
@@ -126,33 +182,60 @@ define([
                     // Create the glyph sprite
                     var coords = new Rectangle(x + this.charPadding, y - this.charHeight + this.charPadding, currentWidth, this.charHeight);
                     this.spriteMap[currentChar] = new Sprite(coords, this._texture);
-
-                    /* TODO:
-                     * - Get the kerning pairs
-                     */
                 }
-
-                document.body.appendChild(this._canvas);
             },
 
+            /**
+            *   Get the uniform character width used by the texture atlas.
+            *
+            *   @method getCharWidth
+            *   @returns {integer}
+            */
             getCharWidth: function() {
                 return this.charWidth;
             },
 
+            /**
+            *   Get the uniform character height used by the texture atlas.
+            *
+            *   @method getCharHeight
+            *   @returns {integer}
+            */
             getCharHeight: function() {
                 return this.charHeight;
             },
 
+            /**
+            *   Get the width of a specific character.
+            *
+            *   @method getCharKerning
+            *   @param {c}
+            *   @returns {integer}
+            */
             getCharKerning: function(c) {
                 if (c === '\t' && this._hasSpaceChar) { return 4 * this.kerningMap[' ']; }
                 return this.kerningMap[c];
             },
 
+            /**
+            *   Get the sprite object for a specific character.
+            *
+            *   @method getCharSprite
+            *   @param {c}
+            *   @returns {Sprite}
+            */
             getCharSprite: function(c) {
                 if (c === '\t' && this._hasSpaceChar) { return this.spriteMap[' ']; }
                 return this.spriteMap[c];
             },
 
+            /**
+            *   This method measures the width of a single a line of text.
+            *
+            *   @method measureText
+            *   @param {text}
+            *   @returns {integrer}
+            */
             measureText: function(text) {
                 var width = 0;
                 for (var i = 0; i <= text.length; i++) {

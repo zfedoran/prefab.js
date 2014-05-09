@@ -83,71 +83,6 @@ define([
             },
 
             /**
-            *   Generate the 6 faces of a label and return a mesh.
-            *
-            *   @method generateLabelMesh
-            *   @param {label}
-            *   @returns {mesh}
-            */
-            generateLabelMesh: function(label) {
-                var mesh = new Mesh(this.device, Mesh.TRIANGLES);
-                this.meshFactory.begin(mesh);
-
-                // Get the paragraph lines for this label
-                var lines = this.generateParagraphLines(label);
-
-                // Get fontFamily meta-data
-                var font       = label.spriteFont;
-                var charWidth  = font.getCharWidth();
-                var charHeight = font.getCharWidth();
-
-                var dx, dy = 0;
-
-                // Go through each line
-                for (var lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-                    var currentLine = lines[lineIndex];
-
-                    // Get the new line offset based on the textAlign property
-                    if (label.textAlign === Label.TEXT_ALIGN_RIGHT) {
-                        // Put the starting position at the end
-                        dx = label.width - font.measureText(currentLine);
-                    } else if (label.textAlign === Label.TEXT_ALIGN_CENTER) {
-                        // Put the starting position half way through
-                        dx = (label.width / 2) - (font.measureText(currentLine) / 2);
-                    } else {
-                        dx = 0;
-                    }
-
-                    // Go through each character
-                    for (var charIndex = 0; charIndex < currentLine.length; charIndex++) {
-                        var currentChar = currentLine.charAt(charIndex);
-
-                        // If the current character is not a newline
-                        if (currentChar !== '\n') { 
-                            // Get the kerning for the current glyph
-                            var kerning = font.getCharKerning(currentChar);
-
-                            // Get the sprite for the current glyph
-                            var sprite  = font.getCharSprite(currentChar);
-
-                            // Generate the glyph face
-                            this.generateFace(kerning, charHeight / 2, dx, dy, sprite);
-
-                            // Set the offset values for the next glyph
-                            dx += kerning;
-                        }
-                    }
-
-                    // Go to the next line
-                    dy -= label.lineHeight || charHeight;
-                }
-
-                this.meshFactory.end();
-
-                return mesh;
-            },
-
-            /**
             *   This method splits label text into a series of lines according
             *   to the label width.
             *
@@ -208,7 +143,87 @@ define([
             },
 
             /**
-            *   Generate a gylph face.
+            *   Generate the 6 faces of a label and return a mesh.
+            *
+            *   @method generateLabelMesh
+            *   @param {label}
+            *   @returns {mesh}
+            */
+            generateLabelMesh: function(label) {
+                var mesh = new Mesh(this.device, Mesh.TRIANGLES);
+                this.meshFactory.begin(mesh);
+
+                // Get the sprite font
+                var font = label.spriteFont;
+
+                // Get the paragraph lines for this label
+                var lines, autoWidth;
+                if (label.width) {
+                    lines     = this.generateParagraphLines(label);
+                    autoWidth = label.width;
+                } else {
+                    lines     = [label.text];
+                    autoWidth = font.measureText(label.text);
+                }
+
+                // Get fontFamily meta-data
+                var charWidth  = font.getCharWidth();
+                var charHeight = font.getCharWidth();
+
+                // Calcualte the label height
+                var autoHeight = label.height || (lines.length * (label.lineHeight || charHeight));
+
+                // Go through each line
+                var dx, dy = 0;
+                for (var lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+                    var currentLine = lines[lineIndex];
+
+                    // Get the new line offset based on the textAlign property
+                    if (label.textAlign === Label.TEXT_ALIGN_RIGHT) {
+                        // Put the starting position at the end
+                        dx = autoWidth - font.measureText(currentLine);
+                    } else if (label.textAlign === Label.TEXT_ALIGN_CENTER) {
+                        // Put the starting position half way through
+                        dx = (autoWidth / 2) - (font.measureText(currentLine) / 2);
+                    } else {
+                        dx = 0;
+                    }
+
+                    // Go to the next line
+                    dy -= label.lineHeight || charHeight;
+
+                    // Go through each character
+                    for (var charIndex = 0; charIndex < currentLine.length; charIndex++) {
+                        var currentChar = currentLine.charAt(charIndex);
+
+                        // If the current character is not a newline
+                        if (currentChar !== '\n') { 
+                            // Get the kerning for the current glyph
+                            var kerning = font.getCharKerning(currentChar);
+
+                            // Get the sprite for the current glyph
+                            var sprite  = font.getCharSprite(currentChar);
+
+                            // Generate the glyph face
+                            this.generateFace(kerning, 
+                                              charHeight, 
+                                              dx - (autoWidth / 2) * (1 - label.anchor.x), 
+                                              dy + (autoHeight / 2) * (1 + label.anchor.y), 
+                                              sprite);
+
+                            // Set the offset values for the next glyph
+                            dx += kerning;
+                        }
+                    }
+                }
+
+                this.meshFactory.end();
+
+                return mesh;
+            },
+
+            /**
+            *   Generate a quad for a gylph.
             *
             *   @method generateFace
             *   @param {w} width
@@ -227,10 +242,10 @@ define([
                 s = sprite.getUVWidth();
                 t = sprite.getUVHeight();
 
-                this.meshFactory.addVertex(new Vector3( 0 + dx, -h + dy, 0));
+                this.meshFactory.addVertex(new Vector3( 0 + dx,  0 + dy, 0));
                 this.meshFactory.addVertex(new Vector3( 0 + dx,  h + dy, 0));
                 this.meshFactory.addVertex(new Vector3( w + dx,  h + dy, 0));
-                this.meshFactory.addVertex(new Vector3( w + dx, -h + dy, 0));
+                this.meshFactory.addVertex(new Vector3( w + dx,  0 + dy, 0));
 
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
