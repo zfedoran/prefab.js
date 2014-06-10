@@ -143,7 +143,7 @@ define([
             },
 
             /**
-            *   Generate the 6 faces of a label and return a mesh.
+            *   Generate the character quads for a label and return a mesh.
             *
             *   @method generateLabelMesh
             *   @param {label}

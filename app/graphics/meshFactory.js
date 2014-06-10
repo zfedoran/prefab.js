@@ -184,13 +184,15 @@ define([
                     numVertices = this.uv1.length;
                 }
 
-                var indexData = new Uint16Array(this.indices);
-                var vertexData = new Float32Array(vertexDeclaration.getCurrentOffset() * numVertices);
+                // Create GPU assets
+                var indexData   = new Uint16Array(this.indices);
+                var vertexData  = new Float32Array(vertexDeclaration.getCurrentOffset() * numVertices);
 
                 var i, j, v, index = 0, numSets = vertexDataSet.length;
                 for (i = 0; i < numVertices; i++) {
                     for (j = 0; j < numSets; j ++) {
                         v = vertexDataSet[j][i];
+
                         if (v instanceof Vector2) {
                             vertexData[index++] = v.x;
                             vertexData[index++] = v.y;
@@ -209,6 +211,14 @@ define([
                     }
                 }
 
+                // Calculate bounding box
+                var boundingBox = this.mesh.getBoundingBox();
+                boundingBox.makeEmpty();
+                for (i = 0; i < numVertices; i++) {
+                    boundingBox.expandByVector(this.vertices[i]);
+                }
+
+                // Set mesh data
                 this.mesh.setVertexDeclaration(vertexDeclaration);
                 this.mesh.setVertexData(vertexData);
                 this.mesh.setIndexData(indexData);

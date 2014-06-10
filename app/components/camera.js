@@ -3,14 +3,16 @@ define([
         'core/entity',
         'core/component',
         'math/vector3',
-        'math/matrix4'
+        'math/matrix4',
+        'math/ray'
     ],
     function(
         _,
         Entity,
         Component,
         Vector3,
-        Matrix4
+        Matrix4,
+        Ray
     ) {
         'use strict';
 
@@ -99,6 +101,46 @@ define([
                     throw 'Camera: Target entity has no transform component.';
                 } 
                 throw 'Camera: Unsupported view target type.';
+            },
+
+            projectVector: (function() {
+                var worldInvMatrix = new Matrix4();
+                var viewProjMatrix = new Matrix4();
+
+                return function(worldMatrix, vector, result) {
+                    Matrix4.inverse(worldMatrix,
+                            /*out*/ worldInvMatrix);
+                    Matrix4.multiply(this._projectionMatrix, 
+                                     worldInvMatrix, 
+                             /*out*/ viewProjMatrix);
+                    return Vector3.applyProjection(viewProjMatrix, vector, result);
+                };
+            })(),
+
+            unprojectVector: (function() {
+                var projInvMatrix  = new Matrix4();
+                var viewProjMatrix = new Matrix4();
+                return function(worldMatrix, vector, result) {
+                    Matrix4.inverse(this._projectionMatrix, 
+                            /*out*/ projInvMatrix);
+                    Matrix4.multiply(worldMatrix,
+                                     projInvMatrix,
+                             /*out*/ viewProjMatrix);
+                    return Vector3.applyProjection(viewProjMatrix, vector, result);
+                };
+            })(),
+
+            createPickingRay: function(worldMatrix, vec2Pos) {
+                var start = new Vector3(vec2Pos.x, vec2Pos.y, -1.0);
+                var end   = new Vector3(vec2Pos.x, vec2Pos.y, 1.0);
+
+                this.unprojectVector(worldMatrix, start, start);
+                this.unprojectVector(worldMatrix, end, end);
+
+                Vector3.subtract(end, start, end);
+                end.normalize();
+
+                return new Ray(start, end);
             }
         });
 

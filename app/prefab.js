@@ -43,6 +43,7 @@ define([
             *   @returns {undefined}
             */
             init: function() {
+                this.initEventQueue();
                 this.initGraphicsDevice();
                 this.initAssetLibrary((function() {
                     this.initControllers((function() {
@@ -87,6 +88,7 @@ define([
             initControllers: function(callback) {
                 // Load all required controllers
                 this.controllerManager.asyncLoadControllers([
+                    'controllers/eventController',
                     'controllers/cameraController',
                     'controllers/blockController',
                     'controllers/quadController',

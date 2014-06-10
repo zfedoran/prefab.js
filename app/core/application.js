@@ -47,6 +47,36 @@ define([
             constructor: Application,
 
             /**
+            *   This method initializes the event queue for this application.
+            *
+            *   @method initEventQueue
+            *   @returns {undefined}
+            */
+            initEventQueue: function() {
+                this.eventQueue = [];
+
+                var $win    = $(window);
+                var handler = (function(event) {
+                    this.eventQueue.push(event);
+                }).bind(this);
+
+                var events  = [
+                    'mousemove',
+                    'mousedown',
+                    'mouseup',
+                    'click',
+                    'scroll',
+                    'keyup',
+                    'keydown',
+                    'keypress',
+                    'resize'
+                ].join(' ');
+
+                $win.on(events, handler);
+            },
+
+
+            /**
             *   Initialize the graphics device for this application.
             *
             *   @method initGraphicsDevice

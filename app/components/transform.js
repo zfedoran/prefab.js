@@ -52,7 +52,7 @@ define([
                         transform.update();
                         Matrix4.multiply(transform._worldMatrix, this._localMatrix, /*out*/ this._worldMatrix);
                     } else {
-                        this._worldMatrix.copy(this._localMatrix);
+                        this._worldMatrix.setFrom(this._localMatrix);
                     }
 
                     this._worldMatrix.decompose(this._position, this._rotation, this._scale);

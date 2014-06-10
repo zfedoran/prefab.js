@@ -47,6 +47,16 @@ define([
             },
 
             /**
+            *   This method returns the application event queue.
+            *
+            *   @method getEventQueue
+            *   @returns {undefined}
+            */
+            getEventQueue: function() {
+                return this._application.eventQueue;
+            },
+
+            /**
             *   This method returns the application asset library.
             *
             *   @method getAssetLibrary
