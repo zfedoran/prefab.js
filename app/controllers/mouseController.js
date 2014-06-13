@@ -141,27 +141,35 @@ define([
             */
             raycastMesh: function(entity, camera, event) {
                 var transform    = entity.getComponent('Transform');
-                /*
                 var meshFilter   = entity.getComponent('MeshFilter');
                 var mesh         = meshFilter.mesh;
 
                 if (typeof mesh === 'undefined') {
                     return;
                 }
-                */
 
+                if (event.type !== 'click') {
+                    return;
+                }
 
-                /*
+                var vec2Pos = new Vector2(event.mouseX, event.mouseY);
+                var ray     = camera.createPickingRay(vec2Pos);
+
+                // Transform the ray from world space into the mesh's model space
+                var modelInv = transform.getWorldMatrix().clone();
+                modelInv.inverse();
+                
+                ray.transform(modelInv);
+
                 // Get the mesh bounding box
                 var boundingBox   = mesh.getBoundingBox();
 
                 // Ray cast mouse position against mesh bounding box
                 var rayTestResult = ray.intersectBox(boundingBox);
 
-                if (event.type === 'click') {
-                    console.log(ray.toString());
+                if (rayTestResult && entity.name !== 'grid' && entity.name !== 'raycast') {
+                    console.log(entity.name);
                 }
-                */
             },
             
             /**
