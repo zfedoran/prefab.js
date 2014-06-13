@@ -19,6 +19,7 @@ define([
         var EventController = function(context) {
             Controller.call(this, context);
 
+            this.device          = this.context.getGraphicsDevice();
             this.mouseController = new MouseController(context);
         };
 
@@ -64,6 +65,8 @@ define([
                     case 'mouseup':
                     case 'click':
                     case 'scroll':
+                        event.mouseX = event.pageX;
+                        event.mouseY = this.device.getHeight() - event.pageY;
                         this.handleMouseEvent(event);
                         break;
                     case 'keyup':

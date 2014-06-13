@@ -55,7 +55,7 @@ define([
 
             toString: function() {
                 return '{ origin: ' + this.origin.toString() 
-                  + ', direction: ' + this.direction.toString + ' }';
+                  + ', direction: ' + this.direction.toString() + ' }';
             }
         };
 
@@ -126,10 +126,12 @@ define([
 
             var result = new Vector3();
 
-            // return point closest to the ray (positive side)
-            return result.setFrom(ray.direction)
-                         .multiplyScalar(tmin >= 0 ? tmin : tmax)
-                         .add(ray.origin);
+            // Find the point closest to the ray (positive side)
+            result.setFrom(ray.direction);
+            Vector3.multiplyScalar(result, tmin >= 0 ? tmin : tmax, /*out*/ result);
+            Vector3.add(result, ray.origin, /*out*/ result);
+
+            return result;
         };
 
         /**
@@ -216,9 +218,11 @@ define([
                 var result = new Vector3();
 
                 // Ray intersects triangle.
-                return result.setFrom(ray.direction)
-                             .multiplyScalar(QdN / DdN)
-                             .add(ray.origin);
+                result.setFrom(ray.direction);
+                Vector3.multiplyScalar(result, QdN / DdN, /*out*/ result);
+                Vector3.add(result, ray.origin, /*out*/ result);
+
+                return result;
             };
         })();
 

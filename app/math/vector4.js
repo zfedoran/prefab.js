@@ -22,11 +22,11 @@ define([
                 return this;
             },
 
-            setFrom: function(vector) {
-                this.x = vector.x;
-                this.y = vector.y;
-                this.z = vector.z;
-                this.w = vector.w;
+            setFrom: function(v) {
+                this.x = (v.x !== undefined) ? v.x : 0;
+                this.y = (v.y !== undefined) ? v.y : 0;
+                this.z = (v.z !== undefined) ? v.z : 0;
+                this.w = (v.w !== undefined) ? v.w : 0;
                 return this;
             },
 

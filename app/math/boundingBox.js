@@ -132,6 +132,11 @@ define([
                 }
                 return true;
             },
+
+            toString: function() {
+                return '{ min: ' + this.min.toString() 
+                     + ', max: ' + this.max.toString() + ' }';
+            }
         };
 
         return BoundingBox;

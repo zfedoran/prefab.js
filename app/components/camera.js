@@ -3,6 +3,7 @@ define([
         'core/entity',
         'core/component',
         'math/vector3',
+        'math/vector4',
         'math/matrix4',
         'math/ray'
     ],
@@ -11,6 +12,7 @@ define([
         Entity,
         Component,
         Vector3,
+        Vector4,
         Matrix4,
         Ray
     ) {
@@ -103,44 +105,49 @@ define([
                 throw 'Camera: Unsupported view target type.';
             },
 
-            projectVector: (function() {
-                var worldInvMatrix = new Matrix4();
-                var viewProjMatrix = new Matrix4();
+            projectVector: function() {
+            },
 
-                return function(worldMatrix, vector, result) {
-                    Matrix4.inverse(worldMatrix,
-                            /*out*/ worldInvMatrix);
-                    Matrix4.multiply(this._projectionMatrix, 
-                                     worldInvMatrix, 
-                             /*out*/ viewProjMatrix);
-                    return Vector3.applyProjection(viewProjMatrix, vector, result);
-                };
-            })(),
+            unprojectVector: function(vector) {
+                var result = new Vector3();
+                var vec4   = new Vector4();
+                var matrix = new Matrix4();
 
-            unprojectVector: (function() {
-                var projInvMatrix  = new Matrix4();
-                var viewProjMatrix = new Matrix4();
-                return function(worldMatrix, vector, result) {
-                    Matrix4.inverse(this._projectionMatrix, 
-                            /*out*/ projInvMatrix);
-                    Matrix4.multiply(worldMatrix,
-                                     projInvMatrix,
-                             /*out*/ viewProjMatrix);
-                    return Vector3.applyProjection(viewProjMatrix, vector, result);
-                };
-            })(),
+                vec4.setFrom(vector);
 
-            createPickingRay: function(worldMatrix, vec2Pos) {
-                var start = new Vector3(vec2Pos.x, vec2Pos.y, -1.0);
+                Matrix4.multiply(this._projectionMatrix, this._viewMatrix, matrix);
+                matrix.inverse();
+
+                // Map x and y from window coordinates
+                vec4.x = (vec4.x - this.viewRect.x) / this.viewRect.width;
+                vec4.y = (vec4.y - this.viewRect.y) / this.viewRect.height;
+
+                // Map to range -1 to 1
+                vec4.x = vec4.x * 2 - 1;
+                vec4.y = vec4.y * 2 - 1;
+                vec4.z = vec4.z * 2 - 1;
+                vec4.w = 1;
+
+                vec4.transform(matrix);
+
+                result.x = vec4.x / vec4.w;
+                result.y = vec4.y / vec4.w;
+                result.z = vec4.z / vec4.w;
+                
+                return result;
+            },
+
+            createPickingRay: function(vec2Pos) {
+                var start = new Vector3(vec2Pos.x, vec2Pos.y, 0.0);
                 var end   = new Vector3(vec2Pos.x, vec2Pos.y, 1.0);
 
-                this.unprojectVector(worldMatrix, start, start);
-                this.unprojectVector(worldMatrix, end, end);
+                var origin    = this.unprojectVector(start);
+                var direction = this.unprojectVector(end);
 
-                Vector3.subtract(end, start, end);
-                end.normalize();
+                Vector3.subtract(direction, origin, /*out*/ direction);
+                direction.normalize();
 
-                return new Ray(start, end);
+                return new Ray(origin, direction);
             }
         });
 

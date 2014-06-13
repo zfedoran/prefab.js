@@ -20,10 +20,10 @@ define([
                 return this;
             },
 
-            setFrom: function(vector) {
-                this.x = vector.x;
-                this.y = vector.y;
-                this.z = vector.z;
+            setFrom: function(v) {
+                this.x = (v.x !== undefined) ? v.x : 0;
+                this.y = (v.y !== undefined) ? v.y : 0;
+                this.z = (v.z !== undefined) ? v.z : 0;
                 return this;
             },
 
@@ -276,20 +276,6 @@ define([
             return Math.sqrt(dx * dx 
                            + dy * dy
                            + dz * dz);
-        };
-
-        Vector3.applyProjection = function(matrix, vector, result) {
-            if (typeof result === 'undefined') {
-                result = new Vector3();
-            }
-            var x = vector.x, y = vector.y, z = vector.z;
-            var e = matrix.elements;
-            var d = 1 / (e[3] * x + e[7] * y + e[11] * z + e[15]); // perspective divide
-
-            result.x = (e[0] * x + e[4] * y + e[8]  * z + e[12]) * d;
-            result.y = (e[1] * x + e[5] * y + e[9]  * z + e[13]) * d;
-            result.z = (e[2] * x + e[6] * y + e[10] * z + e[14]) * d;
-            return result;
         };
 
         Vector3.UP = new Vector3(0, 1, 0);

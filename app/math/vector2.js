@@ -18,9 +18,9 @@ define([
                 return this;
             },
 
-            setFrom: function(vector) {
-                this.x = vector.x;
-                this.y = vector.y;
+            setFrom: function(v) {
+                this.x = (v.x !== undefined) ? v.x : 0;
+                this.y = (v.y !== undefined) ? v.y : 0;
                 return this;
             },
 
