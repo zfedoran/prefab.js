@@ -27,6 +27,8 @@ define([
         *   @class 
         */
         var Application = function() {
+            this.time = 0;
+
             // Create the application context
             this.context = new Context(this);
 
@@ -117,7 +119,7 @@ define([
                             }
                         }
 
-                        self.time = time;
+                        self.time += elapsed;
                         self.update(elapsed);
                         self.render(elapsed);
                     }
