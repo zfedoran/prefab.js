@@ -144,6 +144,7 @@ define([
                 this.label = this.labelFactory.create('hello, world', 'arial', 30);
                 this.label.name = 'label';
                 this.label.getComponent('Transform').setScale(0.01, 0.01, 0.01);
+                this.label.getComponent('Transform').setPosition(0, 1, 1);
                 this.label.getComponent('Label').textAlign = 'left';
                 this.label.getComponent('Label').anchor.x = 1;
 
@@ -161,7 +162,7 @@ define([
                 var width  = device.getWidth();
                 var height = device.getHeight();
 
-                this.camera = this.cameraFactory.create(new Rectangle(0, 0, width, height), 0.1, 100, 75);
+                this.camera = this.cameraFactory.create(new Rectangle(0, 0, width, height), 0.1, 1000, 75);
 
                 this.camera.name = 'camera';
 
@@ -185,7 +186,7 @@ define([
 
                 var transform = this.camera.getComponent('Transform');
                 transform.localPosition.x = Math.sin(time*0.0001) * 5;
-                transform.localPosition.y = 1;
+                transform.localPosition.y = Math.cos(time*0.0002) * 5;
                 transform.localPosition.z = Math.cos(time*0.0001) * 5;
                 transform.setDirty(true);
 

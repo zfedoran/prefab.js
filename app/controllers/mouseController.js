@@ -41,6 +41,7 @@ define([
 
             var device = this.context.getGraphicsDevice();
             this.meshFactory = new MeshFactory(device);
+            this.collisionList = [];
         };
 
         MouseController.prototype = _.create(Controller.prototype, {
@@ -66,7 +67,23 @@ define([
             *   @returns {undefined}
             */
             handleEvent: function(event) {
-                var vec2Pos = new Vector2(event.pageX, event.pageY);
+                var pos = new Vector2(event.mouseX, event.mouseY);
+
+                if (event.type === 'click') {
+                    this.raycast(pos);
+                }
+            },
+
+            /**
+            *   This method raycasts the mouse position into world space
+            *   against rendered entities.
+            *
+            *   @method raycast
+            *   @param {pos}
+            *   @returns {undefined}
+            */
+            raycast: function(pos) {
+                this.collisionList.length = 0;
 
                 // For each camera
                 this.filterBy(['Transform', 'Camera'], function(entity) {
@@ -76,22 +93,24 @@ define([
                     if (camera.isEnabled() && camera.renderGroups.length > 0) {
                         var i, group;
 
-                        if (event.type === 'click') {
-                            var vec2Pos = new Vector2(event.mouseX, event.mouseY);
-                            var ray     = camera.createPickingRay(vec2Pos);
-                            this.addDebugLine(ray);
-                        }
+                        var ray = camera.createPickingRay(pos);
 
+                        this.addDebugLine(ray);
 
                         // For each render group
                         for (i = 0; i < camera.renderGroups.length; i++) {
                             group = camera.renderGroups[i];
 
                             // Ray cast each entity that belongs to that group
-                            this.raycastGroup(group, camera, event);
+                            this.raycastGroup(group, ray);
                         }
                     }
                 }, this);
+
+                _.sortBy(this.collisionList, 'depth');
+                _.forEach(this.collisionList, function(info) { 
+                    console.log(info.entity.name + ': ' + info.depth + info.point.toString());
+                });
             },
 
             /**
@@ -99,12 +118,12 @@ define([
             *
             *   @method handleGroup
             *   @param {group} The group to handle input for
-            *   @param {camera} The camera to use for the raycast
+            *   @param {ray} The ray to use for the raycast
             *   @returns {undefined}
             */
-            raycastGroup: function(group, camera, event) {
+            raycastGroup: function(group, ray) {
                 this.filterBy(group, function(entity) {
-                    this.raycastEntity(entity, camera, event);
+                    this.raycastEntity(entity, ray);
                 }, this);
             },
 
@@ -113,19 +132,19 @@ define([
             *
             *   @method handleEntity
             *   @param {entity}
-            *   @param {camera}
+            *   @param {ray}
             *   @returns {undefined}
             */
-            raycastEntity: function(entity, camera, event) {
+            raycastEntity: function(entity, ray) {
                 // Render the mesh associated with this entity
                 if (entity.hasComponent('MeshFilter')) {
-                    this.raycastMesh(entity, camera, event);
+                    this.raycastMesh(entity, ray);
                 }
 
                 // Render any child entities
                 if (entity.hasChildren()) {
                     for (var i = 0; i < entity.children.length; i++) {
-                        this.raycastEntity(entity.children[i], camera, event);
+                        this.raycastEntity(entity.children[i], ray);
                     }
                 }
             },
@@ -136,10 +155,10 @@ define([
             *
             *   @method handleInput
             *   @param {entity}
-            *   @param {camera}
+            *   @param {ray}
             *   @returns {undefined}
             */
-            raycastMesh: function(entity, camera, event) {
+            raycastMesh: function(entity, ray) {
                 var transform    = entity.getComponent('Transform');
                 var meshFilter   = entity.getComponent('MeshFilter');
                 var mesh         = meshFilter.mesh;
@@ -148,27 +167,30 @@ define([
                     return;
                 }
 
-                if (event.type !== 'click') {
-                    return;
-                }
-
-                var vec2Pos = new Vector2(event.mouseX, event.mouseY);
-                var ray     = camera.createPickingRay(vec2Pos);
-
                 // Transform the ray from world space into the mesh's model space
-                var modelInv = transform.getWorldMatrix().clone();
-                modelInv.inverse();
-                
-                ray.transform(modelInv);
+                var modelMatrix    = transform.getWorldMatrix();
+                var modelInvMatrix = modelMatrix.clone().inverse();
+                var localRay       = ray.clone().transform(modelInvMatrix);
 
                 // Get the mesh bounding box
-                var boundingBox   = mesh.getBoundingBox();
+                var boundingBox = mesh.getBoundingBox();
 
                 // Ray cast mouse position against mesh bounding box
-                var rayTestResult = ray.intersectBox(boundingBox);
+                var rayTestResult = localRay.intersectBox(boundingBox);
 
-                if (rayTestResult && entity.name !== 'grid' && entity.name !== 'raycast') {
-                    console.log(entity.name);
+                if (rayTestResult && entity.name !== 'raycast') {
+                    // Bring the collision point back into world space
+                    rayTestResult.transform(modelMatrix);
+
+                    // Find the distance from the camera
+                    var depth = Vector3.subtract(rayTestResult, ray.origin).length();
+
+                    // Add the collision info to the collision list
+                    this.collisionList.push({
+                        entity: entity,
+                        depth: depth,
+                        point: rayTestResult
+                    });
                 }
             },
             

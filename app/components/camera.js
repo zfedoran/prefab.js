@@ -106,10 +106,22 @@ define([
             },
 
             projectVector: function() {
+                throw 'Camera: projectVector() function not implemented yet.';
             },
 
-            unprojectVector: function(vector) {
-                var result = new Vector3();
+            /**
+            *   This method takes a vector from screen space to world space.
+            *
+            *   @method unprojectVector
+            *   @param {Vector3}
+            *   @param {result}
+            *   @returns {Vector3}
+            */
+            unprojectVector: function(vector, result) {
+                if (typeof result === 'undefined') {
+                    result = new Vector3();
+                }
+
                 var vec4   = new Vector4();
                 var matrix = new Matrix4();
 
@@ -137,17 +149,22 @@ define([
                 return result;
             },
 
+            /**
+            *   This method returns a Ray object representing the unprojected
+            *   vector.
+            *
+            *   @method createPickingRay
+            *   @param {vec2Pos}
+            *   @returns {undefined}
+            */
             createPickingRay: function(vec2Pos) {
                 var start = new Vector3(vec2Pos.x, vec2Pos.y, 0.0);
                 var end   = new Vector3(vec2Pos.x, vec2Pos.y, 1.0);
 
-                var origin    = this.unprojectVector(start);
-                var direction = this.unprojectVector(end);
+                this.unprojectVector(start, /*out*/ start);
+                this.unprojectVector(end, /*out*/ end);
 
-                Vector3.subtract(direction, origin, /*out*/ direction);
-                direction.normalize();
-
-                return new Ray(origin, direction);
+                return Ray.createFromSegment(start, end);
             }
         });
 

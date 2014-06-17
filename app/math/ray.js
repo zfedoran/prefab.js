@@ -27,8 +27,14 @@ define([
             },
 
             transform: function(matrix) {
+                var tmp = Vector3.add(this.origin, this.direction);
+
+                tmp.transform(matrix);
                 this.origin.transform(matrix);
-                this.direction.transform(matrix);
+
+                Vector3.subtract(tmp, this.origin, /*out*/ this.direction);
+                this.direction.normalize();
+
                 return this;
             },
 
@@ -61,6 +67,18 @@ define([
 
         Ray.clone = function(ray) {
             return new Ray(ray.origin.clone(), ray.direction.clone());
+        };
+
+        Ray.createFromSegment = function(a, b, result) {
+            if (typeof result === 'undefined') {
+                result = new Ray();
+            }
+
+            Vector3.subtract(b, a, /*out*/ result.direction);
+            result.direction.normalize();
+            result.origin.setFrom(a);
+
+            return result;
         };
 
         /**
