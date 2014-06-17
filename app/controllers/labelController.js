@@ -57,6 +57,8 @@ define([
 
                         if (mesh) {
                             mesh.destroy();
+                        } else {
+                            mesh = new Mesh(this.device, Mesh.TRIANGLES);
                         }
 
                         // Check if a SpriteFont exists
@@ -74,7 +76,10 @@ define([
                         }
 
                         // Generate the new label mesh
-                        meshFilter.setMesh(this.generateLabelMesh(label));
+                        this.generateLabelMesh(label, mesh);
+
+                        // Set the mesh
+                        meshFilter.setMesh(mesh);
 
                         // Set the spriteFont texture on the material
                         meshRenderer.material.diffuseMap = label.spriteFont._texture;
@@ -151,8 +156,7 @@ define([
             *   @param {label}
             *   @returns {mesh}
             */
-            generateLabelMesh: function(label) {
-                var mesh = new Mesh(this.device, Mesh.TRIANGLES);
+            generateLabelMesh: function(label, mesh) {
                 this.meshFactory.begin(mesh);
 
                 // Get the sprite font

@@ -33,11 +33,12 @@ define([
             this.indexData           = null;
             this.vertexData          = null;
 
-            this.vertexBuffer        = this.device.createBuffer();
-            this.indexBuffer         = this.device.createBuffer();
+            this.vertexBuffer        = null;
+            this.indexBuffer         = null;
 
             this.boundingBox         = new BoundingBox();
             this.boundingBoxComputed = false;
+
             this.setDirty(true);
         };
 
@@ -89,11 +90,25 @@ define([
                 this.device.drawIndexedPrimitives(this.primitiveType, this.indexBuffer.length, GraphicsDevice.UNSIGNED_SHORT, 0);
             },
 
+            warm: function() {
+                if (!this.vertexBuffer) {
+                    this.vertexBuffer = this.device.createBuffer();
+                    this.setDirty(true);
+                }
+                if (!this.indexBuffer) {
+                    this.indexBuffer  = this.device.createBuffer();
+                    this.setDirty(true);
+                }
+            },
+
             destroy: function() {
-                delete this.vertexData;
-                delete this.indexData;
                 this.device.deleteBuffer(this.vertexBuffer);
                 this.device.deleteBuffer(this.indexBuffer);
+                delete this.vertexBuffer;
+                delete this.indexBuffer;
+                delete this.vertexData;
+                delete this.indexData;
+                this.setDirty(true);
             }
         };
 

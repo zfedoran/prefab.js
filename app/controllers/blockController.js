@@ -51,9 +51,13 @@ define([
 
                         if (mesh) {
                             mesh.destroy();
+                        } else {
+                            mesh = new Mesh(this.device, Mesh.TRIANGLES);
                         }
 
-                        meshFilter.setMesh(this.generateBlockMesh(block));
+                        this.generateBlockMesh(block, mesh);
+                        meshFilter.setMesh(mesh);
+
                         block.setDirty(false);
                     }
                 }, this);
@@ -66,7 +70,7 @@ define([
             *   @param {block}
             *   @returns {mesh}
             */
-            generateBlockMesh: function(block) {
+            generateBlockMesh: function(block, mesh) {
                 var w, h, d, hw, hh, hd;
 
                 w = block.width;
@@ -77,7 +81,6 @@ define([
                 hh = h / 2;
                 hd = d / 2;
 
-                var mesh = new Mesh(this.device, Mesh.TRIANGLES);
                 this.meshFactory.begin(mesh);
 
                 this.generateFaceFront(hw, hh, hd, block.front, block.anchor);

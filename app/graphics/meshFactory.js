@@ -211,6 +211,9 @@ define([
                     }
                 }
 
+                // Create the GPU resources
+                this.mesh.warm();
+
                 // Calculate bounding box
                 var boundingBox = this.mesh.getBoundingBox();
                 boundingBox.makeEmpty();

@@ -51,9 +51,13 @@ define([
 
                         if (mesh) {
                             mesh.destroy();
+                        } else {
+                            mesh = new Mesh(this.device, Mesh.TRIANGLES);
                         }
 
-                        meshFilter.setMesh(this.generateQuadMesh(quad));
+                        this.generateQuadMesh(quad, mesh);
+                        meshFilter.setMesh(mesh);
+
                         quad.setDirty(false);
                     }
                 }, this);
@@ -66,7 +70,7 @@ define([
             *   @param {quad}
             *   @returns {mesh}
             */
-            generateQuadMesh: function(quad) {
+            generateQuadMesh: function(quad, mesh) {
                 var w, h, hw, hh;
 
                 w = quad.width;
@@ -75,11 +79,8 @@ define([
                 hw = w / 2;
                 hh = h / 2;
 
-                var mesh = new Mesh(this.device, Mesh.TRIANGLES);
                 this.meshFactory.begin(mesh);
-
                 this.generateFace(hw, hh, quad.sprite, quad.anchor);
-
                 this.meshFactory.end();
 
                 return mesh;
