@@ -44,15 +44,16 @@ define([
                 this.filterBy(['Transform', 'Quad', 'MeshFilter'], function(entity) {
                     var transform  = entity.getComponent('Transform');
                     var quad       = entity.getComponent('Quad');
-                    var meshFilter = entity.getComponent('MeshFilter');
 
                     if (quad.isDirty()) {
-                        if (meshFilter.mesh) {
-                            meshFilter.mesh.destroy();
+                        var meshFilter = entity.getComponent('MeshFilter');
+                        var mesh       = meshFilter.getMesh();
+
+                        if (mesh) {
+                            mesh.destroy();
                         }
 
-                        meshFilter.mesh = this.generateQuadMesh(quad);
-
+                        meshFilter.setMesh(this.generateQuadMesh(quad));
                         quad.setDirty(false);
                     }
                 }, this);

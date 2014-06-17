@@ -67,11 +67,31 @@ define([
             *   @returns {undefined}
             */
             handleEvent: function(event) {
+                if (event.type !== 'click') {
+                    return;
+                }
+
                 var pos = new Vector2(event.mouseX, event.mouseY);
 
-                if (event.type === 'click') {
-                    this.raycast(pos);
+                // Raycast the mouse position against entities with box colliders
+                this.raycast(pos);
+
+                // Sort the collision list by depth
+                this.collisionList.sort(function (a, b) {
+                    return a.depth - b.depth;
+                });
+
+                // Call any event listeners on the entities
+                if (this.collisionList.length) {
+                    this.collisionList[0].entity.trigger('click', this.collisionList);
                 }
+                /*
+                _.forEach(this.collisionList, function(info) { 
+                    var entity = info.entity;
+                    entity.trigger('click', event);
+                    //console.log(info.entity.name + ': ' + info.depth + info.point.toString());
+                });
+                */
             },
 
             /**
@@ -107,10 +127,6 @@ define([
                     }
                 }, this);
 
-                _.sortBy(this.collisionList, 'depth');
-                _.forEach(this.collisionList, function(info) { 
-                    console.log(info.entity.name + ': ' + info.depth + info.point.toString());
-                });
             },
 
             /**
@@ -136,12 +152,12 @@ define([
             *   @returns {undefined}
             */
             raycastEntity: function(entity, ray) {
-                // Render the mesh associated with this entity
-                if (entity.hasComponent('MeshFilter')) {
-                    this.raycastMesh(entity, ray);
+                // Raycast the BoxCollider associated with this entity
+                if (entity.hasComponent('BoxCollider')) {
+                    this.raycastBoxCollider(entity, ray);
                 }
 
-                // Render any child entities
+                // Raycast any child entities
                 if (entity.hasChildren()) {
                     for (var i = 0; i < entity.children.length; i++) {
                         this.raycastEntity(entity.children[i], ray);
@@ -158,14 +174,9 @@ define([
             *   @param {ray}
             *   @returns {undefined}
             */
-            raycastMesh: function(entity, ray) {
+            raycastBoxCollider: function(entity, ray) {
                 var transform    = entity.getComponent('Transform');
-                var meshFilter   = entity.getComponent('MeshFilter');
-                var mesh         = meshFilter.mesh;
-
-                if (typeof mesh === 'undefined') {
-                    return;
-                }
+                var boxCollider  = entity.getComponent('BoxCollider');
 
                 // Transform the ray from world space into the mesh's model space
                 var modelMatrix    = transform.getWorldMatrix();
@@ -173,12 +184,12 @@ define([
                 var localRay       = ray.clone().transform(modelInvMatrix);
 
                 // Get the mesh bounding box
-                var boundingBox = mesh.getBoundingBox();
+                var boundingBox = boxCollider.getBoundingBox();
 
                 // Ray cast mouse position against mesh bounding box
                 var rayTestResult = localRay.intersectBox(boundingBox);
 
-                if (rayTestResult && entity.name !== 'raycast') {
+                if (rayTestResult) {
                     // Bring the collision point back into world space
                     rayTestResult.transform(modelMatrix);
 

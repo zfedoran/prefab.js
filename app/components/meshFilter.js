@@ -17,7 +17,15 @@ define([
         MeshFilter.__name__ = 'MeshFilter';
 
         MeshFilter.prototype = _.create(Component.prototype, {
-            constructor: MeshFilter
+            constructor: MeshFilter,
+
+            getMesh: function() {
+                return this.mesh;
+            },
+
+            setMesh: function(mesh) {
+                this.mesh = mesh;
+            }
         });
 
         return MeshFilter;

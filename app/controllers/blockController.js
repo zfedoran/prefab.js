@@ -44,15 +44,16 @@ define([
                 this.filterBy(['Transform', 'Block', 'MeshFilter'], function(entity) {
                     var transform  = entity.getComponent('Transform');
                     var block      = entity.getComponent('Block');
-                    var meshFilter = entity.getComponent('MeshFilter');
 
                     if (block.isDirty()) {
-                        if (meshFilter.mesh) {
-                            meshFilter.mesh.destroy();
+                        var meshFilter = entity.getComponent('MeshFilter');
+                        var mesh       = meshFilter.getMesh();
+
+                        if (mesh) {
+                            mesh.destroy();
                         }
 
-                        meshFilter.mesh = this.generateBlockMesh(block);
-
+                        meshFilter.setMesh(this.generateBlockMesh(block));
                         block.setDirty(false);
                     }
                 }, this);

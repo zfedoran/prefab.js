@@ -6,6 +6,7 @@ define([
         'graphics/sprite',
         'graphics/texture',
         'components/transform',
+        'components/boxCollider',
         'factories/blockFactory',
         'factories/quadFactory',
         'factories/labelFactory',
@@ -21,6 +22,7 @@ define([
         Sprite,
         Texture,
         Transform,
+        BoxCollider,
         BlockFactory,
         QuadFactory,
         LabelFactory,
@@ -104,13 +106,22 @@ define([
 
                 var prev, transform;
 
-                /*
+                var self = this;
+                var onClickHandler = function(event) {
+                    var labelComponent = self.label.getComponent('Label'); 
+                    labelComponent.text = this.name;
+                    labelComponent.setDirty(true);
+                };
+
                 prev = this.root;
                 for (var i = 0; i < 100; i++) {
                     var block = this.blockFactory.create(1, 1, 1);
                     block.name = 'block-' + i;
                     block.getComponent('Block').setAllFacesTo(sprite);
                     block.getComponent('MeshRenderer').material.diffuseMap = texture;
+                    block.addComponent(new BoxCollider());
+
+                    block.on('click', onClickHandler, block);
 
                     transform = block.getComponent('Transform');
                     transform.setPosition(0, 0.1, 0);
@@ -120,6 +131,7 @@ define([
                     prev = block;
                 }
 
+                /*
                 prev = this.root;
                 for (i = 0; i < 100; i++) {
                     var quad = this.quadFactory.create(0.1, 10, sprite);
@@ -134,19 +146,24 @@ define([
                     prev = quad;
                 }
                 */
+                /*
                 var quad = this.quadFactory.create(1, 1, sprite);
                 quad.name = 'quad';
                 quad.getComponent('MeshRenderer').material.diffuseMap = texture;
                 quad.getComponent('Quad').anchor.x = 1;
+                quad.addComponent(new BoxCollider());
 
                 this.root.addChild(quad);
+                */
 
                 this.label = this.labelFactory.create('hello, world', 'arial', 30);
                 this.label.name = 'label';
                 this.label.getComponent('Transform').setScale(0.01, 0.01, 0.01);
-                this.label.getComponent('Transform').setPosition(0, 1, 1);
+                this.label.getComponent('Transform').setPosition(0, 3, 0);
                 this.label.getComponent('Label').textAlign = 'left';
                 this.label.getComponent('Label').anchor.x = 1;
+                this.label.addComponent(new BoxCollider());
+                this.label.on('click', onClickHandler, this.label);
 
                 this.root.addChild(this.label);
             },

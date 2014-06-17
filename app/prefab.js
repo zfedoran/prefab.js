@@ -93,6 +93,7 @@ define([
                     'controllers/blockController',
                     'controllers/quadController',
                     'controllers/labelController',
+                    'controllers/colliderController',
                     'editor/controllers/gridController'
                 ], callback);
 

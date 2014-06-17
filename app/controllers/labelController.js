@@ -49,12 +49,14 @@ define([
                 this.filterBy(['Transform', 'Label', 'MeshFilter', 'MeshRenderer'], function(entity) {
                     var transform    = entity.getComponent('Transform');
                     var label        = entity.getComponent('Label');
-                    var meshFilter   = entity.getComponent('MeshFilter');
-                    var meshRenderer = entity.getComponent('MeshRenderer');
 
                     if (label.isDirty()) {
-                        if (meshFilter.mesh) {
-                            meshFilter.mesh.destroy();
+                        var meshRenderer = entity.getComponent('MeshRenderer');
+                        var meshFilter   = entity.getComponent('MeshFilter');
+                        var mesh         = meshFilter.getMesh();
+
+                        if (mesh) {
+                            mesh.destroy();
                         }
 
                         // Check if a SpriteFont exists
@@ -72,7 +74,7 @@ define([
                         }
 
                         // Generate the new label mesh
-                        meshFilter.mesh = this.generateLabelMesh(label);
+                        meshFilter.setMesh(this.generateLabelMesh(label));
 
                         // Set the spriteFont texture on the material
                         meshRenderer.material.diffuseMap = label.spriteFont._texture;
