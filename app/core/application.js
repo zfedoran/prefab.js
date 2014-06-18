@@ -28,6 +28,7 @@ define([
         */
         var Application = function() {
             this.time = 0;
+            this.fps  = 0;
 
             // Create the application context
             this.context = new Context(this);
@@ -107,18 +108,19 @@ define([
                     var elapsed = time - prevTime;
                     if (window.hasFocus) {
 
-                        if (self.logFPS) {
-                            elapsedList.push(elapsed);
-                            if (elapsedList.length >= 60) {
-                                var i, avg = 0;
-                                for (i = 0; i<elapsedList.length; i++) {
-                                    avg += elapsedList[i];
-                                }
-                                console.log('fps: ' + (1000 / (avg / 60)));
-                                elapsedList.length = 0;
+                        // Calculate frames per second average
+                        elapsedList.push(elapsed);
+                        if (elapsedList.length >= 15) {
+                            var i, avg = 0;
+                            for (i = 0; i<elapsedList.length; i++) {
+                                avg += elapsedList[i];
                             }
+
+                            self.fps = (1000 / (avg / 15));
+                            elapsedList.length = 0;
                         }
 
+                        // Update and render
                         self.time += elapsed;
                         self.update(elapsed);
                         self.render(elapsed);

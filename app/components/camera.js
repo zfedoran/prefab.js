@@ -21,22 +21,17 @@ define([
         var Camera = function(rect, near, far, fov, target, up) {
             Component.call(this);
 
-            this.viewRect = rect;
-            this.near = typeof near !== 'undefined' ? near : 0.1;
-            this.far = typeof far !== 'undefined' ? far : 100;
+            this.viewRect  = rect;
+            this.near      = typeof near !== 'undefined' ? near : 0.1;
+            this.far       = typeof far !== 'undefined' ? far : 100;
+            this.fov       = fov;
+            this.ortho     = typeof fov === 'undefined';
             this.offCenter = false;
 
-            if (typeof fov !== 'undefined') {
-                this.fov = fov;
-                this.ortho = false;
-            } else {
-                this.ortho = true;
-            }
-
             this.target = target;
-            this.up = typeof up !== 'undefined' ? up : Vector3.UP;
+            this.up     = typeof up !== 'undefined' ? up : Vector3.UP;
 
-            this._viewMatrix = new Matrix4();
+            this._viewMatrix       = new Matrix4();
             this._projectionMatrix = new Matrix4();
 
             this.renderGroups = [];
@@ -75,6 +70,14 @@ define([
                 if (!this.containsRenderGroup()) {
                     this.renderGroups.push(name); 
                 }
+            },
+
+            isPerspective: function() {
+                return !this.ortho;
+            },
+
+            isOrthographicWithFOV: function() {
+                return this.ortho && this.fov;
             },
 
             isOrthographic: function() {

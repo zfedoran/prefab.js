@@ -37,6 +37,17 @@ define([
             },
 
             /**
+            *   This method returns the average frames per second that the
+            *   application is running at.
+            *
+            *   @method getFramesPerSecond
+            *   @returns {undefined}
+            */
+            getFramesPerSecond: function() {
+                return this._application.fps;
+            },
+
+            /**
             *   This method returns the current graphics device.
             *
             *   @method getGraphicsDevice

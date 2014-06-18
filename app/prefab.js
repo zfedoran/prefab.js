@@ -25,7 +25,6 @@ define([
         var Prefab = function() {
             this.width           = 720;
             this.height          = 480;
-            this.logFPS          = false;
             this.controllerList  = [];
             this.backgroundColor = new Vector4(0.22, 0.22, 0.22, 1);
 

@@ -28,6 +28,7 @@ define([
             this.width   = width;
             this.height  = height;
 
+            this.mode    = Quad.MODE_SIMPLE;
             this.sprite  = sprite;
             this.texture = null;
 
@@ -39,6 +40,9 @@ define([
         Quad.prototype = _.create(Component.prototype, {
             constructor: Quad
         });
+
+        Quad.MODE_SIMPLE = 'simple';
+        Quad.MODE_SLICED = 'sliced';
 
         return Quad;
     }

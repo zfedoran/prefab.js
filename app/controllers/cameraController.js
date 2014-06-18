@@ -53,35 +53,39 @@ define([
                 var camera = entity.getComponent('Camera');
 
                 if (camera.isDirty()) {
+                    var width     = camera.viewRect.width;
+                    var height    = camera.viewRect.height;
                     camera.aspect = camera.viewRect.width / camera.viewRect.height;
-                    if (camera.isOrthographic()) {
-                        if (camera.isOffCenter()) {
-                            Matrix4.createOrthographic(0, camera.viewRect.width, 0, camera.viewRect.height, camera.near, camera.far, /*out*/ camera._projectionMatrix);
-                        } else {
-                            var width, height;
-                            if (typeof camera.fov !== 'undefined') {
-                                // Get target depth
-                                var transform = entity.getComponent('Transform');
-                                var vector = new Vector3();
-                                Vector3.subtract(transform.getPosition(), camera.getTargetPosition(), /*out*/ vector);
-                                var objectDepth = vector.length();
 
-                                // Get perspective width/height
-                                var ymax = Math.tan(camera.fov * Math.PI / 360);
-                                var xmax = ymax * camera.aspect;
-                                width = objectDepth * xmax;
-                                height = objectDepth * ymax;
-                            } else {
-                                width = camera.viewRect.width;
-                                height = camera.viewRect.height;
-                            }
-
-                            Matrix4.createOrthographic(-width, width, -height, height, camera.near, camera.far, /*out*/ camera._projectionMatrix);
-
-                        }
-                    } else {
+                    if (camera.isPerspective()) {
+                        // Perspective Camera
                         Matrix4.createPerspective(camera.fov, camera.aspect, camera.near, camera.far, /*out*/ camera._projectionMatrix);
+
+                    } else if (camera.isOrthographicWithFOV()) {
+                        // Get the target depth
+                        var transform = entity.getComponent('Transform');
+                        var depth     = Vector3.subtract(transform.getPosition(), camera.getTargetPosition()).length();
+
+                        // Get perspective width/height
+                        var ymax = Math.tan(camera.fov * Math.PI / 360);
+                        var xmax = ymax * camera.aspect;
+                        var w    = depth * xmax;
+                        var h    = depth * ymax;
+
+                        // Complex Ortho Camera with FoV (calculated using fov + target depth)
+                        Matrix4.createOrthographic(-w, w, -h, h, camera.near, camera.far, /*out*/ camera._projectionMatrix);
+
+                    } else if (camera.isOrthographic()) {
+                        // Simple Ortho Camera
+                        if (camera.isOffCenter()) {
+                            Matrix4.createOrthographic(0, width, 0, height, camera.near, camera.far, /*out*/ camera._projectionMatrix);
+                        } else {
+                            var hw = width * 0.5;
+                            var hh = height * 0.5;
+                            Matrix4.createOrthographic(-hw, hw, -hh, hh, camera.near, camera.far, /*out*/ camera._projectionMatrix);
+                        }
                     }
+
                 }
             },
 

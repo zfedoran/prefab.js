@@ -72,6 +72,10 @@ define([
 
                                 // Update the font cache
                                 this.fontCache[label.getFontName()] = label.spriteFont;
+                            } else {
+
+                                // Update the label with the cached font
+                                label.spriteFont = spriteFont;
                             }
                         }
 

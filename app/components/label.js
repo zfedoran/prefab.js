@@ -67,7 +67,7 @@ define([
             *   @returns {undefined}
             */
             setText: function(text) {
-                this.text = text;
+                this.text = text + '';
                 this.setDirty(true);
             }
 

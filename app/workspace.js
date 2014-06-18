@@ -56,6 +56,7 @@ define([
             init: function() {
                 this.initFactories();
                 this.initScene();
+                this.initUICamera();
             },
 
             /**
@@ -102,15 +103,13 @@ define([
                 var device       = this.context.getGraphicsDevice();
 
                 var texture = assetLibrary.getTexture('assets/block.png');
-                var sprite  = new Sprite(new Rectangle(0, 0, 8, 8), texture);
+                var sprite  = new Sprite(new Rectangle(0, 0, 16, 16), texture);
 
                 var prev, transform;
 
                 var self = this;
                 var onClickHandler = function(event) {
-                    var labelComponent = self.label.getComponent('Label'); 
-                    labelComponent.text = this.name;
-                    labelComponent.setDirty(true);
+                    self.label.getComponent('Label').setText(this.name);
                 };
 
                 prev = this.root;
@@ -121,7 +120,7 @@ define([
                     block.getComponent('MeshRenderer').material.diffuseMap = texture;
                     block.addComponent(new BoxCollider());
 
-                    block.on('click', onClickHandler, block);
+                    block.on('mouseenter', onClickHandler, block);
 
                     transform = block.getComponent('Transform');
                     transform.setPosition(0, 0.1, 0);
@@ -134,38 +133,53 @@ define([
                 /*
                 prev = this.root;
                 for (i = 0; i < 100; i++) {
-                    var quad = this.quadFactory.create(0.1, 10, sprite);
+                    var quad = this.quadFactory.create(0.1, 5, sprite);
                     quad.name = 'quad-' + i;
                     quad.getComponent('MeshRenderer').material.diffuseMap = texture;
+                    quad.addComponent(new BoxCollider());
 
                     transform = quad.getComponent('Transform');
                     transform.setPosition(0, 0.1, 0);
                     transform.setRotationFromEuler(-0.1, -0.1, -0.1);
 
+                    quad.on('mouseenter', onClickHandler, quad);
+
                     prev.addChild(quad);
                     prev = quad;
                 }
                 */
-                /*
-                var quad = this.quadFactory.create(1, 1, sprite);
+                var quad = this.quadFactory.create(100, 30, sprite);
                 quad.name = 'quad';
                 quad.getComponent('MeshRenderer').material.diffuseMap = texture;
+                quad.getComponent('Transform').setPosition(10, 220, -1);
                 quad.getComponent('Quad').anchor.x = 1;
+                quad.getComponent('Quad').anchor.y = -1;
+                quad.getComponent('Quad').mode = 'sliced';
                 quad.addComponent(new BoxCollider());
+                quad.addToGroup('ui');
 
-                this.root.addChild(quad);
-                */
 
-                this.label = this.labelFactory.create('hello, world', 'arial', 30);
+                this.label = this.labelFactory.create('hello, world', 'arial', 11);
                 this.label.name = 'label';
-                this.label.getComponent('Transform').setScale(0.01, 0.01, 0.01);
-                this.label.getComponent('Transform').setPosition(0, 3, 0);
+                //this.label.getComponent('Transform').setScale(0.01, 0.01, 0.01);
+                this.label.getComponent('Transform').setPosition(10, 20, -1);
                 this.label.getComponent('Label').textAlign = 'left';
                 this.label.getComponent('Label').anchor.x = 1;
+                this.label.getComponent('Label').anchor.y = -1;
                 this.label.addComponent(new BoxCollider());
-                this.label.on('click', onClickHandler, this.label);
+                this.label.on('mouseenter', onClickHandler, this.label);
+                this.label.addToGroup('ui');
 
-                this.root.addChild(this.label);
+                this.fpsLabel = this.labelFactory.create('0 fps', 'arial', 11);
+                this.fpsLabel.name = 'fps-label';
+                //this.fpsLabel.getComponent('Transform').setScale(0.01, 0.01, 0.01);
+                this.fpsLabel.getComponent('Transform').setPosition(10, 50, -1);
+                this.fpsLabel.getComponent('Label').textAlign = 'left';
+                this.fpsLabel.getComponent('Label').anchor.x = 1;
+                this.fpsLabel.getComponent('Label').anchor.y = -1;
+                this.fpsLabel.addComponent(new BoxCollider());
+                this.fpsLabel.on('mouseenter', onClickHandler, this.fpsLabel);
+                this.fpsLabel.addToGroup('ui');
             },
 
             /**
@@ -180,7 +194,6 @@ define([
                 var height = device.getHeight();
 
                 this.camera = this.cameraFactory.create(new Rectangle(0, 0, width, height), 0.1, 1000, 75);
-
                 this.camera.name = 'camera';
 
                 var cameraComponent = this.camera.getComponent('Camera');
@@ -189,6 +202,26 @@ define([
                 // Add to scene
                 this.root.addChild(this.camera);
             },
+
+            /**
+            *   This method creates the application 2d camera.
+            *
+            *   @method initCamera
+            *   @returns {undefined}
+            */
+            initUICamera: function() {
+                var device = this.context.getGraphicsDevice();
+                var width  = device.getWidth();
+                var height = device.getHeight();
+
+                this.screen = this.cameraFactory.create(new Rectangle(0, 0, width, height), 0.1, 100);
+                this.screen.name = 'UICamera';
+
+                var cameraComponent = this.screen.getComponent('Camera');
+                cameraComponent.addRenderGroup('ui');
+                cameraComponent.offCenter = true;
+            },
+
 
             /**
             *   This method is called when the application has determined that
@@ -208,6 +241,8 @@ define([
                 transform.setDirty(true);
 
                 this.camera.getComponent('Camera').target = this.root;
+
+                this.fpsLabel.getComponent('Label').setText(this.context.getFramesPerSecond());
 
             }
 

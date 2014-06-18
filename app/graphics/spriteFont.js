@@ -84,6 +84,7 @@ define([
             */
             initCanvas: function() {
                 this._canvas = document.createElement('canvas');
+                //document.body.appendChild(this._canvas);
                 this._ctx    = this._canvas.getContext('2d');
             },
 

@@ -8,12 +8,12 @@ define([
 
         var Sprite = function(rect, texture) {
             this.texture = texture;
-            this.x = rect.x;
-            this.y = rect.y;
-            this.width = rect.width;
-            this.height = rect.height;
+            this.x       = rect.x;
+            this.y       = rect.y;
+            this.width   = rect.width;
+            this.height  = rect.height;
 
-            var textureWidth = texture.getWidth();
+            var textureWidth  = texture.getWidth();
             var textureHeight = texture.getHeight();
             this._uvs = new Rectangle(
                 this.x / textureWidth,
