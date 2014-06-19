@@ -157,6 +157,7 @@ define([
                 quad.getComponent('Quad').mode = 'sliced';
                 quad.addComponent(new BoxCollider());
                 quad.addToGroup('ui');
+                this.quad = quad;
 
 
                 this.label = this.labelFactory.create('hello, world', 'arial', 11);
@@ -243,6 +244,11 @@ define([
                 this.camera.getComponent('Camera').target = this.root;
 
                 this.fpsLabel.getComponent('Label').setText(this.context.getFramesPerSecond());
+
+                var quadComponent = this.quad.getComponent('Quad');
+                quadComponent.width = Math.sin(time*0.001) * 100 + 50;
+                quadComponent.height = Math.cos(time*0.002) * 100 + 50;
+                quadComponent.setDirty(true);
 
             }
 

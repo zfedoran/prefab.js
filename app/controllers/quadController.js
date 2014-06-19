@@ -143,7 +143,7 @@ define([
             *   @returns {undefined}
             */
             generateSlicedFace: function(w, h, sprite, anchor) {
-                var u, v, s, t, vertexCount;
+                var u, v, s, t;
                 u = sprite.getUCoordinate();
                 v = sprite.getVCoordinate();
                 s = sprite.getUVWidth() / 3;
@@ -167,162 +167,87 @@ define([
                 az = anchor.z;
 
                 /*
-                *  2---3------+---+
-                *  | / |  /   | / |
-                *  1---4------+---+
-                *  | / |    / | / |
-                *  |   |  /   |   |
-                *  +---+------+---+
-                *  | / |  /   | / |
-                *  +---+------+---+
+                *    1---2------3---4
+                *    | / |  /   | / |
+                *    5---6------7---8
+                *    | / |    / | / |
+                *    |   |  /   |   |
+                *    9--10-----11--12
+                *    | / |  /   | / |
+                *    13-14-----15--16
                 */
 
-                // TODO: ...
-                var du, dv;
+                var vertexCount = this.meshFactory.getVertexCount() - 1;
 
-                // Top Left
-                vertexCount = this.meshFactory.getVertexCount();
-                this.meshFactory.addVertex(new Vector3(-w + ax,           -h + ay + eh + ch, az));
-                this.meshFactory.addVertex(new Vector3(-w + ax,            h + ay,           az));
-                this.meshFactory.addVertex(new Vector3( w + ax - ew - cw,  h + ay,           az));
-                this.meshFactory.addVertex(new Vector3( w + ax - ew - cw, -h + ay + eh + ch, az));
+                this.meshFactory.addVertex(new Vector3(-w + ax,      h + ay, az)); // 1
+                this.meshFactory.addVertex(new Vector3(-w + ax + cw, h + ay, az)); // 2
+                this.meshFactory.addVertex(new Vector3( w + ax - cw, h + ay, az)); // 3
+                this.meshFactory.addVertex(new Vector3( w + ax,      h + ay, az)); // 4
 
-                du = 0 * s; dv = 0 * t;
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0 + du, v + t + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0 + du, v + 0 + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s + du, v + 0 + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s + du, v + t + dv));
+                this.meshFactory.addVertex(new Vector3(-w + ax,      h + ay - ch, az)); // 5
+                this.meshFactory.addVertex(new Vector3(-w + ax + cw, h + ay - ch, az)); // 6
+                this.meshFactory.addVertex(new Vector3( w + ax - cw, h + ay - ch, az)); // 7
+                this.meshFactory.addVertex(new Vector3( w + ax,      h + ay - ch, az)); // 8
 
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 1);
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 3, vertexCount + 2);
+                this.meshFactory.addVertex(new Vector3(-w + ax,      -h + ay + ch, az)); // 9
+                this.meshFactory.addVertex(new Vector3(-w + ax + cw, -h + ay + ch, az)); // 10
+                this.meshFactory.addVertex(new Vector3( w + ax - cw, -h + ay + ch, az)); // 11
+                this.meshFactory.addVertex(new Vector3( w + ax,      -h + ay + ch, az)); // 12
 
-                // Top
-                vertexCount = this.meshFactory.getVertexCount();
-                this.meshFactory.addVertex(new Vector3(-w + ax + cw, -h + ay + eh + ch, az));
-                this.meshFactory.addVertex(new Vector3(-w + ax + cw,  h + ay,           az));
-                this.meshFactory.addVertex(new Vector3( w + ax - cw,  h + ay,           az));
-                this.meshFactory.addVertex(new Vector3( w + ax - cw, -h + ay + eh + ch, az));
+                this.meshFactory.addVertex(new Vector3(-w + ax,      -h + ay, az)); // 13
+                this.meshFactory.addVertex(new Vector3(-w + ax + cw, -h + ay, az)); // 14
+                this.meshFactory.addVertex(new Vector3( w + ax - cw, -h + ay, az)); // 15
+                this.meshFactory.addVertex(new Vector3( w + ax,      -h + ay, az)); // 16
 
-                du = 1 * s; dv = 0 * t;
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0 + du, v + t + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0 + du, v + 0 + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s + du, v + 0 + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s + du, v + t + dv));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s * 0, v + t * 0)); // 1
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s * 1, v + t * 0)); // 2
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s * 2, v + t * 0)); // 3
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s * 3, v + t * 0)); // 4
 
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 1);
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 3, vertexCount + 2);
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s * 0, v + t * 1)); // 5
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s * 1, v + t * 1)); // 6
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s * 2, v + t * 1)); // 7
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s * 3, v + t * 1)); // 8
 
-                // Top Right
-                vertexCount = this.meshFactory.getVertexCount();
-                this.meshFactory.addVertex(new Vector3(-w + ax + ew + cw, -h + ay + eh + ch, az));
-                this.meshFactory.addVertex(new Vector3(-w + ax + ew + cw,  h + ay,           az));
-                this.meshFactory.addVertex(new Vector3( w + ax,            h + ay,           az));
-                this.meshFactory.addVertex(new Vector3( w + ax,           -h + ay + eh + ch, az));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s * 0, v + t * 2)); // 9
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s * 1, v + t * 2)); // 10
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s * 2, v + t * 2)); // 11
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s * 3, v + t * 2)); // 12
 
-                du = 2 * s; dv = 0 * t;
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0 + du, v + t + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0 + du, v + 0 + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s + du, v + 0 + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s + du, v + t + dv));
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s * 0, v + t * 3)); // 9
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s * 1, v + t * 3)); // 10
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s * 2, v + t * 3)); // 11
+                this.meshFactory.addUVtoLayer0(new Vector2(u + s * 3, v + t * 3)); // 12
 
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 1);
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 3, vertexCount + 2);
+                // top row
+                this.meshFactory.addTriangle(vertexCount + 5, vertexCount + 1, vertexCount + 2);
+                this.meshFactory.addTriangle(vertexCount + 5, vertexCount + 2, vertexCount + 6);
 
-                // Left
-                vertexCount = this.meshFactory.getVertexCount();
-                this.meshFactory.addVertex(new Vector3(-w + ax,           -h + ay + ch, az));
-                this.meshFactory.addVertex(new Vector3(-w + ax,            h + ay - ch, az));
-                this.meshFactory.addVertex(new Vector3( w + ax - ew - cw,  h + ay - ch, az));
-                this.meshFactory.addVertex(new Vector3( w + ax - ew - cw, -h + ay + ch, az));
+                this.meshFactory.addTriangle(vertexCount + 6, vertexCount + 2, vertexCount + 3);
+                this.meshFactory.addTriangle(vertexCount + 6, vertexCount + 3, vertexCount + 7);
 
-                du = 0 * s; dv = 1 * t;
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0 + du, v + t + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0 + du, v + 0 + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s + du, v + 0 + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s + du, v + t + dv));
+                this.meshFactory.addTriangle(vertexCount + 7, vertexCount + 3, vertexCount + 4);
+                this.meshFactory.addTriangle(vertexCount + 7, vertexCount + 4, vertexCount + 8);
 
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 1);
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 3, vertexCount + 2);
+                // center row
+                this.meshFactory.addTriangle(vertexCount + 9, vertexCount + 5, vertexCount + 6);
+                this.meshFactory.addTriangle(vertexCount + 9, vertexCount + 6, vertexCount + 10);
 
-                // Center
-                vertexCount = this.meshFactory.getVertexCount();
-                this.meshFactory.addVertex(new Vector3(-w + ax + cw, -h + ay + ch, az));
-                this.meshFactory.addVertex(new Vector3(-w + ax + cw,  h + ay - ch, az));
-                this.meshFactory.addVertex(new Vector3( w + ax - cw,  h + ay - ch, az));
-                this.meshFactory.addVertex(new Vector3( w + ax - cw, -h + ay + ch, az));
+                this.meshFactory.addTriangle(vertexCount + 10, vertexCount + 6, vertexCount + 7);
+                this.meshFactory.addTriangle(vertexCount + 10, vertexCount + 7, vertexCount + 11);
 
-                du = 1 * s; dv = 1 * t;
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0 + du, v + t + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0 + du, v + 0 + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s + du, v + 0 + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s + du, v + t + dv));
+                this.meshFactory.addTriangle(vertexCount + 11, vertexCount + 7, vertexCount + 8);
+                this.meshFactory.addTriangle(vertexCount + 11, vertexCount + 8, vertexCount + 12);
 
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 1);
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 3, vertexCount + 2);
+                // bottom row
+                this.meshFactory.addTriangle(vertexCount + 13, vertexCount + 9, vertexCount + 10);
+                this.meshFactory.addTriangle(vertexCount + 13, vertexCount + 10, vertexCount + 14);
 
-                // Right
-                vertexCount = this.meshFactory.getVertexCount();
-                this.meshFactory.addVertex(new Vector3(-w + ax + ew + cw, -h + ay + ch, az));
-                this.meshFactory.addVertex(new Vector3(-w + ax + ew + cw,  h + ay - ch, az));
-                this.meshFactory.addVertex(new Vector3( w + ax,            h + ay - ch, az));
-                this.meshFactory.addVertex(new Vector3( w + ax,           -h + ay + ch, az));
+                this.meshFactory.addTriangle(vertexCount + 14, vertexCount + 10, vertexCount + 11);
+                this.meshFactory.addTriangle(vertexCount + 14, vertexCount + 11, vertexCount + 15);
 
-                du = 2 * s; dv = 1 * t;
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0 + du, v + t + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0 + du, v + 0 + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s + du, v + 0 + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s + du, v + t + dv));
-
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 1);
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 3, vertexCount + 2);
-
-                // Bottom Left
-                vertexCount = this.meshFactory.getVertexCount();
-                this.meshFactory.addVertex(new Vector3(-w + ax,           -h + ay,           az));
-                this.meshFactory.addVertex(new Vector3(-w + ax,            h + ay - eh - ch, az));
-                this.meshFactory.addVertex(new Vector3( w + ax - ew - cw,  h + ay - eh - ch, az));
-                this.meshFactory.addVertex(new Vector3( w + ax - ew - cw, -h + ay,           az));
-
-                du = 0 * s; dv = 2 * t;
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0 + du, v + t + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0 + du, v + 0 + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s + du, v + 0 + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s + du, v + t + dv));
-
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 1);
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 3, vertexCount + 2);
-
-                // Bottom
-                vertexCount = this.meshFactory.getVertexCount();
-                this.meshFactory.addVertex(new Vector3(-w + ax + cw, -h + ay,           az));
-                this.meshFactory.addVertex(new Vector3(-w + ax + cw,  h + ay - eh - ch, az));
-                this.meshFactory.addVertex(new Vector3( w + ax - cw,  h + ay - eh - ch, az));
-                this.meshFactory.addVertex(new Vector3( w + ax - cw, -h + ay,           az));
-
-                du = 1 * s; dv = 2 * t;
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0 + du, v + t + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0 + du, v + 0 + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s + du, v + 0 + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s + du, v + t + dv));
-
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 1);
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 3, vertexCount + 2);
-
-                // Bottom Right
-                vertexCount = this.meshFactory.getVertexCount();
-                this.meshFactory.addVertex(new Vector3(-w + ax + ew + cw, -h + ay,           az));
-                this.meshFactory.addVertex(new Vector3(-w + ax + ew + cw,  h + ay - eh - ch, az));
-                this.meshFactory.addVertex(new Vector3( w + ax,            h + ay - eh - ch, az));
-                this.meshFactory.addVertex(new Vector3( w + ax,           -h + ay,           az));
-
-                du = 2 * s; dv = 2 * t;
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0 + du, v + t + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0 + du, v + 0 + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s + du, v + 0 + dv));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s + du, v + t + dv));
-
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 1);
-                this.meshFactory.addTriangle(vertexCount, vertexCount + 3, vertexCount + 2);
+                this.meshFactory.addTriangle(vertexCount + 15, vertexCount + 11, vertexCount + 12);
+                this.meshFactory.addTriangle(vertexCount + 15, vertexCount + 12, vertexCount + 16);
             }
         });
 
