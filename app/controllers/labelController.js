@@ -194,7 +194,7 @@ define([
                         dx = autoWidth - font.measureText(currentLine);
                     } else if (label.textAlign === Label.TEXT_ALIGN_CENTER) {
                         // Put the starting position half way through
-                        dx = (autoWidth / 2) - (font.measureText(currentLine) / 2);
+                        dx = Math.floor(autoWidth / 2) - Math.floor(font.measureText(currentLine) / 2);
                     } else {
                         dx = 0;
                     }
@@ -217,8 +217,8 @@ define([
                             // Generate the glyph face
                             this.generateFace(kerning, 
                                               charHeight, 
-                                              dx - (autoWidth / 2) * (1 - label.anchor.x), 
-                                              dy + (autoHeight / 2) * (1 + label.anchor.y), 
+                                              dx - Math.floor(autoWidth / 2) * (1 - label.anchor.x), 
+                                              dy + Math.floor(autoHeight / 2) * (1 + label.anchor.y), 
                                               sprite);
 
                             // Set the offset values for the next glyph

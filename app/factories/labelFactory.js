@@ -30,7 +30,7 @@ define([
             create: function(text, fontFamily, fontSize, width, height, lineHeight) {
                 var entity = this.context.createNewEntity();
 
-                var material = new Material(Material.LAMBERT);
+                var material = new Material(Material.TEXT);
 
                 entity.addComponent(new Transform());
                 entity.addComponent(new Label(text, fontFamily, fontSize, width, height, lineHeight));

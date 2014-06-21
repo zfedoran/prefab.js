@@ -72,6 +72,7 @@ define([
                 this.initState();
                 this.initCharWidth();
                 this.initTextureSize();
+                this.initTextureBackground();
                 this.initCharBitmap();
             },
 
@@ -96,9 +97,9 @@ define([
             *   @returns {undefined}
             */
             initState: function() {
-                this._ctx.fillStyle = 'black';
+                this._ctx.fillStyle = 'white';
                 this._ctx.textAlign = 'left';
-                this._ctx.textBaseline = 'top';
+                this._ctx.textBaseline = 'base';
                 this._ctx.font = this.fontSize + 'px ' + this.fontFamily;
             },
 
@@ -149,6 +150,18 @@ define([
             },
 
             /**
+            *   This method fills the background of the canvas using the
+            *   calculated width and height.
+            *
+            *   @method initTextureBackground
+            *   @returns {undefined}
+            */
+            initTextureBackground: function() {
+                this._ctx.fillStyle = 'black';
+                this._ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
+            },
+
+            /**
             *   This method draws the individual characters onto the bitmap
             *   font texture atlas.
             *
@@ -157,7 +170,7 @@ define([
             */
             initCharBitmap: function() {
                 // Required for some strange reason
-                this._ctx.font = this.fontSize + 'px ' + this.fontFamily;
+                this.initState();
 
                 // Create the texture resource for this font
                 this._texture = new Texture(this.device, this._canvas);

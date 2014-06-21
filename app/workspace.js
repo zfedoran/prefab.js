@@ -123,7 +123,7 @@ define([
                     block.on('mouseenter', onClickHandler, block);
 
                     transform = block.getComponent('Transform');
-                    transform.setPosition(0, 0.1, 0);
+                    transform.setPosition((Math.random() - 0.5)*2, (Math.random() - 0.5)*2, (Math.random() - 0.5)*2);
                     transform.setRotationFromEuler(-0.1, -0.1, -0.1);
 
                     prev.addChild(block);
@@ -148,30 +148,28 @@ define([
                     prev = quad;
                 }
                 */
-                var quad = this.quadFactory.create(100, 30, sprite);
+                var quad = this.quadFactory.create(100, 20, sprite);
                 quad.name = 'quad';
                 quad.getComponent('MeshRenderer').material.diffuseMap = texture;
-                quad.getComponent('Transform').setPosition(10, 220, -1);
+                quad.getComponent('Transform').setPosition(5, 25, -1);
                 quad.getComponent('Quad').anchor.x = 1;
-                quad.getComponent('Quad').anchor.y = -1;
                 quad.getComponent('Quad').mode = 'sliced';
                 quad.addComponent(new BoxCollider());
                 quad.addToGroup('ui');
                 this.quad = quad;
 
 
-                this.label = this.labelFactory.create('hello, world', 'arial', 11);
+                this.label = this.labelFactory.create('hello, world', 'arial', 10);
                 this.label.name = 'label';
                 //this.label.getComponent('Transform').setScale(0.01, 0.01, 0.01);
-                this.label.getComponent('Transform').setPosition(10, 20, -1);
+                this.label.getComponent('Transform').setPosition(15, 25, -1);
                 this.label.getComponent('Label').textAlign = 'left';
                 this.label.getComponent('Label').anchor.x = 1;
-                this.label.getComponent('Label').anchor.y = -1;
                 this.label.addComponent(new BoxCollider());
                 this.label.on('mouseenter', onClickHandler, this.label);
                 this.label.addToGroup('ui');
 
-                this.fpsLabel = this.labelFactory.create('0 fps', 'arial', 11);
+                this.fpsLabel = this.labelFactory.create('0 fps', 'arial', 10);
                 this.fpsLabel.name = 'fps-label';
                 //this.fpsLabel.getComponent('Transform').setScale(0.01, 0.01, 0.01);
                 this.fpsLabel.getComponent('Transform').setPosition(10, 50, -1);
@@ -244,12 +242,6 @@ define([
                 this.camera.getComponent('Camera').target = this.root;
 
                 this.fpsLabel.getComponent('Label').setText(this.context.getFramesPerSecond());
-
-                var quadComponent = this.quad.getComponent('Quad');
-                quadComponent.width = Math.sin(time*0.001) * 100 + 50;
-                quadComponent.height = Math.cos(time*0.002) * 100 + 50;
-                quadComponent.setDirty(true);
-
             }
 
         });

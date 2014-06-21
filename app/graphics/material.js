@@ -91,10 +91,11 @@ define([
             getReflecitonMap: function() { return this.normalMap; },
         };
 
-        Material.BASIC    = 'Basic';
-        Material.TEXTURED = 'Textured';
-        Material.LAMBERT  = 'Lambert';
-        Material.PHONG    = 'Phong';
+        Material.BASIC    = 'basic';
+        Material.TEXTURED = 'textured';
+        Material.LAMBERT  = 'lambert';
+        Material.PHONG    = 'phong';
+        Material.TEXT     = 'text';
 
         return Material;
     }

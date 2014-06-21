@@ -5,6 +5,8 @@ define([
         'text!shaders/basic/fragment.shader',
         'text!shaders/textured/vertex.shader',
         'text!shaders/textured/fragment.shader',
+        'text!shaders/text/vertex.shader',
+        'text!shaders/text/fragment.shader',
         'text!shaders/lambert/vertex.shader',
         'text!shaders/lambert/fragment.shader',
         'core/controller'
@@ -16,6 +18,8 @@ define([
         _basicFragmentShader,
         _texturedVertexShader,
         _texturedFragmentShader,
+        _textVertexShader,
+        _textFragmentShader,
         _lambertVertexShader,
         _lambertFragmentShader,
         Controller
@@ -138,6 +142,8 @@ define([
                     shader = this.device.compileShader(_lambertVertexShader, _lambertFragmentShader);
                 } else if (material.shadingModel === Material.TEXTURED) {
                     shader = this.device.compileShader(_texturedVertexShader, _texturedFragmentShader);
+                } else if (material.shadingModel === Material.TEXT) {
+                    shader = this.device.compileShader(_textVertexShader, _textFragmentShader);
                 } else {
                     shader = this.device.compileShader(_basicVertexShader, _basicFragmentShader);
                 }
