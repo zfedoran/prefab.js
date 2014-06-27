@@ -20,21 +20,18 @@ define([
         *
         *   @class 
         *   @param {device} Graphics device instance
-        *   @param {family} Font family to be used
-        *   @param {size}   Font size to be used
-        *   @param {first}  Integer value of the first character that is part of this bitmap font
-        *   @param {last}   Integer value of the last character that is part of this bitmap font
+        *   @param {options} Options to use for generating this spriteFont
         *   @constructor
         */
-        var SpriteFont = function(device, family, size, first, last) {
+        var SpriteFont = function(device, options) {
             if (typeof device === 'undefined') {
                 throw 'SpriteFont: cannot create a sprite font without a graphics device';
             }
             this.device     = device;
-            this.fontFamily = family;
-            this.fontSize   = size;
-            this.firstChar  = first || 9;
-            this.lastChar   = last || 126;
+            this.fontFamily = options.fontFamily;
+            this.fontSize   = options.fontSize;
+            this.firstChar  = options.firstChar || 32;
+            this.lastChar   = options.lastChar || 126;
 
             this.charString = '';
             for (var i = this.firstChar; i <= this.lastChar; i++) {
@@ -48,11 +45,18 @@ define([
             this.kerningMap = {};
             this.spriteMap  = {};
 
-            this._canvas  = null;
-            this._ctx     = null;
-            this._texture = null;
+            this._canvas   = null;
+            this._canvas3x = null;
+            this._ctx      = null;
+            this._texture  = null;
 
             this._hasSpaceChar = !this.charString.match(/ /);
+
+            // Webkit does not provide sub pixel anti-aliasing
+            this.subPixelAntiAliasingEnabled = typeof options.antiAlias === 'undefined' ? true : options.antiAlias;
+            
+            // Webkit is not very good at drawing white text on a black background inside a canvas
+            this.invertColorsEnabled         = typeof options.antiAlias === 'undefined' ? true : options.invertColors;
 
             this.init();
         };
@@ -85,8 +89,13 @@ define([
             */
             initCanvas: function() {
                 this._canvas = document.createElement('canvas');
-                //document.body.appendChild(this._canvas);
                 this._ctx    = this._canvas.getContext('2d');
+                document.body.appendChild(this._canvas);
+
+                if (this.subPixelAntiAliasingEnabled) {
+                    this._canvas3x = document.createElement('canvas');
+                    this._ctx3x    = this._canvas3x.getContext('2d');
+                }
             },
 
             /**
@@ -97,10 +106,25 @@ define([
             *   @returns {undefined}
             */
             initState: function() {
-                this._ctx.fillStyle = 'white';
-                this._ctx.textAlign = 'left';
+                // Webkit seems to be better at drawing black text on a white
+                // backgrounds in canvas elements.
+                var foreground = 'white';
+                if (this.invertColorsEnabled) {
+                    foreground = 'black';
+                } 
+
+                this._ctx.fillStyle    = foreground;
+                this._ctx.textAlign    = 'left';
                 this._ctx.textBaseline = 'base';
-                this._ctx.font = this.fontSize + 'px ' + this.fontFamily;
+                this._ctx.font         = this.fontSize + 'px ' + this.fontFamily;
+
+                if (this.subPixelAntiAliasingEnabled) {
+                    this._ctx3x.fillStyle    = foreground;
+                    this._ctx3x.textAlign    = 'left';
+                    this._ctx3x.textBaseline = 'base';
+                    this._ctx3x.font         = this.fontSize + 'px ' + this.fontFamily;
+                    this._ctx3x.scale(3,1);
+                }
             },
 
             /**
@@ -114,7 +138,7 @@ define([
                 for (var i = 0; i <= this.charString.length; i++) {
                     var currentChar  = this.charString.charAt(i);
                     var currentWidth = this._ctx.measureText(currentChar).width;
-                    this.charWidth = Math.max(this.charWidth, currentWidth);
+                    this.charWidth   = Math.max(this.charWidth, currentWidth);
                 }
                 this.charWidth += this.charPadding;
             },
@@ -147,6 +171,10 @@ define([
                 this._canvas.width  = width;
                 this._canvas.height = height;
 
+                if (this.subPixelAntiAliasingEnabled) {
+                    this._canvas3x.width  = width * 3;
+                    this._canvas3x.height = height;
+                }
             },
 
             /**
@@ -157,8 +185,18 @@ define([
             *   @returns {undefined}
             */
             initTextureBackground: function() {
-                this._ctx.fillStyle = 'black';
-                this._ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
+                var background = 'black';
+                if (this.invertColorsEnabled) {
+                    background = 'white';
+                } 
+
+                if (this.subPixelAntiAliasingEnabled) {
+                    this._ctx3x.fillStyle = background;
+                    this._ctx3x.fillRect(0, 0, this._canvas3x.width, this._canvas3x.height);
+                } else {
+                    this._ctx.fillStyle = background;
+                    this._ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
+                }
             },
 
             /**
@@ -188,7 +226,11 @@ define([
                     var y   = Math.floor((this.charWidth * i) / max) * this.charHeight + this.charHeight;
                     
                     // Draw the character glyph
-                    this._ctx.fillText(currentChar, x + this.charPadding, y);
+                    if (this.subPixelAntiAliasingEnabled) {
+                        this._ctx3x.fillText(currentChar, x + this.charPadding, y);
+                    } else {
+                        this._ctx.fillText(currentChar, x + this.charPadding, y);
+                    }
 
                     // Store kerning meta-data
                     this.kerningMap[currentChar] = currentWidth;
@@ -197,6 +239,90 @@ define([
                     var coords = new Rectangle(x + this.charPadding, y - this.charHeight + this.charPadding, currentWidth, this.charHeight);
                     this.spriteMap[currentChar] = new Sprite(coords, this._texture);
                 }
+
+                if (this.subPixelAntiAliasingEnabled) {
+                    this.subPixelAntiAlias();
+                }
+
+                if (this.invertColorsEnabled) {
+                    this.invertColors();
+                }
+            },
+
+            /**
+            *   This method inverts the canvas colors. Webkit seems to be
+            *   better at drawing black text against white than white text
+            *   against black.
+            *
+            *   @method invertColors
+            *   @returns {undefined}
+            */
+            invertColors: function() {
+                var width  = this._canvas.width;
+                var height = this._canvas.height;
+                var dp     = this._ctx.getImageData(0, 0, width, height);
+                
+                var index, x, y;
+                
+                for (y = 0; y < height; y++) {
+                    for (x = 0; x < width; x++) {
+                        index = (y * width + x) * 4;
+                        dp.data[index + 0] = 255 - dp.data[index + 0];
+                        dp.data[index + 1] = 255 - dp.data[index + 1];
+                        dp.data[index + 2] = 255 - dp.data[index + 2];
+                        dp.data[index + 3] = dp.data[index + 3];
+                    }
+                }
+
+                this._ctx.putImageData(dp,0,0);
+            },
+
+            /**
+            *   This method does software based anti-aliasing using the method
+            *   described below.
+            *
+            *   http://stackoverflow.com/questions/4550926/subpixel-anti-aliased-text-on-html5s-canvas-element
+            *
+            *   @method subPixelAntiAlias
+            *   @returns {undefined}
+            */
+            subPixelAntiAlias: function() {
+                // Copies a 3:1 image to a 1:1 image, using LCD stripes
+                var sc = this._ctx3x;
+                var sw = this._canvas3x.width;
+                var sh = this._canvas3x.height;
+                var sp = sc.getImageData(0, 0, sw, sh);
+                
+                var dc = this._ctx;
+                var dw = this._canvas.width;
+                var dh = this._canvas.height;
+                var dp = dc.getImageData(0, 0, dw, dh);
+                
+                var readIndex, writeIndex, r, g, b, a, x, y;
+                
+                var w1   = 0.34;
+                var w2   = (1-w1) * 0.5;
+                var w21  = w1 + w2;
+                var w211 = w2 + w2 + w1;
+
+                for(y = 0; y < dh; y++) {
+                    for(x = 1; x < (dw-1); x++) {
+                    
+                        readIndex  = (y * sw + x * 3) * 4;
+                        writeIndex = (y * dw + x) * 4;
+                        
+                        // r
+                        dp.data[writeIndex + 0] = Math.round(w1 * sp.data[readIndex + 0] + w2 * (sp.data[readIndex - 4] + sp.data[readIndex +4]));
+                        // g
+                        dp.data[writeIndex + 1] = Math.round(w1 * sp.data[readIndex + 5] + w2 * (sp.data[readIndex + 1] + sp.data[readIndex +9])); 
+                        // b
+                        dp.data[writeIndex + 2] = Math.round(w1 * sp.data[readIndex + 10] + w2 * (sp.data[readIndex + 6] + sp.data[readIndex + 14])); 
+                        // a
+                        dp.data[writeIndex + 3] = Math.round(0.3333 * (w211 * sp.data[readIndex + 7] + w21* (sp.data[readIndex + 3] + sp.data[readIndex + 11]) + w2 * (sp.data[readIndex - 1] + sp.data[readIndex + 15])));
+                    }
+                }
+
+                dc.putImageData(dp,0,0);
             },
 
             /**
@@ -258,7 +384,6 @@ define([
                 }
                 return width;
             }
-
         };
 
         return SpriteFont;

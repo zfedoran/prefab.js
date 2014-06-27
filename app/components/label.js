@@ -35,11 +35,15 @@ define([
 
             this.text = text;
 
-            this.spriteFont = null;
-            this.fontFamily = fontFamily || 'arial';
-            this.fontSize   = fontSize || 10;
-            this.lineHeight = lineHeight;
-            this.textAlign  = Label.TEXT_ALIGN_LEFT;
+            this.spriteFont  = null;
+            this.fontFamily  = fontFamily || 'arial';
+            this.fontSize    = fontSize || 10;
+            this.lineHeight  = lineHeight;
+            this.textAlign   = Label.TEXT_ALIGN_LEFT;
+
+            // The following properties change how the dynamic spriteFont is generated
+            this.antiAlias    = true;
+            this.invertColors = true; // Webkit seems to be better at rendering black font against white in the canvas element.
 
             this.anchor  = new Vector3(0, 0, 0);
         };
@@ -56,7 +60,7 @@ define([
             *   @returns {undefined}
             */
             getFontName: function(label) {
-                return this.fontSize + 'px ' + this.fontFamily;
+                return this.fontSize + 'px ' + this.fontFamily + ' ' + this.antiAlias + ' ' + this.invertColors;
             },
 
             /**

@@ -41,7 +41,7 @@ define([
             // set the correct data upload function
             var _upload1f = function() { 
                 if (typeof this.data === 'number') {
-                    gl.uniform1f(_index, false, this.data); 
+                    gl.uniform1f(_index, this.data); 
                     _dirty = false;
                 } else if (this.data === null || typeof this.data === 'undefined') {
                     throw 'ShaderUniform: ' + _name + ' data has not been assigned';
@@ -51,7 +51,7 @@ define([
             };
             var _upload2f = function() { 
                 if (this.data instanceof Vector2) {
-                    gl.uniform2f(_index, false, this.data.x, this.data.y); 
+                    gl.uniform2f(_index, this.data.x, this.data.y); 
                     _dirty = false;
                 } else if (this.data === null || typeof this.data === 'undefined') {
                     throw 'ShaderUniform: ' + _name + ' data has not been assigned';
@@ -61,7 +61,7 @@ define([
             };
             var _upload3f = function() { 
                 if (this.data instanceof Vector3) {
-                    gl.uniform3f(_index, false, this.data.x, this.data.y, this.data.z); 
+                    gl.uniform3f(_index, this.data.x, this.data.y, this.data.z); 
                     _dirty = false;
                 } else if (this.data === null || typeof this.data === 'undefined') {
                     throw 'ShaderUniform: ' + _name + ' data has not been assigned';
@@ -71,7 +71,7 @@ define([
             };
             var _upload4f = function() { 
                 if (this.data instanceof Vector4) {
-                    gl.uniform4f(_index, false, this.data.x, this.data.y, this.data.z, this.data.w); 
+                    gl.uniform4f(_index, this.data.x, this.data.y, this.data.z, this.data.w); 
                     _dirty = false;
                 } else if (this.data === null || typeof this.data === 'undefined') {
                     throw 'ShaderUniform: ' + _name + ' data has not been assigned';

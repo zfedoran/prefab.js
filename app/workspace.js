@@ -12,7 +12,9 @@ define([
         'factories/labelFactory',
         'factories/cameraFactory',
         'editor/factories/gridFactory',
-        'graphics/spriteFont'
+        'graphics/spriteFont',
+        'file/saveAsFileDialog',
+        'editor/core/uiTheme'
     ],
     function(
         $,
@@ -28,7 +30,9 @@ define([
         LabelFactory,
         CameraFactory,
         GridFactory,
-        SpriteFont
+        SpriteFont,
+        SaveAsFileDialog,
+        EditorUITheme
     ) {
         'use strict';
 
@@ -93,6 +97,17 @@ define([
             },
 
             /**
+            *   This method initializes various editor components
+            *
+            *   @method initEditor
+            *   @returns {undefined}
+            */
+            initEditor: function() {
+                var editorUITheme = new EditorUITheme(this.context);
+                this.context.setUITheme(editorUITheme);
+            },
+
+            /**
             *   Create a simple block hierarchy
             *
             *   @method initBlocks
@@ -102,8 +117,10 @@ define([
                 var assetLibrary = this.context.getAssetLibrary();
                 var device       = this.context.getGraphicsDevice();
 
-                var texture = assetLibrary.getTexture('assets/block.png');
-                var sprite  = new Sprite(new Rectangle(0, 0, 16, 16), texture);
+                this.initEditor();
+                var uiTheme = this.context.getUITheme();
+                var texture = uiTheme.button.getTexture();
+                var sprite  = uiTheme.button;
 
                 var prev, transform;
 
@@ -159,26 +176,53 @@ define([
                 this.quad = quad;
 
 
-                this.label = this.labelFactory.create('hello, world', 'arial', 10);
+                this.label = this.labelFactory.create('Hello, World', 'arial', 9);
                 this.label.name = 'label';
-                //this.label.getComponent('Transform').setScale(0.01, 0.01, 0.01);
                 this.label.getComponent('Transform').setPosition(15, 25, -1);
                 this.label.getComponent('Label').textAlign = 'left';
                 this.label.getComponent('Label').anchor.x = 1;
+                this.label.getComponent('Label').antiAlias = true;
+                this.label.getComponent('Label').invertColors = false;
+                var material = this.label.getComponent('MeshRenderer').material;
+                material.ambientFactor = 0.6;
+                material.diffuse.set(0, 0, 0, 1);
                 this.label.addComponent(new BoxCollider());
                 this.label.on('mouseenter', onClickHandler, this.label);
                 this.label.addToGroup('ui');
 
-                this.fpsLabel = this.labelFactory.create('0 fps', 'arial', 10);
+                this.fpsLabel = this.labelFactory.create('0 fps', 'arial', 9);
                 this.fpsLabel.name = 'fps-label';
                 //this.fpsLabel.getComponent('Transform').setScale(0.01, 0.01, 0.01);
                 this.fpsLabel.getComponent('Transform').setPosition(10, 50, -1);
                 this.fpsLabel.getComponent('Label').textAlign = 'left';
                 this.fpsLabel.getComponent('Label').anchor.x = 1;
                 this.fpsLabel.getComponent('Label').anchor.y = -1;
+                this.fpsLabel.getComponent('Label').antiAlias = false;
+                this.fpsLabel.getComponent('Label').invertColors = false;
+                material = this.fpsLabel.getComponent('MeshRenderer').material;
+                material.ambientFactor = 1.0;
+                material.diffuse.set(1, 1, 1, 1);
+                this.label.addComponent(new BoxCollider());
                 this.fpsLabel.addComponent(new BoxCollider());
                 this.fpsLabel.on('mouseenter', onClickHandler, this.fpsLabel);
                 this.fpsLabel.addToGroup('ui');
+                
+                /*
+                var self = this;
+                setTimeout(function() {
+                    var saveAsFileDialog = new SaveAsFileDialog();
+                    saveAsFileDialog.init('hello-world.png');
+                    saveAsFileDialog.trigger(function(filename) {
+                        var base64String = self.fpsLabel.getComponent('Label').spriteFont._canvas.toDataURL('image/png').split(',')[1];
+                        var buffer       = new Buffer(base64String, 'base64');
+
+                        var fs = require('fs');
+                        fs.writeFileSync(filename, buffer);
+
+                        saveAsFileDialog.destroy();
+                    });
+                }, 5000);
+                */
             },
 
             /**

@@ -41,29 +41,78 @@ define([
             },
 
             /**
+            *   This method initializes this asset library using the provided
+            *   directory path.
+            *
+            *   @method asyncInit
+            *   @param {directory}
+            *   @param {callback}
+            *   @returns {undefined}
+            */
+            asyncInit: function(directory, callback) {
+                var self = this;
+                self.asyncLoadDirectory(directory, function(files) {
+                    var images = [];
+
+                    _.forEach(files, function(filepath) {
+                        if (filepath.match(/\.png$/)) { images.push(filepath); }
+                    });
+
+                    self.asyncLoadTextures(images, callback);
+                });
+            },
+
+            /**
+            *   This method loads a full directory recursively. The provided
+            *   callback is called with the list of filenames.
+            *
+            *   @method asyncLoadDirectory
+            *   @param {directory}
+            *   @param {callback}
+            *   @returns {undefined}
+            */
+            asyncLoadDirectory: function(directory, callback) {
+                var path  = require('path');
+                var walk  = require('walk');
+                var files = [];
+
+                var walker = walk.walk(directory, { followLinks: false });
+
+                walker.on('file', function(root, stat, next) {
+                    var filepath = path.join(root, stat.name);
+                    files.push(filepath);
+                    next();
+                });
+
+                walker.on('end', function() {
+                    callback(files);
+                });
+            },
+
+            /**
             *   This function loads the provided image assets asynchronously
             *   into the asset library.
             *
             *   @method asyncLoadTextures
-            *   @param {assets}
+            *   @param {filepaths}
             *   @param {callback}
             *   @returns {undefined}
             */
-            asyncLoadTextures: function(assets, callback) {
+            asyncLoadTextures: function(filepaths, callback) {
                 var self = this;
 
                 // Needed to create texture objects
                 var device = this.context.getGraphicsDevice();
 
                 // Create a list of require.js ready dependencies
-                var dependencies = _.map(assets, function(src) { return 'image!' + src; });
+                var dependencies = _.map(filepaths, function(src) { return 'image!' + src; });
 
                 // Load the image dependencies
                 requirejs(dependencies, (function() { 
                     var image, name, i, len = arguments.length;
                     for (i = 0; i < len; i++) {
                         image = arguments[i];
-                        name  = assets[i];
+                        name  = filepaths[i];
 
                         if (typeof self.images[name] === 'undefined') {
                             self.images[name]   = image;

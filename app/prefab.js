@@ -61,10 +61,8 @@ define([
             *   @returns {undefined}
             */
             initAssetLibrary: function(callback) {
-                // Load all initial textures
-                this.assetLibrary.asyncLoadTextures([
-                    'assets/block.png'
-                ], callback);
+                // Load all the asset files in assets/ into the asset library
+                this.assetLibrary.asyncInit('assets', callback);
             },
 
             /**

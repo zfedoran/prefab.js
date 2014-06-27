@@ -26,6 +26,10 @@ define([
         Sprite.prototype = {
             constructor: Sprite,
 
+            getTexture: function() {
+                return this.texture;
+            },
+
             getUCoordinate: function() {
                 return this._uvs.x;
             },

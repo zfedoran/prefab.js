@@ -1,6 +1,10 @@
 define([
+        'math/rectangle',
+        'graphics/sprite'
     ],
     function(
+        Rectangle,
+        Sprite
     ) {
         'use strict';
 
@@ -54,6 +58,10 @@ define([
 
         Texture.prototype = {
             constructor: Texture,
+
+            getFullTextureSprite: function() {
+                return new Sprite(new Rectangle(0, 0, this._textureWidth, this._textureHeight), this);
+            },
 
             getWidth: function() { return this._textureWidth; },
 

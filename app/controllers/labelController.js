@@ -68,7 +68,17 @@ define([
 
                             // Create a new SpriteFont if one is not found
                             if (!spriteFont) {
-                                label.spriteFont = new SpriteFont(this.device, label.fontFamily, label.fontSize);
+                                spriteFont = new SpriteFont(this.device, {
+                                    fontFamily   : label.fontFamily,
+                                    fontSize     : label.fontSize,
+                                    antiAlias    : label.antiAlias,
+                                    invertColors : label.invertColors,
+                                    firstChar    : 32,
+                                    lastChar     : 126
+                                });
+
+                                // Set the label font
+                                label.spriteFont = spriteFont;
 
                                 // Update the font cache
                                 this.fontCache[label.getFontName()] = label.spriteFont;

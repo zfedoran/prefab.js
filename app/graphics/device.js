@@ -62,8 +62,8 @@ define([
             */
             initWebGL: function() {
                 try {
-                    var gl = this.canvas.getContext('webgl', {antialias: false}) 
-                          || this.canvas.getContext('experimental-webgl', {antialias: false});
+                    var gl = this.canvas.getContext('webgl', {antialias: false, alpha: false }) 
+                          || this.canvas.getContext('experimental-webgl', {antialias: false, alpha: false });
 
                     this.state = new GraphicsState(gl);
                 } catch (error) {
