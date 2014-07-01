@@ -22,21 +22,25 @@ define([
         *   @param {depth}
         *   @constructor
         */
-        var Block = function(width, height, depth) {
+        var Block = function(texture, width, height, depth) {
             Component.call(this);
 
+            // Get a full texture sprite
+            var sprite  = texture.getFullTextureSprite();
+
+            // Set the initial property values
             this.width  = width;
             this.height = height;
             this.depth  = depth;
 
-            this.top    = null;
-            this.bottom = null;
-            this.left   = null;
-            this.right  = null;
-            this.front  = null;
-            this.back   = null;
+            this.top    = sprite;
+            this.bottom = sprite;
+            this.left   = sprite;
+            this.right  = sprite;
+            this.front  = sprite;
+            this.back   = sprite;
 
-            this.texture = null;
+            this.texture = texture;
 
             this.anchor  = new Vector3(0, 0, 0);
         };

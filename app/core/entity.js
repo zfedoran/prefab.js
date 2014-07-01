@@ -109,6 +109,37 @@ define([
             },
 
             /**
+            *   This function will filter the child entities by the provided
+            *   selector and execute the callback for those that match.
+            *
+            *   @method filterChildrenBy
+            *   @param {selector}
+            *   @param {callback}
+            *   @param {context}
+            *   @returns {undefined}
+            */
+            filterChildrenBy: function(selector, callback, context) {
+                // For each child
+                var i, numChildren = this.children.length, child;
+                for (i = 0; i < numChildren; i++) {
+                    child = this.children[i];
+
+                    // Test if the child passes the provided selector test
+                    var testResult;
+                    if (typeof selector === 'string') {
+                        testResult = child.isPartOfGroup(selector);
+                    } else {
+                        testResult = child.hasAllComponents(selector);
+                    }
+
+                    // Run the callback function
+                    if (testResult) {
+                        callback.call(context, child);
+                    }
+                }
+            },
+
+            /**
             *   Add this entity to the provided group name.
             *
             *   @method addToGroup
@@ -128,6 +159,21 @@ define([
             */
             removeFromGroup: function(name) {
                 this.entityManager.removeFromGroup(this, name);
+            },
+
+            /**
+            *   Check if this entity is part of the provided group name.
+            *
+            *   @method isPartOfGroup
+            *   @param {name}
+            *   @returns {undefined}
+            */
+            isPartOfGroup: function(name) {
+                var entity = this.entityManager.filterByGroupName(name)[this.id];
+                if (typeof entity === 'undefined') {
+                    return false;
+                }
+                return true;
             },
 
             /**
@@ -175,6 +221,23 @@ define([
                     type = type.__name__;
                 }
                 return typeof this.components[type] !== 'undefined';
+            },
+
+            /**
+            *   Check if a list of components exists on this entity.
+            *
+            *   @method hasAllComponents
+            *   @param {list}
+            *   @returns {boolean}
+            */
+            hasAllComponents: function(list) {
+                var i, len = list.length;
+                for (i = 0; i < len; i++) {
+                    if (!this.hasComponent(list[i])) {
+                        return false;
+                    }
+                }
+                return true;
             },
 
             /**

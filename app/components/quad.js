@@ -22,11 +22,11 @@ define([
         *   @param {sprite}
         *   @constructor
         */
-        var Quad = function(width, height, sprite) {
+        var Quad = function(sprite, width, height) {
             Component.call(this);
 
-            this.width   = width;
-            this.height  = height;
+            this.width   = typeof width === 'undefined' ? 0 : width;
+            this.height  = typeof height === 'undefined' ? 0 : height;
 
             this.mode    = Quad.MODE_SIMPLE;
             this.sprite  = sprite;
@@ -38,7 +38,23 @@ define([
         Quad.__name__ = 'Quad';
 
         Quad.prototype = _.create(Component.prototype, {
-            constructor: Quad
+            constructor: Quad,
+
+            setSprite: function(sprite) {
+                this.sprite = sprite; 
+                this.setDirty(true);
+            },
+
+            useSlicedMode: function() { 
+                this.mode = Quad.MODE_SLICED;
+                this.setDirty(true);
+            },
+
+            useSimpleMode: function() { 
+                this.mode = Quad.MODE_SIMPLE;
+                this.setDirty(true);
+            },
+
         });
 
         Quad.MODE_SIMPLE = 'simple';

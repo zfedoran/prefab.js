@@ -195,9 +195,13 @@ define([
             */
             filterByGroupName: function(name) {
                 var group = this.groups[name];
-                if (typeof group !== 'undefined') {
-                    return group.getEntities();
+
+                if (typeof group === 'undefined') {
+                    group = new EntityGroup(name);
+                    this.groups[name] = group;
                 }
+
+                return group.getEntities();
             }
         };
 

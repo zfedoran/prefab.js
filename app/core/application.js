@@ -31,9 +31,6 @@ define([
             this.time = 0;
             this.fps  = 0;
 
-            // Default to null for the application theme
-            this.uiTheme = null;
-
             // Create the application context
             this.context = new Context(this);
 

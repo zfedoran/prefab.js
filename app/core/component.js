@@ -1,6 +1,10 @@
 define([
+        'lodash',
+        'core/events'
     ],
     function(
+        _,
+        Events
     ) {
         'use strict';
 
@@ -31,6 +35,10 @@ define([
 
             setDirty: function(value) {
                 this._dirty = value;
+
+                if (value === false) {
+                    this.trigger('updated');
+                }
             },
 
             isEnabled: function() {
@@ -41,6 +49,8 @@ define([
                 this._enabled = value;
             }
         };
+
+        _.extend(Component.prototype, Events.prototype);
 
         return Component;
     }

@@ -27,13 +27,14 @@ define([
         BlockFactory.prototype = _.create(Factory.prototype, {
             construct: BlockFactory,
 
-            create: function(width, height, depth) {
+            create: function(texture, width, height, depth) {
                 var entity = this.context.createNewEntity();
 
                 var material = new Material(Material.LAMBERT);
+                material.diffuseMap = texture;
 
                 entity.addComponent(new Transform());
-                entity.addComponent(new Block(width, height, depth));
+                entity.addComponent(new Block(texture, width, height, depth));
                 entity.addComponent(new MeshFilter());
                 entity.addComponent(new MeshRenderer(material));
 

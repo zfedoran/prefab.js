@@ -110,28 +110,6 @@ define([
             */
             createNewEntity: function(name) {
                 return (new Entity(this._application.entityManager, name));
-            },
-
-            /**
-            *   This method sets the current UI theme for this application
-            *
-            *   @method setUITheme
-            *   @param {theme}
-            *   @returns {undefined}
-            */
-            setUITheme: function(theme) {
-                this._application.uiTheme = theme;
-            },
-
-            /**
-            *   This method gets the current UI theme for this application
-            *
-            *   @method getUITheme
-            *   @param {theme}
-            *   @returns {undefined}
-            */
-            getUITheme: function(theme) {
-                return this._application.uiTheme;
             }
         };
 

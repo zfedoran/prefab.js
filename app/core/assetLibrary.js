@@ -25,6 +25,17 @@ define([
             constructor: AssetLibrary,
 
             /**
+            *   This method returns the given asset name as a sprite.
+            *
+            *   @method getSprite
+            *   @param {name}
+            *   @returns {undefined}
+            */
+            getSprite: function(name) {
+                return this.getTexture(name).getFullTextureSprite();
+            },
+
+            /**
             *   This method returns a texture object for an image asset. If the
             *   asset has not been loaded, an error will be thrown.
             *

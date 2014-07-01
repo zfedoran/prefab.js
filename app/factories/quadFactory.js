@@ -27,13 +27,14 @@ define([
         QuadFactory.prototype = _.create(Factory.prototype, {
             construct: QuadFactory,
 
-            create: function(width, height, sprite) {
+            create: function(sprite, width, height) {
                 var entity = this.context.createNewEntity();
 
-                var material = new Material(Material.LAMBERT);
+                var material        = new Material(Material.LAMBERT);
+                material.diffuseMap = sprite.getTexture();
 
                 entity.addComponent(new Transform());
-                entity.addComponent(new Quad(width, height, sprite));
+                entity.addComponent(new Quad(sprite, width, height));
                 entity.addComponent(new MeshFilter());
                 entity.addComponent(new MeshRenderer(material));
 

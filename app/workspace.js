@@ -11,10 +11,9 @@ define([
         'factories/quadFactory',
         'factories/labelFactory',
         'factories/cameraFactory',
+        'factories/uiButtonFactory',
         'editor/factories/gridFactory',
-        'graphics/spriteFont',
-        'file/saveAsFileDialog',
-        'editor/core/uiTheme'
+        'editor/ui/uiPrimaryButton'
     ],
     function(
         $,
@@ -29,10 +28,9 @@ define([
         QuadFactory,
         LabelFactory,
         CameraFactory,
+        UIButtonFactory,
         GridFactory,
-        SpriteFont,
-        SaveAsFileDialog,
-        EditorUITheme
+        UIPrimaryButton
     ) {
         'use strict';
 
@@ -70,11 +68,12 @@ define([
             *   @returns {undefined}
             */
             initFactories: function() {
-                this.cameraFactory = new CameraFactory(this.context);
-                this.blockFactory  = new BlockFactory(this.context);
-                this.quadFactory   = new QuadFactory(this.context);
-                this.labelFactory  = new LabelFactory(this.context);
-                this.gridFactory   = new GridFactory(this.context);
+                this.cameraFactory   = new CameraFactory(this.context);
+                this.blockFactory    = new BlockFactory(this.context);
+                this.quadFactory     = new QuadFactory(this.context);
+                this.labelFactory    = new LabelFactory(this.context);
+                this.gridFactory     = new GridFactory(this.context);
+                this.uiButtonFactory = new UIButtonFactory(this.context);
             },
 
             /**
@@ -103,8 +102,19 @@ define([
             *   @returns {undefined}
             */
             initEditor: function() {
-                var editorUITheme = new EditorUITheme(this.context);
-                this.context.setUITheme(editorUITheme);
+                this.uiPrimaryButton = new UIPrimaryButton(this.context);
+
+                this.button = this.uiButtonFactory.create('apply', this.uiPrimaryButton);
+                this.button.addToGroup('ui');
+
+                var transform = this.button.getComponent('Transform');
+                transform.setPosition(100, 100, -1);
+
+                this.button = this.uiButtonFactory.create('cancel', this.uiPrimaryButton);
+                this.button.addToGroup('ui');
+
+                transform = this.button.getComponent('Transform');
+                transform.setPosition(150, 100, -1);
             },
 
             /**
@@ -118,23 +128,21 @@ define([
                 var device       = this.context.getGraphicsDevice();
 
                 this.initEditor();
-                var uiTheme = this.context.getUITheme();
-                var texture = uiTheme.button.getTexture();
-                var sprite  = uiTheme.button;
+                var texture = this.uiPrimaryButton.normal.getTexture();
+                var sprite  = this.uiPrimaryButton.normal;
 
                 var prev, transform;
 
                 var self = this;
                 var onClickHandler = function(event) {
-                    self.label.getComponent('Label').setText(this.name);
+                //    self.label.getComponent('Label').setText(this.name);
                 };
 
                 prev = this.root;
                 for (var i = 0; i < 100; i++) {
-                    var block = this.blockFactory.create(1, 1, 1);
+                    var block = this.blockFactory.create(sprite.getTexture(), 1, 1, 1);
                     block.name = 'block-' + i;
                     block.getComponent('Block').setAllFacesTo(sprite);
-                    block.getComponent('MeshRenderer').material.diffuseMap = texture;
                     block.addComponent(new BoxCollider());
 
                     block.on('mouseenter', onClickHandler, block);
@@ -147,65 +155,6 @@ define([
                     prev = block;
                 }
 
-                /*
-                prev = this.root;
-                for (i = 0; i < 100; i++) {
-                    var quad = this.quadFactory.create(0.1, 5, sprite);
-                    quad.name = 'quad-' + i;
-                    quad.getComponent('MeshRenderer').material.diffuseMap = texture;
-                    quad.addComponent(new BoxCollider());
-
-                    transform = quad.getComponent('Transform');
-                    transform.setPosition(0, 0.1, 0);
-                    transform.setRotationFromEuler(-0.1, -0.1, -0.1);
-
-                    quad.on('mouseenter', onClickHandler, quad);
-
-                    prev.addChild(quad);
-                    prev = quad;
-                }
-                */
-                var quad = this.quadFactory.create(100, 20, sprite);
-                quad.name = 'quad';
-                quad.getComponent('MeshRenderer').material.diffuseMap = texture;
-                quad.getComponent('Transform').setPosition(5, 25, -1);
-                quad.getComponent('Quad').anchor.x = 1;
-                quad.getComponent('Quad').mode = 'sliced';
-                quad.addComponent(new BoxCollider());
-                quad.addToGroup('ui');
-                this.quad = quad;
-
-
-                this.label = this.labelFactory.create('Hello, World', 'arial', 9);
-                this.label.name = 'label';
-                this.label.getComponent('Transform').setPosition(15, 25, -1);
-                this.label.getComponent('Label').textAlign = 'left';
-                this.label.getComponent('Label').anchor.x = 1;
-                this.label.getComponent('Label').antiAlias = true;
-                this.label.getComponent('Label').invertColors = false;
-                var material = this.label.getComponent('MeshRenderer').material;
-                material.ambientFactor = 0.6;
-                material.diffuse.set(0, 0, 0, 1);
-                this.label.addComponent(new BoxCollider());
-                this.label.on('mouseenter', onClickHandler, this.label);
-                this.label.addToGroup('ui');
-
-                this.fpsLabel = this.labelFactory.create('0 fps', 'arial', 9);
-                this.fpsLabel.name = 'fps-label';
-                //this.fpsLabel.getComponent('Transform').setScale(0.01, 0.01, 0.01);
-                this.fpsLabel.getComponent('Transform').setPosition(10, 50, -1);
-                this.fpsLabel.getComponent('Label').textAlign = 'left';
-                this.fpsLabel.getComponent('Label').anchor.x = 1;
-                this.fpsLabel.getComponent('Label').anchor.y = -1;
-                this.fpsLabel.getComponent('Label').antiAlias = false;
-                this.fpsLabel.getComponent('Label').invertColors = false;
-                material = this.fpsLabel.getComponent('MeshRenderer').material;
-                material.ambientFactor = 1.0;
-                material.diffuse.set(1, 1, 1, 1);
-                this.label.addComponent(new BoxCollider());
-                this.fpsLabel.addComponent(new BoxCollider());
-                this.fpsLabel.on('mouseenter', onClickHandler, this.fpsLabel);
-                this.fpsLabel.addToGroup('ui');
                 
                 /*
                 var self = this;
@@ -284,8 +233,6 @@ define([
                 transform.setDirty(true);
 
                 this.camera.getComponent('Camera').target = this.root;
-
-                this.fpsLabel.getComponent('Label').setText(this.context.getFramesPerSecond());
             }
 
         });

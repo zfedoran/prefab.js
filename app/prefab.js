@@ -91,6 +91,7 @@ define([
                     'controllers/quadController',
                     'controllers/labelController',
                     'controllers/colliderController',
+                    'controllers/uiButtonController',
                     'editor/controllers/gridController'
                 ], callback);
 
