@@ -84,9 +84,9 @@ define([
                 this.meshFactory.begin(mesh);
                 
                 if (quad.mode === Quad.MODE_SLICED) {
-                    this.generateSlicedFace(hw, hh, quad.sprite, quad.anchor);
+                    this.generateSlicedFace(hw, hh, quad);
                 } else {
-                    this.generateFace(hw, hh, quad.sprite, quad.anchor);
+                    this.generateFace(hw, hh, quad);
                 }
 
                 this.meshFactory.end();
@@ -100,11 +100,17 @@ define([
             *   @method generateFace
             *   @param {w} width
             *   @param {h} height
-            *   @param {sprite} sprite texture
-            *   @param {anchor} anchor point
+            *   @param {quad} quad
             *   @returns {undefined}
             */
-            generateFace: function(w, h, sprite, anchor) {
+            generateFace: function(w, h, quad) {
+                var sprite = quad.sprite;
+                var anchor = quad.anchor;
+
+                // set the internal width and height values (in this case they should not differ)
+                quad._width  = w * 2;
+                quad._height = h * 2;
+
                 var vertexCount = this.meshFactory.getVertexCount();
 
                 var u, v, s, t;
@@ -138,11 +144,13 @@ define([
             *   @method generateSlicedFace
             *   @param {w} width
             *   @param {h} height
-            *   @param {sprite} sprite texture
-            *   @param {anchor} anchor point
+            *   @param {quad} 
             *   @returns {undefined}
             */
-            generateSlicedFace: function(w, h, sprite, anchor) {
+            generateSlicedFace: function(w, h, quad) {
+                var sprite = quad.sprite;
+                var anchor = quad.anchor;
+
                 var u, v, s, t;
                 u = sprite.getUCoordinate();
                 v = sprite.getVCoordinate();
@@ -160,6 +168,10 @@ define([
                 // recalculate width and height in case ew/eh are less than 0 above
                 w = (cw * 2 + ew) * 0.5;
                 h = (ch * 2 + eh) * 0.5;
+
+                // set the internal width and height values
+                quad._width  = w * 2;
+                quad._height = h * 2;
 
                 var ax, ay, az;
                 ax = anchor.x * w;

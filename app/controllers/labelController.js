@@ -193,6 +193,10 @@ define([
                 // Calcualte the label height
                 var autoHeight = label.height || (lines.length * (label.lineHeight || charHeight));
 
+                // Set internal width and height values
+                label._width  = autoWidth;
+                label._height = autoHeight;
+
                 // Go through each line
                 var dx, dy = 0;
                 for (var lineIndex = 0; lineIndex < lines.length; lineIndex++) {

@@ -42,15 +42,15 @@ define([
                         label.setText(uiButton.text);
                         quad.setSprite(uiButton.getCurrentSprite());
 
+                        // Set the label position to be offset by the padding
+                        var labelTransform = labelEntity.getComponent('Transform');
+                        labelTransform.setPosition(uiButton.uiStyle.paddingLeft, -uiButton.uiStyle.paddingTop, 0);
+
                         // Update the quad once the label has been updated
                         label.once('updated', function() {
-                            // TODO: Clean this up
-                            // - size the quad using the label + padding
-                            
-                            var boundingBox = labelEntity.getComponent('MeshFilter').getMesh().getBoundingBox();
-                            quad.width  = Math.abs(boundingBox.min.x - boundingBox.max.x) + uiButton.uiElementStyle.padding.y*2;
-                            quad.height = Math.abs(boundingBox.min.y - boundingBox.max.y) + uiButton.uiElementStyle.padding.x*2;
-                            quad.setDirty(true);
+                            // Set the quad to be the label size + padding
+                            quad.setWidth(label.getComputedWidth() + uiButton.uiStyle.paddingLeft + uiButton.uiStyle.paddingRight);
+                            quad.setHeight(label.getComputedHeight() + uiButton.uiStyle.paddingTop + uiButton.uiStyle.paddingBottom);
                         });
 
                         // Set the boxCollider bounding box once the quad mesh is available

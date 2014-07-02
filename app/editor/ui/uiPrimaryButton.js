@@ -1,24 +1,27 @@
 define([
         'lodash',
-        'core/uiElementStyle'
+        'core/uiStyle'
     ],
     function(
         _,
-        UIElementStyle
+        UIStyle
     ) {
         'use strict';
 
         var UIPrimaryButton = function(context) {
-            UIElementStyle.call(this, context);
+            UIStyle.call(this, context);
 
             this.fontFamily = 'arial';
             this.fontSize   = 9;
             this.fontColor.set(1, 1, 1, 1);
 
-            this.padding.set(2, 10, 2, 10);
+            this.paddingTop    = 2;
+            this.paddingBottom = 0;
+            this.paddingLeft   = 10;
+            this.paddingRight  = 10;
         };
 
-        UIPrimaryButton.prototype = _.create(UIElementStyle.prototype, {
+        UIPrimaryButton.prototype = _.create(UIStyle.prototype, {
             constructor: UIPrimaryButton,
 
             /**
@@ -36,7 +39,7 @@ define([
                 var active = assetLibrary.getSprite('assets/editor/ui/button-active.png');
                 var hover  = assetLibrary.getSprite('assets/editor/ui/button-hover.png');
 
-                // Initialize this UIElementStyle with the sprites
+                // Initialize this UIStyle with the sprites
                 this.setNormalStateSprite(normal);
                 this.setActiveStateSprite(active);
                 this.setHoverStateSprite(hover);

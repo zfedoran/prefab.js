@@ -191,6 +191,8 @@ define([
                     component.setEntity(this);
                     this.components[component.constructor.__name__] = component;
                     this.trigger('component.added', component);
+                } else {
+                    throw 'Entity: cannot addComponent() if the component is not an instance of Component.';
                 }
             },
 

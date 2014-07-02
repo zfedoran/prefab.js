@@ -32,6 +32,10 @@ define([
             // Use the internal 'auto' representation
             if (this.width === 'auto') { this.width = 0; }
             if (this.height === 'auto') { this.height = 0; }
+            
+            // Internal width and height values
+            this._width  = 0;
+            this._height = 0;
 
             this.text = text;
 
@@ -73,7 +77,53 @@ define([
             setText: function(text) {
                 this.text = text + '';
                 this.setDirty(true);
-            }
+            },
+
+            /**
+            *   Set the width value for this label.
+            *
+            *   @method setWidth
+            *   @param {width}
+            *   @returns {undefined}
+            */
+            setWidth: function(width) {
+                this.width = width;
+                this.setDirty(true);
+            },
+
+            /**
+            *   Set the height value for this label.
+            *
+            *   @method setHeight
+            *   @param {height}
+            *   @returns {undefined}
+            */
+            setHeight: function(height) {
+                this.height = height;
+                this.setDirty(true);
+            },
+
+            /**
+            *   This method returns the computed width value (useful when using
+            *   auto widths).
+            *
+            *   @method getComputedWidth
+            *   @returns {number}
+            */
+            getComputedWidth: function() {
+                return this._width;
+            },
+
+            /**
+            *   This method returns the computed height value (useful when using
+            *   auto heights).
+            *
+            *   @method getComputedHeight
+            *   @returns {number}
+            */
+            getComputedHeight: function() {
+                return this._height;
+            },
 
         });
 

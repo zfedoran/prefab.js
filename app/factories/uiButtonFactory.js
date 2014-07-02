@@ -30,23 +30,28 @@ define([
         UIButtonFactory.prototype = _.create(Factory.prototype, {
             construct: UIButtonFactory,
 
-            create: function(text, uiElementStyle) {
+            create: function(text, uiStyle) {
                 var entity = this.context.createNewEntity('button-' + _count++);
 
                 // UIButton component
                 entity.addComponent(new Transform());
-                entity.addComponent(new UIButton(text, uiElementStyle));
+                entity.addComponent(new UIButton(text, uiStyle));
                 entity.addComponent(new BoxCollider());
 
                 // Child Entities
-                var labelEntity = this.labelFactory.create(text, uiElementStyle.fontFamily, uiElementStyle.fontSize);
-                var quadEntity  = this.quadFactory.create(uiElementStyle.normal);
+                var labelEntity = this.labelFactory.create(text, uiStyle.fontFamily, uiStyle.fontSize);
+                var quadEntity  = this.quadFactory.create(uiStyle.normal);
 
                 labelEntity.name = 'foreground';
                 quadEntity.name  = 'background';
 
-                var quad = quadEntity.getComponent('Quad');
+                var label = labelEntity.getComponent('Label');
+                var quad  = quadEntity.getComponent('Quad');
+
                 quad.useSlicedMode();
+                
+                label.anchor.set(1, -1, 0);
+                quad.anchor.set(1, -1, 0);
 
                 entity.addChild(quadEntity);
                 entity.addChild(labelEntity);
