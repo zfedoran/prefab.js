@@ -8,12 +8,12 @@ define([
     ) {
         'use strict';
 
-        var UIButtonController = function(context) {
+        var UIInputController = function(context) {
             Controller.call(this, context);
         };
 
-        UIButtonController.prototype = _.create(Controller.prototype, {
-            constructor: UIButtonController,
+        UIInputController.prototype = _.create(Controller.prototype, {
+            constructor: UIInputController,
 
             /**
             *   Update all entities which contain the Collider and MeshFilter
@@ -23,13 +23,13 @@ define([
             *   @returns {undefined}
             */
             update: function() {
-                this.filterBy(['Transform', 'UIButton', 'BoxCollider'], function(entity) {
+                this.filterBy(['Transform', 'UIInput', 'BoxCollider'], function(entity) {
                     var transform   = entity.getComponent('Transform');
                     var boxCollider = entity.getComponent('BoxCollider');
-                    var uiButton    = entity.getComponent('UIButton');
-                    var uiStyle     = uiButton.getCurrentStyle();
+                    var uiInput     = entity.getComponent('UIInput');
+                    var uiStyle     = uiInput.getCurrentStyle();
 
-                    if (uiButton.isDirty()) {
+                    if (uiInput.isDirty()) {
                         // Get the Label and Quad child entities
                         var labelEntity, quadEntity;
                         entity.filterChildrenBy(['Label'], function(entity){ labelEntity = entity; }, this);
@@ -40,8 +40,8 @@ define([
                         var quad  = quadEntity.getComponent('Quad');
 
                         // Update the child components (and set dirty)
-                        label.setText(uiButton.text);
-                        quad.setSprite(uiButton.getCurrentBackground());
+                        label.setText(uiInput.text);
+                        quad.setSprite(uiInput.getCurrentBackground());
 
                         // Update the materials
                         var labelMaterial = labelEntity.getComponent('MeshRenderer').material;
@@ -68,13 +68,13 @@ define([
                             boxCollider.setBoundingBox(boundingBox);
                         });
 
-                        uiButton.setDirty(false);
+                        uiInput.setDirty(false);
                     }
                 }, this);
             }
 
         });
 
-        return UIButtonController;
+        return UIInputController;
     }
 );

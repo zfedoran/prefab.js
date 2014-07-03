@@ -8,19 +8,17 @@ define([
     ) {
         'use strict';
 
-        var UIPrimaryButton = function(context) {
+        var UIEditorButton = function(context) {
             UIElementStyle.call(this, context);
 
             this.setFontFamily('arial');
             this.setFontSize(9);
             this.setFontColor(1, 1, 1, 1);
             this.setPadding(2, 10, 0, 10);
-
-            this.active.fontColor.set(1,0,0,1);
         };
 
-        UIPrimaryButton.prototype = _.create(UIElementStyle.prototype, {
-            constructor: UIPrimaryButton,
+        UIEditorButton.prototype = _.create(UIElementStyle.prototype, {
+            constructor: UIEditorButton,
 
             /**
             *   This method loads the editor UI theme.
@@ -40,6 +38,6 @@ define([
             },
         });
 
-        return UIPrimaryButton;
+        return UIEditorButton;
     }
 );

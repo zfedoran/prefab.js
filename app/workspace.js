@@ -12,8 +12,10 @@ define([
         'factories/labelFactory',
         'factories/cameraFactory',
         'factories/uiButtonFactory',
+        'factories/uiInputFactory',
         'editor/factories/gridFactory',
-        'editor/ui/uiPrimaryButton'
+        'editor/ui/uiEditorButton',
+        'editor/ui/uiEditorInput'
     ],
     function(
         $,
@@ -29,8 +31,10 @@ define([
         LabelFactory,
         CameraFactory,
         UIButtonFactory,
+        UIInputFactory,
         GridFactory,
-        UIPrimaryButton
+        UIEditorButton,
+        UIEditorInput
     ) {
         'use strict';
 
@@ -73,7 +77,6 @@ define([
                 this.quadFactory     = new QuadFactory(this.context);
                 this.labelFactory    = new LabelFactory(this.context);
                 this.gridFactory     = new GridFactory(this.context);
-                this.uiButtonFactory = new UIButtonFactory(this.context);
             },
 
             /**
@@ -102,19 +105,44 @@ define([
             *   @returns {undefined}
             */
             initEditor: function() {
-                this.uiPrimaryButton = new UIPrimaryButton(this.context);
+                // Factories
+                this.uiButtonFactory = new UIButtonFactory(this.context);
+                this.uiInputFactory  = new UIInputFactory(this.context);
 
-                this.button = this.uiButtonFactory.create('apply', this.uiPrimaryButton);
+                // Styles
+                this.uiEditorButton = new UIEditorButton(this.context);
+                this.uiEditorInput  = new UIEditorInput(this.context);
+
+                // Entities
+                this.button = this.uiButtonFactory.create('apply', this.uiEditorButton);
                 this.button.addToGroup('ui');
 
                 var transform = this.button.getComponent('Transform');
                 transform.setPosition(100, 100, -1);
 
-                this.button = this.uiButtonFactory.create('cancel', this.uiPrimaryButton);
+                this.button = this.uiButtonFactory.create('cancel', this.uiEditorButton);
                 this.button.addToGroup('ui');
 
                 transform = this.button.getComponent('Transform');
                 transform.setPosition(150, 100, -1);
+
+                this.input = this.uiInputFactory.create('0.4200', this.uiEditorInput);
+                this.input.addToGroup('ui');
+
+                transform = this.input.getComponent('Transform');
+                transform.setPosition(250, 100, -1);
+
+                this.input = this.uiInputFactory.create('0.2138', this.uiEditorInput);
+                this.input.addToGroup('ui');
+
+                transform = this.input.getComponent('Transform');
+                transform.setPosition(310, 100, -1);
+
+                this.input = this.uiInputFactory.create('0.9034', this.uiEditorInput);
+                this.input.addToGroup('ui');
+
+                transform = this.input.getComponent('Transform');
+                transform.setPosition(370, 100, -1);
             },
 
             /**
@@ -128,8 +156,8 @@ define([
                 var device       = this.context.getGraphicsDevice();
 
                 this.initEditor();
-                var texture = this.uiPrimaryButton.normal.background.getTexture();
-                var sprite  = this.uiPrimaryButton.normal.background;
+                var texture = this.uiEditorButton.normal.background.getTexture();
+                var sprite  = this.uiEditorButton.normal.background;
 
                 var prev, transform;
 

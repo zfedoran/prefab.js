@@ -92,6 +92,7 @@ define([
                     'controllers/labelController',
                     'controllers/colliderController',
                     'controllers/uiButtonController',
+                    'controllers/uiInputController',
                     'editor/controllers/gridController'
                 ], callback);
 
