@@ -91,7 +91,7 @@ define([
             this.addEntity = function(entity) {
                 this.entities[entity.id] = entity;
                 _updateFiltersForEntity(entity);
-                entity.on('component.added', function() { _updateFiltersForEntity(entity); }, this);
+                entity.on('added:component', function() { _updateFiltersForEntity(entity); }, this);
             };
 
             /**

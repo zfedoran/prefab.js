@@ -126,8 +126,10 @@ define([
                         name  = filepaths[i];
 
                         if (typeof self.images[name] === 'undefined') {
+                            var texture         = new Texture(device, image);
                             self.images[name]   = image;
-                            self.textures[name] = new Texture(device, image);
+                            self.textures[name] = texture;
+                            texture.name        = name;
                         }
                     }
                     callback();

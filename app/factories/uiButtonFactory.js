@@ -4,6 +4,7 @@ define([
         'factories/labelFactory',
         'factories/quadFactory',
         'components/transform',
+        'components/uiElement',
         'components/uiButton',
         'components/boxCollider'
     ],
@@ -13,6 +14,7 @@ define([
         LabelFactory,
         QuadFactory,
         Transform,
+        UIElement,
         UIButton,
         BoxCollider
     ) {
@@ -30,17 +32,18 @@ define([
         UIButtonFactory.prototype = _.create(Factory.prototype, {
             construct: UIButtonFactory,
 
-            create: function(text, uiStyle) {
+            create: function(text, uiElementStyle) {
                 var entity = this.context.createNewEntity('button-' + _count++);
 
                 // UIButton component
                 entity.addComponent(new Transform());
-                entity.addComponent(new UIButton(text, uiStyle));
+                entity.addComponent(new UIButton(text, uiElementStyle));
                 entity.addComponent(new BoxCollider());
 
                 // Child Entities
-                var labelEntity = this.labelFactory.create(text, uiStyle.fontFamily, uiStyle.fontSize);
-                var quadEntity  = this.quadFactory.create(uiStyle.normal);
+                var defaultStyle = entity.getComponent('UIButton').getCurrentStyle();
+                var labelEntity  = this.labelFactory.create(text, defaultStyle.fontFamily, defaultStyle.fontSize);
+                var quadEntity   = this.quadFactory.create(defaultStyle.background);
 
                 labelEntity.name = 'foreground';
                 quadEntity.name  = 'background';
@@ -55,6 +58,17 @@ define([
 
                 entity.addChild(quadEntity);
                 entity.addChild(labelEntity);
+
+                var uiButton = entity.getComponent('UIButton');
+                entity.on('mouseenter mouseleave mousedown mouseup', function(event) {
+                    uiButton.handleState(event);
+                    if (uiButton.isDirty()) {
+                        var uiStyle = uiButton.getCurrentStyle();
+                        quad.setSprite(uiStyle.background);
+                        quadEntity.getComponent('MeshRenderer').material.diffuseMap = uiStyle.background;
+                        labelEntity.getComponent('MeshRenderer').material.diffuse   = uiStyle.fontColor;
+                    }
+                }, this);
 
                 return entity;
             }

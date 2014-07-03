@@ -1,27 +1,25 @@
 define([
         'lodash',
-        'core/uiStyle'
+        'core/uiElementStyle'
     ],
     function(
         _,
-        UIStyle
+        UIElementStyle
     ) {
         'use strict';
 
         var UIPrimaryButton = function(context) {
-            UIStyle.call(this, context);
+            UIElementStyle.call(this, context);
 
-            this.fontFamily = 'arial';
-            this.fontSize   = 9;
-            this.fontColor.set(1, 1, 1, 1);
+            this.setFontFamily('arial');
+            this.setFontSize(9);
+            this.setFontColor(1, 1, 1, 1);
+            this.setPadding(2, 10, 0, 10);
 
-            this.paddingTop    = 2;
-            this.paddingBottom = 0;
-            this.paddingLeft   = 10;
-            this.paddingRight  = 10;
+            this.active.fontColor.set(1,0,0,1);
         };
 
-        UIPrimaryButton.prototype = _.create(UIStyle.prototype, {
+        UIPrimaryButton.prototype = _.create(UIElementStyle.prototype, {
             constructor: UIPrimaryButton,
 
             /**
@@ -35,14 +33,10 @@ define([
                 var device       = this.context.getGraphicsDevice();
 
                 // Load Sprites
-                var normal = assetLibrary.getSprite('assets/editor/ui/button.png');
-                var active = assetLibrary.getSprite('assets/editor/ui/button-active.png');
-                var hover  = assetLibrary.getSprite('assets/editor/ui/button-hover.png');
-
-                // Initialize this UIStyle with the sprites
-                this.setNormalStateSprite(normal);
-                this.setActiveStateSprite(active);
-                this.setHoverStateSprite(hover);
+                this.normal.background = assetLibrary.getSprite('assets/editor/ui/button.png');
+                this.hover.background  = assetLibrary.getSprite('assets/editor/ui/button-hover.png');
+                this.active.background = assetLibrary.getSprite('assets/editor/ui/button-active.png');
+                this.focus.background  = assetLibrary.getSprite('assets/editor/ui/button.png');
             },
         });
 

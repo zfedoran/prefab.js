@@ -25,8 +25,9 @@ define([
             update: function() {
                 this.filterBy(['Transform', 'UIButton', 'BoxCollider'], function(entity) {
                     var transform   = entity.getComponent('Transform');
-                    var uiButton    = entity.getComponent('UIButton');
                     var boxCollider = entity.getComponent('BoxCollider');
+                    var uiButton    = entity.getComponent('UIButton');
+                    var uiStyle     = uiButton.getCurrentStyle();
 
                     if (uiButton.isDirty()) {
                         // Get the Label and Quad child entities
@@ -40,17 +41,17 @@ define([
 
                         // Update the child components (and set dirty)
                         label.setText(uiButton.text);
-                        quad.setSprite(uiButton.getCurrentSprite());
+                        quad.setSprite(uiButton.getCurrentBackground());
 
                         // Set the label position to be offset by the padding
                         var labelTransform = labelEntity.getComponent('Transform');
-                        labelTransform.setPosition(uiButton.uiStyle.paddingLeft, -uiButton.uiStyle.paddingTop, 0);
+                        labelTransform.setPosition(uiStyle.paddingLeft, -uiStyle.paddingTop, 0);
 
                         // Update the quad once the label has been updated
                         label.once('updated', function() {
                             // Set the quad to be the label size + padding
-                            quad.setWidth(label.getComputedWidth() + uiButton.uiStyle.paddingLeft + uiButton.uiStyle.paddingRight);
-                            quad.setHeight(label.getComputedHeight() + uiButton.uiStyle.paddingTop + uiButton.uiStyle.paddingBottom);
+                            quad.setWidth(label.getComputedWidth() + uiStyle.paddingLeft + uiStyle.paddingRight);
+                            quad.setHeight(label.getComputedHeight() + uiStyle.paddingTop + uiStyle.paddingBottom);
                         });
 
                         // Set the boxCollider bounding box once the quad mesh is available

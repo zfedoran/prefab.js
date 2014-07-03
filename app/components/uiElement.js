@@ -16,11 +16,11 @@ define([
         *   @class 
         *   @constructor
         */
-        var UIElement = function(uiStyle) {
+        var UIElement = function(uiElementStyle) {
             Component.call(this);
 
-            this.uiStyle = uiStyle;
-            this.state   = UIElement.STATE_NORMAL;
+            this.uiElementStyle = uiElementStyle;
+            this.state          = UIElement.STATE_NORMAL;
         };
 
         UIElement.__name__ = 'UIElement';
@@ -28,47 +28,71 @@ define([
         UIElement.prototype = _.create(Component.prototype, {
             constructor: UIElement,
 
-            setNormalState: function() {
-                this.state = UIElement.STATE_NORMAL;
-                this.setDirty(true);
-            },
-
-            setActiveState: function() {
-                this.state = UIElement.STATE_ACTIVE;
-                this.setDirty(true);
-            },
-
-            setHoverState: function() {
-                this.state = UIElement.STATE_HOVER;
-                this.setDirty(true);
-            },
-
-            setFocusState: function() {
-                this.state = UIElement.STATE_FOCUS;
-                this.setDirty(true);
-            },
-
+            /**
+            *   This method updates the UIElement state and sets this component
+            *   to dirty if the new state is different from the previous state.
+            *
+            *   @method setState
+            *   @param {state}
+            *   @returns {undefined}
+            */
             setState: function(state) {
-                this.state = state;
-                this.setDirty(true);
+                if (this.state !== state) {
+                    this.state = state;
+                    this.setDirty(true);
+                }
             },
 
+            /**
+            *   This method returns the current UIElement state.
+            *
+            *   @method getState
+            *   @returns {string}
+            */
             getState: function() {
                 return this.state;
             },
 
-            getCurrentSprite: function() {
+            /**
+            *   This method returns the current UIStyle.
+            *
+            *   @method getCurrentStyle
+            *   @returns {uiStyle}
+            */
+            getCurrentStyle: function() {
                 switch (this.state) {
                     case UIElement.STATE_NORMAL:
-                    return this.uiStyle.normal;
-                    case UIElement.STATE_ACTIVE:
-                    return this.uiStyle.active;
+                    return this.uiElementStyle.normal;
                     case UIElement.STATE_HOVER:
-                    return this.uiStyle.hover;
+                    return this.uiElementStyle.hover;
+                    case UIElement.STATE_ACTIVE:
+                    return this.uiElementStyle.active;
                     case UIElement.STATE_FOCUS:
-                    return this.uiStyle.focus;
+                    return this.uiElementStyle.focus;
                 }
-            }
+            },
+
+            /**
+            *   This method returns a background sprite for the current
+            *   UIElement state.
+            *
+            *   @method getCurrentBackground
+            *   @returns {sprite}
+            */
+            getCurrentBackground: function() {
+                return this.getCurrentStyle().background;
+            },
+
+            /**
+            *   This method handles input events for UIElements
+            *
+            *   @method handleState
+            *   @param {event}
+            *   @returns {undefined}
+            */
+            handleState: function(event) {
+                throw 'UIElement: handleState() function not implemented.';
+            },
 
         });
 

@@ -128,8 +128,8 @@ define([
                 var device       = this.context.getGraphicsDevice();
 
                 this.initEditor();
-                var texture = this.uiPrimaryButton.normal.getTexture();
-                var sprite  = this.uiPrimaryButton.normal;
+                var texture = this.uiPrimaryButton.normal.background.getTexture();
+                var sprite  = this.uiPrimaryButton.normal.background;
 
                 var prev, transform;
 
@@ -138,6 +138,7 @@ define([
                 //    self.label.getComponent('Label').setText(this.name);
                 };
 
+                /*
                 prev = this.root;
                 for (var i = 0; i < 100; i++) {
                     var block = this.blockFactory.create(sprite.getTexture(), 1, 1, 1);
@@ -154,6 +155,7 @@ define([
                     prev.addChild(block);
                     prev = block;
                 }
+                */
 
                 
                 /*
@@ -233,6 +235,8 @@ define([
                 transform.setDirty(true);
 
                 this.camera.getComponent('Camera').target = this.root;
+
+                //this.button.getComponent('UIButton').setText(this.context.getFramesPerSecond());
             }
 
         });

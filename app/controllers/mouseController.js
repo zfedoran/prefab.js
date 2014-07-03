@@ -81,19 +81,25 @@ define([
                     return a.depth - b.depth;
                 });
 
-                var mouseenter = _.difference(this.currCollisionList, this.prevCollisionList);
-                var mouseleave = _.difference(this.prevCollisionList, this.currCollisionList);
+                //TODO: This should be optimized
+                var mouseenterDiff = _.difference(_.pluck(this.currCollisionList, 'entity'), _.pluck(this.prevCollisionList, 'entity'));
+                var mouseenter     = _.filter(this.currCollisionList, function(obj) { return mouseenterDiff.indexOf(obj.entity) >= 0; });
+
+                var mouseleaveDiff = _.difference(_.pluck(this.prevCollisionList, 'entity'), _.pluck(this.currCollisionList, 'entity'));
+                var mouseleave     = _.filter(this.prevCollisionList, function(obj) { return mouseleaveDiff.indexOf(obj.entity) >= 0; });
 
                 var i, len, info;
 
                 // Trigger mouseenter events
                 for (i = 0, len = mouseenter.length; i < len; i++) {
+                    event.type = 'mouseenter';
                     info = mouseenter[i];
                     info.entity.trigger('mouseenter', event);
                 }
 
                 // Trigger mouseleave events
                 for (i = 0, len = mouseleave.length; i < len; i++) {
+                    event.type = 'mouseleave';
                     info = mouseleave[i];
                     info.entity.trigger('mouseleave', event);
                 }

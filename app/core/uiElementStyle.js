@@ -1,23 +1,25 @@
 define([
-        'math/vector4'
+        'core/uiStyle'
     ],
     function(
-        Vector4
+        UIStyle
     ) {
         'use strict';
 
+        /**
+        *   This abstract class defines the style for UI elements.
+        *
+        *   @class 
+        *   @param {context}
+        *   @constructor
+        */
         var UIElementStyle = function(context) {
             this.context = context;
 
-            this.normal     = null;
-            this.active     = null;
-            this.hover      = null;
-            this.focus      = null;
-
-            this.fontFamily = 'arial';
-            this.fontSize   = 9;
-            this.fontColor  = new Vector4(1, 1, 1, 1);
-            this.padding    = new Vector4(0, 0, 0, 0);
+            this.normal = new UIStyle(context);
+            this.hover  = new UIStyle(context);
+            this.active = new UIStyle(context);
+            this.focus  = new UIStyle(context);
 
             this.loadAssets();
         };
@@ -26,87 +28,81 @@ define([
             constructor: UIElementStyle,
 
             /**
-            *   This method sets the normal state sprite for this UIElementStyle
+            *   This method sets the padding for all states of this UI element
+            *   style.
             *
-            *   @method setNormalStateSprite
-            *   @param {sprite}
+            *   @method setPadding
+            *   @param {top}
+            *   @param {right}
+            *   @param {bottom}
+            *   @param {left}
             *   @returns {undefined}
             */
-            setNormalStateSprite: function(sprite) {
-                this.normal = sprite;
+            setPadding: function(top, right, bottom, left) {
+                this.normal.paddingTop    = top;
+                this.hover.paddingTop     = top;
+                this.active.paddingTop    = top;
+                this.focus.paddingTop     = top;
+
+                this.normal.paddingRight  = right;
+                this.hover.paddingRight   = right;
+                this.active.paddingRight  = right;
+                this.focus.paddingRight   = right;
+
+                this.normal.paddingBottom = bottom;
+                this.hover.paddingBottom  = bottom;
+                this.active.paddingBottom = bottom;
+                this.focus.paddingBottom  = bottom;
+
+                this.normal.paddingLeft   = left;
+                this.hover.paddingLeft    = left;
+                this.active.paddingLeft   = left;
+                this.focus.paddingLeft    = left;
             },
 
             /**
-            *   This method returns the normal state sprite for this UIElementStyle
+            *   This method sets the font color for all states of this UI
+            *   element style.
             *
-            *   @method getNormalStateSprite
-            *   @returns {sprite}
-            */
-            getNormalStateSprite: function() {
-                return this.normal;
-            },
-
-            /**
-            *   This method sets the active state sprite for this UIElementStyle
-            *
-            *   @method setActiveStateSprite
-            *   @param {sprite}
+            *   @method setFontColor
+            *   @param {color}
             *   @returns {undefined}
             */
-            setActiveStateSprite: function(sprite) {
-                this.active = sprite;
+            setFontColor: function(r, g, b, a) {
+                this.normal.fontColor.set(r, g, b, a);
+                this.focus.fontColor.set(r, g, b, a);
+                this.active.fontColor.set(r, g, b, a);
+                this.hover.fontColor.set(r, g, b, a);
             },
 
             /**
-            *   This method returns the active state sprite for this UIElementStyle
+            *   This method sets the font family for all states of this UI
+            *   element style.
             *
-            *   @method getActiveStateSprite
-            *   @returns {sprite}
-            */
-            getActiveStateSprite: function() {
-                return this.active;
-            },
-
-            /**
-            *   This method sets the hover state sprite for this UIElementStyle
-            *
-            *   @method setHoverStateSprite
-            *   @param {sprite}
+            *   @method setFontFamily
+            *   @param {family}
             *   @returns {undefined}
             */
-            setHoverStateSprite: function(sprite) {
-                this.hover = sprite;
+            setFontFamily: function(family) {
+                this.normal.fontFamily = family;
+                this.hover.fontFamily  = family;
+                this.active.fontFamily = family;
+                this.focus.fontFamily  = family;
             },
 
             /**
-            *   This method returns the hover state sprite for this UIElementStyle
+            *   This method sets the font size for all states of this UI
+            *   element style.
             *
-            *   @method getHoverStateSprite
-            *   @returns {sprite}
-            */
-            getHoverStateSprite: function() {
-                return this.hover;
-            },
-
-            /**
-            *   This method sets the focus state sprite for this UIElementStyle
-            *
-            *   @method setFocusStateSprite
-            *   @param {sprite}
+            *   @method setFontSize
+            *   @param {size}
             *   @returns {undefined}
             */
-            setFocusStateSprite: function(sprite) {
-                this.focus = sprite;
-            },
-
-            /**
-            *   This method returns the focus state sprite for this UIElementStyle
-            *
-            *   @method getFocusStateSprite
-            *   @returns {sprite}
-            */
-            getFocusStateSprite: function() {
-                return this.focus;
+            setFontSize: function(size) {
+                this.normal.fontSize = size;
+                this.hover.fontSize  = size;
+                this.active.fontSize = size;
+                this.focus.fontSize  = size;
             },
 
             /**
