@@ -47,6 +47,7 @@ define([
                 var entity = this.context.createNewEntity();
 
                 var material = new Material(Material.BASIC);
+                material.diffuse.set(1, 1, 1, 1);
 
                 entity.addComponent(new Transform());
                 entity.addComponent(new Grid(width, height, depth));

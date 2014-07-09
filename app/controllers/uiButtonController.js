@@ -32,8 +32,8 @@ define([
                     if (uiButton.isDirty()) {
                         // Get the Label and Quad child entities
                         var labelEntity, quadEntity;
-                        entity.filterChildrenBy(['Label'], function(entity){ labelEntity = entity; }, this);
-                        entity.filterChildrenBy(['Quad'], function(entity){ quadEntity = entity; }, this);
+                        labelEntity = entity.getWithTag('foreground');
+                        quadEntity  = entity.getWithTag('background');
 
                         // Get the Label and Quad components
                         var label = labelEntity.getComponent('Label');

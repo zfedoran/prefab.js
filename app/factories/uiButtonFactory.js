@@ -53,12 +53,19 @@ define([
 
                 quad.useSlicedMode();
                 
+                // Set anchor positions
                 label.anchor.set(1, -1, 0);
                 quad.anchor.set(1, -1, 0);
 
+                // Set the child hierarchy
                 entity.addChild(quadEntity);
                 entity.addChild(labelEntity);
 
+                // Tag entities to make them more easily accessible later
+                entity.tagEntity(quadEntity);
+                entity.tagEntity(labelEntity);
+
+                // Tell the UIInput entity to update itself on mouse events
                 var uiButton = entity.getComponent('UIButton');
                 entity.on('mouseenter mouseleave mousedown mouseup', function(event) {
                     uiButton.handleState(event);

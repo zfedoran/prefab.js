@@ -121,6 +121,9 @@ define([
                             elapsedList.length = 0;
                         }
 
+                        // Convert to seconds
+                        elapsed = elapsed / 1000;
+
                         // Update and render
                         self.time += elapsed;
                         self.update(elapsed);

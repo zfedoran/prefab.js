@@ -54,6 +54,36 @@ define([
             },
 
             /**
+            *   Check if this UIElement has the focus state
+            *
+            *   @method hasFocusState
+            *   @returns {boolean}
+            */
+            hasFocusState: function() {
+                return this.state === UIElement.STATE_FOCUS;
+            },
+
+            /**
+            *   Check if this UIElement has the hover state
+            *
+            *   @method hasHoverState
+            *   @returns {boolean}
+            */
+            hasHoverState: function() {
+                return this.state === UIElement.STATE_HOVER;
+            },
+
+            /**
+            *   Check if this UIElement has the active state
+            *
+            *   @method hasActiveState
+            *   @returns {boolean}
+            */
+            hasActiveState: function() {
+                return this.state === UIElement.STATE_ACTIVE;
+            },
+
+            /**
             *   This method returns the current UIStyle.
             *
             *   @method getCurrentStyle

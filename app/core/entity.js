@@ -32,6 +32,9 @@ define([
             this.id            = _entityCount++;
             this.components    = {};
 
+            // Entity tags
+            this.tags          = {};
+
             // Entity hierarchy
             this.parent   = null;
             this.children = [];
@@ -137,6 +140,34 @@ define([
                         callback.call(context, child);
                     }
                 }
+            },
+
+            /**
+            *   This method tags a provided entity to this entity using the
+            *   provided entities name. If the entity has no name, its UUID
+            *   will be used.
+            *
+            *   (generally used when you need to associate another entity with
+            *   this one for easy access later on)
+            *
+            *   @method tagEntity
+            *   @param {entity}
+            *   @returns {undefined}
+            */
+            tagEntity: function(entity) {
+                this.tags[entity.name || entity.uuid] = entity;
+            },
+
+            /**
+            *   This method returns a tagged object using the provided tag
+            *   name.
+            *
+            *   @method getWithTag
+            *   @param {name}
+            *   @returns {undefined}
+            */
+            getWithTag: function(name) {
+                return this.tags[name];
             },
 
             /**

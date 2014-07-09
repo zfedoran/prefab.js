@@ -113,11 +113,18 @@ define([
 
                 var vertexCount = this.meshFactory.getVertexCount();
 
-                var u, v, s, t;
-                u = sprite.getUCoordinate();
-                v = sprite.getVCoordinate();
-                s = sprite.getUVWidth();
-                t = sprite.getUVHeight();
+                if (sprite) {
+                    var u, v, s, t;
+                    u = sprite.getUCoordinate();
+                    v = sprite.getVCoordinate();
+                    s = sprite.getUVWidth();
+                    t = sprite.getUVHeight();
+
+                    this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
+                    this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
+                    this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
+                    this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
+                }
 
                 var ax, ay, az;
                 ax = anchor.x * w;
@@ -128,11 +135,6 @@ define([
                 this.meshFactory.addVertex(new Vector3(-w + ax,  h + ay, az));
                 this.meshFactory.addVertex(new Vector3( w + ax,  h + ay, az));
                 this.meshFactory.addVertex(new Vector3( w + ax, -h + ay, az));
-
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
-                this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
 
                 this.meshFactory.addTriangle(vertexCount, vertexCount + 2, vertexCount + 1);
                 this.meshFactory.addTriangle(vertexCount, vertexCount + 3, vertexCount + 2);
@@ -150,6 +152,10 @@ define([
             generateSlicedFace: function(w, h, quad) {
                 var sprite = quad.sprite;
                 var anchor = quad.anchor;
+
+                if (!sprite) {
+                    throw 'QuadController: cannot create a sliced Quad without a sprite.';
+                }
 
                 var u, v, s, t;
                 u = sprite.getUCoordinate();

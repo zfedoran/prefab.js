@@ -30,8 +30,13 @@ define([
             create: function(sprite, width, height) {
                 var entity = this.context.createNewEntity();
 
-                var material        = new Material(Material.LAMBERT);
-                material.diffuseMap = sprite.getTexture();
+                var material;
+                if (sprite) {
+                    material            = new Material(Material.LAMBERT);
+                    material.diffuseMap = sprite.getTexture();
+                } else {
+                    material            = new Material(Material.BASIC);
+                }
 
                 entity.addComponent(new Transform());
                 entity.addComponent(new Quad(sprite, width, height));

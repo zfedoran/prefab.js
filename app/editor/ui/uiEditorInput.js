@@ -13,9 +13,10 @@ define([
 
             this.setFontFamily('arial');
             this.setFontSize(9);
-            this.setFontColor(1, 1, 1, 1);
+            this.setFontColor(0.8, 0.8, 0.8, 1);
             this.setPadding(2, 10, 0, 10);
 
+            this.hover.fontColor.set(1,1,1,1);
             this.active.fontColor.set(0,0,0,1);
             this.focus.fontColor.set(0,0,0,1);
 

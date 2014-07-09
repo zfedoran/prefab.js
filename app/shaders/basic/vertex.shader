@@ -12,6 +12,5 @@ varying lowp vec4 vColor;
 void main(void) {
     gl_Position = uPMatrix * uVMatrix * uMMatrix * vec4(aVertexPosition, 1.0);
     vColor = aVertexColor * diffuse;
-    vColor = aVertexColor;
 }
 

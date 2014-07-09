@@ -20,6 +20,10 @@ define([
             UIElement.call(this, uiElementStyle);
 
             this.text = text;
+
+            this._cursorPosition   = 0;
+            this._cursorBlinkTime  = 0;
+            this._cursorBlinkDelay = 1;
         };
 
         UIInput.__name__ = 'UIInput';
@@ -66,6 +70,33 @@ define([
                         }
                         break;
                 }
+            },
+
+            /**
+            *   This method adds time to the cursor clock.
+            *
+            *   @method addCursorTime
+            *   @param {elapsed}
+            *   @returns {undefined}
+            */
+            addCursorTime: function(elapsed) {
+                if (this.hasFocusState()) {
+                    this._cursorBlinkTime += elapsed;
+                    if (this._cursorBlinkTime > this._cursorBlinkDelay) {
+                        this._cursorBlinkTime = 0;
+                    }
+                }
+            },
+
+            /**
+            *   Check if the cursor for this UIInput component is visible.
+            *
+            *   @method isCursorVisible
+            *   @returns {undefined}
+            */
+            isCursorVisible: function() {
+                return this.hasFocusState() 
+                    && this._cursorBlinkTime > (this._cursorBlinkDelay / 2);
             }
         });
 

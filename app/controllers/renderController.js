@@ -86,14 +86,20 @@ define([
             *   @returns {undefined}
             */
             renderEntity: function(entity, camera) {
-                // Update or create the shader required to render this entity
-                if (entity.hasComponent('MeshRenderer')) {
-                    this.updateRenderer(entity);
-                }
+                var meshRenderer = entity.getComponent('MeshRenderer');
 
-                // Render the mesh associated with this entity
-                if (entity.hasComponent('MeshFilter')) {
-                    this.renderMesh(entity, camera);
+                // If this entity has a MeshRenderer and it is enabled
+                if (meshRenderer) {
+                    if (meshRenderer.isEnabled()) {
+
+                        // Update or create the shader required to render this entity
+                        this.updateRenderer(entity);
+
+                        // Render the mesh associated with this entity
+                        if (entity.hasComponent('MeshFilter')) {
+                            this.renderMesh(entity, camera);
+                        }
+                    } 
                 }
 
                 // Render any child entities

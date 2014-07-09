@@ -161,20 +161,12 @@ define([
 
                 var prev, transform;
 
-                var self = this;
-                var onClickHandler = function(event) {
-                //    self.label.getComponent('Label').setText(this.name);
-                };
-
-                /*
                 prev = this.root;
                 for (var i = 0; i < 100; i++) {
                     var block = this.blockFactory.create(sprite.getTexture(), 1, 1, 1);
                     block.name = 'block-' + i;
                     block.getComponent('Block').setAllFacesTo(sprite);
                     block.addComponent(new BoxCollider());
-
-                    block.on('mouseenter', onClickHandler, block);
 
                     transform = block.getComponent('Transform');
                     transform.setPosition((Math.random() - 0.5)*2, (Math.random() - 0.5)*2, (Math.random() - 0.5)*2);
@@ -183,7 +175,6 @@ define([
                     prev.addChild(block);
                     prev = block;
                 }
-                */
 
                 
                 /*
@@ -257,14 +248,14 @@ define([
                 var time = this.context.getTotalTimeInSeconds();
 
                 var transform = this.camera.getComponent('Transform');
-                transform.localPosition.x = Math.sin(time*0.0001) * 5;
-                transform.localPosition.y = Math.cos(time*0.0002) * 5;
-                transform.localPosition.z = Math.cos(time*0.0001) * 5;
+                transform.localPosition.x = Math.sin(time*0.01) * 5;
+                transform.localPosition.y = Math.cos(time*0.02) * 5;
+                transform.localPosition.z = Math.cos(time*0.01) * 5;
                 transform.setDirty(true);
 
                 this.camera.getComponent('Camera').target = this.root;
 
-                //this.button.getComponent('UIButton').setText(this.context.getFramesPerSecond());
+                //this.button.getComponent('UIButton').setText(time);
             }
 
         });
