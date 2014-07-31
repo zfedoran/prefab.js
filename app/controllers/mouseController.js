@@ -4,8 +4,6 @@ define([
         'math/vector2',
         'math/vector3',
         'math/vector4',
-        'math/matrix4',
-        'math/ray',
         'graphics/meshFactory',
         'graphics/material',
         'graphics/mesh',
@@ -19,8 +17,6 @@ define([
         Vector2,
         Vector3,
         Vector4,
-        Matrix4,
-        Ray,
         MeshFactory,
         Material,
         Mesh,
@@ -39,42 +35,68 @@ define([
         var MouseController = function(context) {
             Controller.call(this, context);
 
-            var device = this.context.getGraphicsDevice();
-            this.meshFactory = new MeshFactory(device);
-
             this.prevCollisionList = [];
             this.currCollisionList = [];
+
+            this.graphicsDevice = this.context.getGraphicsDevice();
+            this.mouseDevice    = this.context.getMouseDevice();
+
+            this.initEvents();
         };
 
         MouseController.prototype = _.create(Controller.prototype, {
             constructor: MouseController,
 
             /**
-            *   This method calls the handle input method on each entity that
-            *   is part of an active camera render group.
+            *   This function binds the controller to the mouse device events.
+            *
+            *   @method initEvents
+            *   @returns {undefined}
+            */
+            initEvents: function() {
+                // All events that this controller handles
+                this.events = [
+                    'mousemove',
+                    'mousedown',
+                    'mouseup',
+                    'mousescroll'
+                ].join(' ');
+
+                this.mouseDevice.on(this.events, this.onMouseEvent, this);
+            },
+
+            /**
+            *   This function removes the events bound to the mouse device.
+            *
+            *   @method removeEvents
+            *   @returns {undefined}
+            */
+            removeEvents: function() {
+                this.mouseDevice.off(this.events, this.onMouseEvent, this);
+            },
+
+            /**
+            *   This function is called once per frame.
             *
             *   @method update
             *   @returns {undefined}
             */
             update: function() {
-                throw 'MouseController: the update() function does not do anything';
+                // This controller does not do anything on update
             },
 
             /**
-            *   This method calls the appropriate event handler based on the
-            *   event type.
+            *   This function handles mouse events.
             *
-            *   @method handleEvent
-            *   @param {event}
+            *   @method onMouseEvent
             *   @returns {undefined}
             */
-            handleEvent: function(event) {
-
+            onMouseEvent: function(event) {
                 // Clear the current collision list
                 this.currCollisionList.length = 0;
 
                 // Raycast the mouse position against entities with box colliders
-                this.raycast(new Vector2(event.mouseX, event.mouseY));
+                this.raycast(this.getMousePosition());
 
                 // Sort the collision list by depth
                 this.currCollisionList.sort(function (a, b) {
@@ -92,22 +114,20 @@ define([
 
                 // Trigger mouseenter events
                 for (i = 0, len = mouseenter.length; i < len; i++) {
-                    event.type = 'mouseenter';
                     info = mouseenter[i];
-                    info.entity.trigger('mouseenter', event);
+                    info.entity.trigger('mouseenter', this.mouseDevice);
                 }
 
                 // Trigger mouseleave events
                 for (i = 0, len = mouseleave.length; i < len; i++) {
-                    event.type = 'mouseleave';
                     info = mouseleave[i];
-                    info.entity.trigger('mouseleave', event);
+                    info.entity.trigger('mouseleave', this.mouseDevice);
                 }
 
                 // Trigger click, mousedown, mouseup, mousemove, and scroll events on entities
                 for (i = 0, len = this.currCollisionList.length; i < len; i++) {
                     info = this.currCollisionList[i];
-                    info.entity.trigger(event.type, event);
+                    info.entity.trigger(event, this.mouseDevice);
                 }
 
                 // Swap the collision lists
@@ -115,6 +135,22 @@ define([
                 this.prevCollisionList = this.currCollisionList;
                 this.currCollisionList = tmp;
             },
+
+            /**
+            *   This function returns the current mouse position with the
+            *   origin in the lower left corner.
+            *
+            *   @method getMousePosition
+            *   @returns {vector2}
+            */
+            getMousePosition: (function() {
+                var position = new Vector2();
+                return function() {
+                    position.x = this.mouseDevice.relativeX;
+                    position.y = this.graphicsDevice.getHeight() - this.mouseDevice.relativeY;
+                    return position;
+                };
+            })(),
 
             /**
             *   This method raycasts the mouse position into world space
@@ -233,6 +269,11 @@ define([
             *   @returns {undefined}
             */
             addDebugLine: function(ray) {
+                if (!this.meshFactory) {
+                    var device = this.context.getGraphicsDevice();
+                    this.meshFactory = new MeshFactory(device);
+                }
+
                 var mesh = new Mesh(this.device, Mesh.LINES);
                 this.meshFactory.begin(mesh);
 

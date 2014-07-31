@@ -1,10 +1,14 @@
 define([
+        'lodash',
         'core/entityManager',
-        'core/entity'
+        'core/entity',
+        'core/events'
     ],
     function(
+        _,
         EntityManager,
-        Entity
+        Entity,
+        Events
     ) {
         'use strict';
 
@@ -45,6 +49,26 @@ define([
             */
             getFramesPerSecond: function() {
                 return this._application.fps;
+            },
+
+            /**
+            *   This method returns the current keyboard device.
+            *
+            *   @method getKeyboardDevice
+            *   @returns {undefined}
+            */
+            getKeyboardDevice: function() {
+                return this._application.keyboardDevice;
+            },
+
+            /**
+            *   This method returns the current mouse device.
+            *
+            *   @method getMouseDevice
+            *   @returns {undefined}
+            */
+            getMouseDevice: function() {
+                return this._application.mouseDevice;
             },
 
             /**
@@ -112,6 +136,8 @@ define([
                 return (new Entity(this._application.entityManager, name));
             }
         };
+
+        _.extend(Context.prototype, Events.prototype);
 
         return Context;
     }

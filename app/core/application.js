@@ -5,7 +5,9 @@ define([
         'core/context',
         'core/assetLibrary',
         'core/entityManager',
-        'core/controllerManager'
+        'core/controllerManager',
+        'input/KeyboardDevice',
+        'input/MouseDevice'
     ],
     function(
         $,
@@ -14,7 +16,9 @@ define([
         Context,
         AssetLibrary,
         EntityManager,
-        ControllerManager
+        ControllerManager,
+        KeyboardDevice,
+        MouseDevice
     ) {
         'use strict';
 
@@ -51,34 +55,15 @@ define([
             constructor: Application,
 
             /**
-            *   This method initializes the event queue for this application.
+            *   Initialize the default input devices for this application.
             *
-            *   @method initEventQueue
+            *   @method initInputDevices
             *   @returns {undefined}
             */
-            initEventQueue: function() {
-                this.eventQueue = [];
-
-                var $win    = $(window);
-                var handler = (function(event) {
-                    this.eventQueue.push(event);
-                }).bind(this);
-
-                var events  = [
-                    'mousemove',
-                    'mousedown',
-                    'mouseup',
-                    'click',
-                    'scroll',
-                    'keyup',
-                    'keydown',
-                    'keypress',
-                    'resize'
-                ].join(' ');
-
-                $win.on(events, handler);
+            initInputDevices: function() {
+                this.keyboardDevice = new KeyboardDevice();
+                this.mouseDevice    = new MouseDevice();
             },
-
 
             /**
             *   Initialize the graphics device for this application.

@@ -1,5 +1,4 @@
 define([
-        'jquery',
         'lodash',
         'core/application',
         'math/vector4',
@@ -7,7 +6,6 @@ define([
         'workspace'
     ],
     function(
-        $,
         _,
         Application,
         Vector4,
@@ -42,8 +40,8 @@ define([
             *   @returns {undefined}
             */
             init: function() {
-                this.initEventQueue();
                 this.initGraphicsDevice();
+                this.initInputDevices();
                 this.initAssetLibrary((function() {
                     this.initControllers((function() {
                         this.initWorkspace();
@@ -85,12 +83,12 @@ define([
             initControllers: function(callback) {
                 // Load all required controllers
                 this.controllerManager.asyncLoadControllers([
-                    'controllers/eventController',
                     'controllers/cameraController',
                     'controllers/blockController',
                     'controllers/quadController',
                     'controllers/labelController',
                     'controllers/colliderController',
+                    'controllers/mouseController',
                     'controllers/uiButtonController',
                     'controllers/uiInputController',
                     'editor/controllers/gridController'

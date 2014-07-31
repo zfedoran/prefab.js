@@ -80,6 +80,27 @@ define([
             },
 
             /**
+            *   This method adds a character to the end of the string.
+            *
+            *   @method appendKeyCode
+            *   @param {keyCode}
+            *   @returns {undefined}
+            */
+            appendKeyCode: function(keyCode) {
+                switch (keyCode) {
+                    case 16: // shift
+                        break;
+                    case 8: // backspace
+                        this.text = this.text.slice(0, this.text.length - 1);
+                        break;
+                    default:
+                        this.text += String.fromCharCode(keyCode);
+                        break;
+                }
+                this.setDirty(true);
+            },
+
+            /**
             *   Set the width value for this label.
             *
             *   @method setWidth

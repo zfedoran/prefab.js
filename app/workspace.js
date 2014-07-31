@@ -1,5 +1,4 @@
 define([
-        'jquery',
         'lodash',
         'math/rectangle',
         'math/vector3',
@@ -18,7 +17,6 @@ define([
         'editor/ui/uiEditorInput'
     ],
     function(
-        $,
         _,
         Rectangle,
         Vector3,

@@ -69,12 +69,10 @@ define([
                 var uiButton = entity.getComponent('UIButton');
                 entity.on('mouseenter mouseleave mousedown mouseup', function(event) {
                     uiButton.handleState(event);
-                    if (uiButton.isDirty()) {
-                        var uiStyle = uiButton.getCurrentStyle();
-                        quad.setSprite(uiStyle.background);
-                        quadEntity.getComponent('MeshRenderer').material.diffuseMap = uiStyle.background;
-                        labelEntity.getComponent('MeshRenderer').material.diffuse   = uiStyle.fontColor;
-                    }
+                }, this);
+
+                this.context.on('mouseup', function(event) {
+                    uiButton.handleState(event);
                 }, this);
 
                 return entity;

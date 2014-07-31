@@ -78,25 +78,27 @@ define([
             },
 
             // Trigger one or many events, firing all bound callbacks. Callbacks are
-            // passed the same arguments as `trigger` is, apart from the event name
-            // (unless you're listening on `"all"`, which will cause your callback to
-            // receive the true name of the event as the first argument).
+            // passed the same arguments as `trigger` is.
             trigger: function(name) {
                 if (!this._events) {
                     return this;
                 }
-                var args = Array.prototype.slice.call(arguments, 1);
-                if (!eventsApi(this, 'trigger', name, args)) {
+
+                if (!eventsApi(this, 'trigger', name, arguments)) {
                     return this;
                 }
+
                 var events = this._events[name];
                 var allEvents = this._events.all;
+
                 if (events) {
-                    triggerEvents(events, args);
+                    triggerEvents(events, arguments);
                 }
+
                 if (allEvents) {
                     triggerEvents(allEvents, arguments);
                 }
+
                 return this;
             },
 

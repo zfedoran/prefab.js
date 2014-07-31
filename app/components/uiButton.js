@@ -49,19 +49,19 @@ define([
             handleState: function(event) {
                 switch (this.state) {
                     case UIElement.STATE_NORMAL:
-                        if (event.type === 'mouseenter') {
+                        if (event === 'mouseenter') {
                             this.setState(UIElement.STATE_HOVER);
                         }
                         break;
                     case UIElement.STATE_ACTIVE:
-                        if (event.type === 'mouseup') {
+                        if (event === 'mouseup') {
                             this.setState(UIElement.STATE_HOVER);
                         }
                         break;
                     case UIElement.STATE_HOVER:
-                        if (event.type === 'mousedown') {
+                        if (event === 'mousedown') {
                             this.setState(UIElement.STATE_ACTIVE);
-                        } else if (event.type === 'mouseleave') {
+                        } else if (event === 'mouseleave') {
                             this.setState(UIElement.STATE_NORMAL);
                         }
                         break;

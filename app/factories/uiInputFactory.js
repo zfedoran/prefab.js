@@ -74,22 +74,28 @@ define([
 
                 // Tell the UIInput entity to update itself on mouse events
                 var uiInput = entity.getComponent('UIInput');
-                entity.on('mouseenter mouseleave mousedown mouseup', function(event) {
+                entity.on('mouseenter mouseleave mousedown mouseup', function(event, mouseDevice) {
                     uiInput.handleState(event);
                     if (uiInput.isDirty()) {
-                        var uiStyle = uiInput.getCurrentStyle();
-                        backgroundQuad.setSprite(uiStyle.background);
-                        quadEntity.getComponent('MeshRenderer').material.diffuseMap = uiStyle.background;
-                        labelEntity.getComponent('MeshRenderer').material.diffuse   = uiStyle.fontColor;
-                        cursorEntity.getComponent('MeshRenderer').material.diffuse  = uiStyle.fontColor;
-
-                        // Set cursor position
                         if (uiInput.hasFocusState()) {
-                            var cursorTranform = cursorEntity.getComponent('Transform');
-                            var x = foregroundLabel.getComputedWidth() + uiStyle.paddingLeft;
-                            var y = foregroundLabel.getComputedHeight() / 2;
-                            cursorTranform.setPosition(x, -y, 0);
+                            this.context.trigger('focus', entity);
                         }
+                    }
+                }, this);
+
+                this.context.on('focus', function(event, target) {
+                    if (entity !== target) {
+                        uiInput.handleState(event);
+                    }
+                }, this);
+
+                this.context.on('mouseup', function(event, mouseDevice) {
+                    uiInput.handleState(event);
+                }, this);
+
+                this.context.on('keydown', function(event, keyboardDevice) {
+                    if (uiInput.hasFocusState()) {
+                        foregroundLabel.appendKeyCode(event.keyCode);
                     }
                 }, this);
 

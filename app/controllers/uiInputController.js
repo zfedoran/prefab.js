@@ -16,8 +16,7 @@ define([
             constructor: UIInputController,
 
             /**
-            *   Update all entities which contain the Collider and MeshFilter
-            *   components.
+            *   Update all entities which contain the UIInput components.
             *
             *   @method update
             *   @returns {undefined}
@@ -51,17 +50,19 @@ define([
                 var uiStyle     = uiInput.getCurrentStyle();
 
                 // Get the Label and Quad child entities
-                var labelEntity, quadEntity;
-                labelEntity = entity.getWithTag('foreground');
-                quadEntity  = entity.getWithTag('background');
+                var labelEntity, quadEntity, cursorEntity;
+                labelEntity  = entity.getWithTag('foreground');
+                quadEntity   = entity.getWithTag('background');
+                cursorEntity = entity.getWithTag('cursor');
 
                 // Get the Label and Quad components
-                var label = labelEntity.getComponent('Label');
-                var quad  = quadEntity.getComponent('Quad');
+                var foregroundLabel = labelEntity.getComponent('Label');
+                var backgroundQuad  = quadEntity.getComponent('Quad');
+                var cursorQuad      = cursorEntity.getComponent('Quad');
 
                 // Update the child components (and set dirty)
-                label.setText(uiInput.text);
-                quad.setSprite(uiInput.getCurrentBackground());
+                foregroundLabel.setText(uiInput.text);
+                backgroundQuad.setSprite(uiStyle.background);
 
                 // Update the materials
                 var labelMaterial = labelEntity.getComponent('MeshRenderer').material;
@@ -74,15 +75,28 @@ define([
                 var labelTransform = labelEntity.getComponent('Transform');
                 labelTransform.setPosition(uiStyle.paddingLeft, -uiStyle.paddingTop, 0);
 
+                // Update the cursor
+                if (uiInput.hasFocusState()) {
+                    // Update cursor color
+                    var cursorMaterial     = cursorEntity.getComponent('MeshRenderer').material;
+                    cursorMaterial.diffuse = uiStyle.fontColor;
+
+                    // Update cursor position
+                    var cursorTranform = cursorEntity.getComponent('Transform');
+                    var dx = foregroundLabel.getComputedWidth() + uiStyle.paddingLeft;
+                    var dy = foregroundLabel.getComputedHeight() / 2;
+                    cursorTranform.setPosition(dx, -dy, 0);
+                }
+
                 // Update the quad once the label has been updated
-                label.once('updated', function() {
+                foregroundLabel.once('updated', function() {
                     // Set the quad to be the label size + padding
-                    quad.setWidth(label.getComputedWidth() + uiStyle.paddingLeft + uiStyle.paddingRight);
-                    quad.setHeight(label.getComputedHeight() + uiStyle.paddingTop + uiStyle.paddingBottom);
+                    backgroundQuad.setWidth(foregroundLabel.getComputedWidth() + uiStyle.paddingLeft + uiStyle.paddingRight);
+                    backgroundQuad.setHeight(foregroundLabel.getComputedHeight() + uiStyle.paddingTop + uiStyle.paddingBottom);
                 });
 
                 // Set the boxCollider bounding box once the quad mesh is available
-                quad.once('updated', function() {
+                backgroundQuad.once('updated', function() {
                     var meshFilter  = quadEntity.getComponent('MeshFilter');
                     var boundingBox = meshFilter.getMesh().getBoundingBox();
                     boxCollider.setBoundingBox(boundingBox);
