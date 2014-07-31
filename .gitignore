@@ -2,3 +2,4 @@ bower_components/
 node_modules/
 plato_report/
 .tern-port
+.DS_Store
