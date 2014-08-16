@@ -56,10 +56,10 @@ define([
             removeEvents: function() {
                 var $win = $(window);
 
-                $win.off('mousemove', $.proxy(this.onMouseMove, this));
-                $win.off('mouseup', $.proxy(this.onMouseUp, this));
-                $win.off('mousedown', $.proxy(this.onMouseDown, this));
-                $win.off('scroll', $.proxy(this.onMouseScroll, this));
+                $win.off('mousemove', this.onMouseMove);
+                $win.off('mouseup', this.onMouseUp);
+                $win.off('mousedown', this.onMouseDown);
+                $win.off('scroll', this.onMouseScroll);
             },
 
             /**
@@ -197,6 +197,16 @@ define([
 
                 this.trigger('mousescroll', this);
             },
+
+            /**
+            *   This method returns the current button being pressed.
+            *
+            *   @method getCurrentButton
+            *   @returns {undefined}
+            */
+            getCurrentButton: function() {
+                return this.currentButton;
+            }
         });
 
         // Webkit to application buttonCode mapping

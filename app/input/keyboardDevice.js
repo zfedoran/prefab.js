@@ -1,10 +1,8 @@
 define([
-        'jquery',
         'lodash',
         'input/inputDevice'
     ],
     function(
-        $,
         _,
         InputDevice
     ) {
@@ -14,10 +12,22 @@ define([
             InputDevice.call(this);
 
             // The current key being released or pressed
-            this.currentKey = null;
+            this.currentKey  = null;
+            this.currentChar = null;
+
+            // Modifier keys (active state)
+            this.capsLockKey = false;
+            this.shiftKey    = false;
 
             // A list of all keys that may be down
             this.pressedKeys = {};
+
+            // Internal variables to keep track of what keydown code responds to the keypress code
+            this._currentKeyDown  = null;
+            this._keyMappingPairs = {};
+
+            // Easy access to the keyCodes from an instance
+            this.keyCodes = KeyboardDevice.keyCodes;
         };
 
         KeyboardDevice.prototype = _.create(InputDevice.prototype, {
@@ -30,10 +40,13 @@ define([
             *   @returns {undefined}
             */
             initEvents: function() {
-                var $win = $(window);
+                this._onKeyDown  = this.onKeyDown.bind(this);
+                this._onKeyPress = this.onKeyPress.bind(this);
+                this._onKeyUp    = this.onKeyUp.bind(this);
 
-                $win.on('keydown', $.proxy(this.onKeyDown, this));
-                $win.on('keyup', $.proxy(this.onKeyUp, this));
+                window.addEventListener('keydown', this._onKeyDown, false);
+                window.addEventListener('keypress', this._onKeyPress, false);
+                window.addEventListener('keyup', this._onKeyUp, false);
             },
 
             /**
@@ -43,22 +56,22 @@ define([
             *   @returns {undefined}
             */
             removeEvents: function() {
-                var $win = $(window);
-
-                $win.off('keydown', $.proxy(this.onKeyDown, this));
-                $win.off('keyup', $.proxy(this.onKeyUp, this));
+                window.removeEventListener('keydown', this._onKeyDown, false);
+                window.removeEventListener('keypress', this._onKeyPress, false);
+                window.removeEventListener('keyup', this._onKeyUp, false);
             },
 
             /**
-            *   This method converts webkit keyCodes to application keycodes.
+            *   This method handles the keydown event for non-alphabetic keys.
             *
-            *   @method convertKeyCode
-            *   @param {webkitKeyCode}
+            *   @method onKeyDown
             *   @returns {undefined}
             */
-            convertKeyCode: function(webkitKeyCode) {
-                // Convert the keyCode
-                var keyCode = webkitKeyMapping[webkitKeyCode];
+            onKeyDown: function() {
+
+                this._keydown = event.keyCode;
+
+                var keyCode = specialKeyMappings[event.keyCode];
 
                 // If the keyCode exists
                 if (typeof keyCode !== 'undefined') {
@@ -82,47 +95,72 @@ define([
                     if (keyLocation === 2) {
                         keyCode = keyCode + 1;
                     }
-                }
-
-                return keyCode;
-            },
-
-            /**
-            *   This method restores the state of this keyboard device.
-            *
-            *   @method resetState
-            *   @returns {undefined}
-            */
-            resetState: function() {
-                this.currentKey = null;
-                for (var val in this.pressedKeys) {
-                    if (this.pressedKeys.hasOwnProperty(val)) {
-                        this.pressedKeys[val] = false;
-                    }
-                }
-            },
-
-            /**
-            *   This method handles webkit keydown events.
-            *
-            *   @method onKeyDown
-            *   @param {event}
-            *   @returns {undefined}
-            */
-            onKeyDown: function(event) {
-                event.stopPropagation();
-                event.preventDefault();
-
-                // Convert the keyCode
-                var keyCode = this.convertKeyCode(event.keyCode);
-
-                // If the keyCode exists and is not ESCAPE
-                if (typeof keyCode !== 'undefined' && keyCode !== KeyboardDevice.ESCAPE) {
 
                     // If this key is not already down
                     if (!this.pressedKeys[keyCode]) {
                         this.pressedKeys[keyCode] = true;
+
+                        this.currentKey  = keyCode;
+                        this.currentChar = characterMapping[keyCode] || '';
+
+                        if (keyCode === KeyCodes.CapsLock) {
+                            this.capsLockKey = !this.capsLockKey;
+                        }
+
+                        if (keyCode === KeyCodes.LeftShift || keyCode === KeyCodes.RightShift) {
+                            this.shiftKey = !this.shiftKey;
+                        }
+
+                        console.log('keydown ' + this.currentKey + ' => ' + this.currentChar);
+                        this.trigger('keydown', this);
+                    }
+                }
+            },
+
+
+            /**
+            *   Webkit gives no method to detect if capslock is down inside
+            *   keydown/keyup. We must listen to keypress to get that
+            *   information.
+            *
+            *   @method onKeyPress
+            *   @returns {undefined}
+            */
+            onKeyPress: function() {
+                // Note: The specialKeyMappings keys do not trigger the keypress event
+
+                // Convert the keyCode
+                var keyCode = standardKeyMappings[event.keyCode];
+
+                // If the keyCode exists
+                if (typeof keyCode !== 'undefined') {
+
+                    // Useful for determining the character case for the alpha keys
+                    var isUpperCaseAlpha = (event.keyCode >= 65 && event.keyCode <= 90);
+
+                    // If shift is not down, but the key is uppercase, the caps lock key is active
+                    if (isUpperCaseAlpha && !event.shiftKey) {
+                        this.capsLockKey = true;
+                    } else {
+                        this.capsLockKey = false;
+                    }
+
+                    // If this key is not already down
+                    if (!this.pressedKeys[keyCode]) {
+                        this.pressedKeys[keyCode] = true;
+
                         this.currentKey = keyCode;
+
+                        if (isUpperCaseAlpha) {
+                            this.currentChar = upperCaseMapping[keyCode] || '';
+                        } else {
+                            this.currentChar = characterMapping[keyCode] || '';
+                        }
+
+                        // The keyup event does not recieve the same key events as keypress
+                        this._keyMappingPairs[this._keydown] = keyCode;
+
+                        console.log('keypress ' + this.currentKey + ' => ' + this.currentChar);
 
                         this.trigger('keydown', this);
                     }
@@ -136,270 +174,446 @@ define([
             *   @param {event}
             *   @returns {undefined}
             */
-            onKeyUp: function(event) {
-                event.stopPropagation();
-                event.preventDefault();
+            onKeyUp: (function() {
 
-                // Convert the keyCode
-                var keyCode = this.convertKeyCode(event.keyCode);
+                // This function calls the 'keyup' event if the keyCode is pressed
+                var handleKeyCode = function(keyCode) {
+                    var isKeyPressed = this.pressedKeys[keyCode];
+                    if (isKeyPressed) {
+                        this.pressedKeys[keyCode] = false;
+                        this.currentKey = keyCode;
 
-                // If the keyCode exists and is not ESCAPE
-                if (typeof keyCode !== 'undefined' && keyCode !== KeyboardDevice.ESCAPE) {
-                    this.pressedKeys[keyCode] = false;
-                    this.currentKey = keyCode;
+                        var isUpperCaseAlpha = (this.shiftKey || this.capsLockKey) 
+                                            && (keyCode >= KeyCodes.A && keyCode <= KeyCodes.Z);
 
-                    this.trigger('keyup', this);
+                        if (isUpperCaseAlpha) {
+                            this.currentChar = upperCaseMapping[keyCode] || '';
+                        } else {
+                            this.currentChar = characterMapping[keyCode] || '';
+                        }
 
-                    // Hack to deal with missing KeyUp signals when CMD is released
-                    if ((keyCode === KeyboardDevice.LEFT_WIN 
-                      || keyCode === KeyboardDevice.RIGHT_WIN)
-                      && (navigator.appVersion.indexOf('Mac') !== -1)) {
-                        this.resetState();
+                        if (keyCode === KeyCodes.CapsLock) {
+                            this.capsLockKey = !this.capsLockKey;
+                        }
+
+                        if (keyCode === KeyCodes.LeftShift || keyCode === KeyCodes.RightShift) {
+                            this.shiftKey = !this.shiftKey;
+                        }
+
+                        console.log('keyup ' + this.currentKey + ' => ' + this.currentChar);
+                        this.trigger('keyup', this);
                     }
-                }
+                };
+                
+                // Actual onKeyUp method
+                return function(event) {
+
+                    var keyCode = specialKeyMappings[event.keyCode] || standardKeyMappings[event.keyCode];
+
+                    // Differentiate left CTRL from right CTRL
+                    var keyLocation;
+                    if (typeof event.location === 'number') {
+                        keyLocation = event.location;
+                    } else {
+                        keyLocation = event.keyLocation;
+                    }
+
+                    // DOM_KEY_LOCATION_STANDARD = 0x00;
+                    // DOM_KEY_LOCATION_LEFT     = 0x01;
+                    // DOM_KEY_LOCATION_RIGHT    = 0x02;
+                    // DOM_KEY_LOCATION_NUMPAD   = 0x03;
+                    // DOM_KEY_LOCATION_MOBILE   = 0x04;
+                    // DOM_KEY_LOCATION_JOYSTICK = 0x05;
+
+                    // Webkit does not provide different keyCodes for left and right versions of keys
+                    if (keyLocation === 2) {
+                        keyCode = keyCode + 1;
+                    }
+
+                    // Convert the keyCode
+                    handleKeyCode.call(this, keyCode);
+
+                    // Handle both 'A' and 'a' keyup events
+                    handleKeyCode.call(this, this._keyMappingPairs[event.keyCode]);
+                };
+
+            })(),
+
+            /**
+            *   This method returns the current key being pressed.
+            *
+            *   @method getCurrentKey
+            *   @returns {undefined}
+            */
+            getCurrentKey: function() {
+                return this.currentKey;
             }
         });
 
-        // Webkit to application keyCode mapping
-        var webkitKeyMapping = {
-            65   : 0, // A
-            66   : 1, // B
-            67   : 2, // C
-            68   : 3, // D
-            69   : 4, // E
-            70   : 5, // F
-            71   : 6, // G
-            72   : 7, // H
-            73   : 8, // I
-            74   : 9, // J
-            75   : 10, // K
-            76   : 11, // L
-            77   : 12, // M
-            78   : 13, // N
-            79   : 14, // O
-            80   : 15, // P
-            81   : 16, // Q
-            82   : 17, // R
-            83   : 18, // S
-            84   : 19, // T
-            85   : 20, // U
-            86   : 21, // V
-            87   : 22, // X
-            88   : 23, // W
-            89   : 24, // Y
-            90   : 25, // Z
+        var KeyCodes = KeyboardDevice.keyCodes = {
+            None              : 0,    //  Not assigned (never returned as the result of a keystroke).
 
-            48   : 100, // 0
-            49   : 101, // 1
-            50   : 102, // 2
-            51   : 103, // 3
-            52   : 104, // 4
-            53   : 105, // 5
-            54   : 106, // 6
-            55   : 107, // 7
-            56   : 108, // 8
-            57   : 109, // 9
+            A                 : 100,  //  'a' key.
+            B                 : 101,  //  'b' key.
+            C                 : 102,  //  'c' key.
+            D                 : 103,  //  'd' key.
+            E                 : 104,  //  'e' key.
+            F                 : 105,  //  'f' key.
+            G                 : 106,  //  'g' key.
+            H                 : 107,  //  'h' key.
+            I                 : 108,  //  'i' key.
+            J                 : 109,  //  'j' key.
+            K                 : 110,  //  'k' key.
+            L                 : 111,  //  'l' key.
+            M                 : 112,  //  'm' key.
+            N                 : 113,  //  'n' key.
+            O                 : 114,  //  'o' key.
+            P                 : 115,  //  'p' key.
+            Q                 : 116,  //  'q' key.
+            R                 : 117,  //  'r' key.
+            S                 : 118,  //  's' key.
+            T                 : 119,  //  't' key.
+            U                 : 120,  //  'u' key.
+            V                 : 121,  //  'v' key.
+            W                 : 122,  //  'w' key.
+            X                 : 123,  //  'x' key.
+            Y                 : 124,  //  'y' key.
+            Z                 : 125,  //  'z' key.
 
-            37   : 200, // LEFT
-            39   : 201, // RIGHT
-            38   : 202, // UP
-            40   : 203, // DOWN
+            Exclaim           : 200,  //  Exclamation mark key '!'.
+            DoubleQuote       : 201,  //  Double quote key '"'.
+            Hash              : 202,  //  Hash key '#'.
+            Dollar            : 203,  //  Dollar sign key '$'.
+            Percent           : 204,  //  Percent key '%'.
+            Ampersand         : 205,  //  Ampersand key '&'.
+            Quote             : 206,  //  Quote key '.
+            LeftParen         : 207,  //  Left Parenthesis key '('.
+            RightParen        : 208,  //  Right Parenthesis key ')'.
+            Asterisk          : 209,  //  Asterisk key '*'.
+            Plus              : 210,  //  Plus key '+'.
+            Comma             : 211,  //  Comma ',' key.
+            Minus             : 212,  //  Minus '-' key.
+            Period            : 213,  //  Period '.' key.
+            Slash             : 214,  //  Slash '/' key.
+            Colon             : 215,  //  Colon ':' key.
+            Semicolon         : 216,  //  Semicolon ';' key.
+            Less              : 217,  //  Less than '<' key.
+            Equals            : 218,  //  Equals '=' key.
+            Greater           : 219,  //  Greater than '>' key.
+            Question          : 220,  //  Question mark '?' key.
+            At                : 221,  //  At key '@'.
+            LeftBracket       : 222,  //  Left square bracket key '['.
+            Backslash         : 223,  //  Backslash key '\'.
+            RightBracket      : 224,  //  Right square bracket key ']'.
+            LeftCurlyBracket  : 225,  //  Left square bracket key '{'.
+            Pipe              : 226,  //  Backslash key '|'.
+            RightCurlyBracket : 227,  //  Right square bracket key '}'.
+            Caret             : 228,  //  Caret key '^'.
+            Underscore        : 229,  //  Underscore '_' key.
+            BackQuote         : 230,  //  Back quote key '`'.
+            Tilde             : 231,  //  Tilde key '~'.
+            Space             : 232,  //  Space key.
+            Tab               : 233,  //  The tab key.
 
-            16   : 300, // LEFT_SHIFT
-            //16 : 301, // RIGHT_SHIFT
-            17   : 302, // LEFT_CONTROL
-            //17 : 303, // RIGHT_CONTROL
-            18   : 304, // LEFT_ALT
-            0    : 305, // RIGHT_ALT
+            Number0           : 300,  //  Numeric keypad 0.
+            Number1           : 301,  //  Numeric keypad 1.
+            Number2           : 302,  //  Numeric keypad 2.
+            Number3           : 303,  //  Numeric keypad 3.
+            Number4           : 304,  //  Numeric keypad 4.
+            Number5           : 305,  //  Numeric keypad 5.
+            Number6           : 306,  //  Numeric keypad 6.
+            Number7           : 307,  //  Numeric keypad 7.
+            Number8           : 308,  //  Numeric keypad 8.
+            Number9           : 309,  //  Numeric keypad 9.
 
-            27   : 400, // ESCAPE
-            9    : 401, // TAB
-            32   : 402, // SPACE
-            8    : 403, // BACKSPACE
-            13   : 404, // RETURN
+            UpArrow           : 400,  //  Up arrow key.
+            DownArrow         : 401,  //  Down arrow key.
+            RightArrow        : 402,  //  Right arrow key.
+            LeftArrow         : 403,  //  Left arrow key.
 
-            223  : 500, // GRAVE
-            173  : 501, // MINUS (mozilla - gecko)
-            189  : 501, // MINUS (ie + webkit)
-            61   : 502, // EQUALS (mozilla - gecko)
-            187  : 502, // EQUALS (ie + webkit)
-            219  : 503, // LEFT_BRACKET
-            221  : 504, // RIGHT_BRACKET
-            59   : 505, // SEMI_COLON (mozilla - gecko)
-            186  : 505, // SEMI_COLON (ie + webkit)
-            192  : 500, // GRAVE
-            188  : 507, // COMMA
-            190  : 508, // PERIOD
-            222  : 506, // APOSTROPHE
+            Insert            : 500,  //  Insert key key.
+            Home              : 501,  //  Home key.
+            End               : 502,  //  End key.
+            PageUp            : 503,  //  Page up.
+            PageDown          : 504,  //  Page down.
 
-            112  : 600, // F1
-            113  : 601, // F2
-            114  : 602, // F3
-            115  : 603, // F4
-            116  : 604, // F5
-            117  : 605, // F6
-            118  : 606, // F7
-            119  : 607, // F8
-            120  : 608, // F9
-            121  : 609, // F10
-            122  : 610, // F11
-            123  : 611, // F12
-            //45 : 612, // NUMPAD_0 (numlock on/off)
-            96   : 612, // NUMPAD_0 (numlock on/off)
-            //35 : 613,, // NUMPAD_1 (numlock on/off)
-            97   : 613, // NUMPAD_1 (numlock on/off)
-            //40 : 614, // NUMPAD_2 (numlock on/off)
-            98   : 614, // NUMPAD_2 (numlock on/off)
-            //34 : 615, // NUMPAD_3 (numlock on/off)
-            99   : 615, // NUMPAD_3 (numlock on/off)
-            //37 : 616,, // NUMPAD_4 (numlock on/off)
-            100  : 616, // NUMPAD_4 (numlock on/off)
-            12   : 617, // NUMPAD_5 (numlock on/off)
-            101  : 617, // NUMPAD_5 (numlock on/off)
-            144  : 617, // NUMPAD_5 (numlock on/off) and NUMPAD_NUM
-            //39 : 618, // NUMPAD_6 (numlock on/off)
-            102  : 618, // NUMPAD_6 (numlock on/off)
-            //36 : 619, // NUMPAD_7 (numlock on/off)
-            103  : 619, // NUMPAD_7 (numlock on/off)
-            //38 : 620, // NUMPAD_8 (numlock on/off)
-            104  : 620, // NUMPAD_8 (numlock on/off)
-            //33 : 621, // NUMPAD_9 (numlock on/off)
-            105  : 621, // NUMPAD_9 (numlock on/off)
-            //13 : 622, // NUMPAD_ENTER (numlock on/off)
-            111  : 623, // NUMPAD_DIVIDE (numlock on/off)
-            191  : 623, // NUMPAD_DIVIDE (numlock on/off), mac chrome
-            106  : 624, // NUMPAD_MULTIPLY (numlock on/off)
-            107  : 625, // NUMPAD_ADD (numlock on/off)
-            109  : 626, // NUMPAD_SUBTRACT (numlock on/off)
-            91   : 627, // LEFT_WIN
-            224  : 627, // LEFT_WIN (mac, firefox)
-            92   : 628, // RIGHT_WIN
-            93   : 628, // RIGHT_WIN (mac, chrome)
-            20   : 631, // CAPS_LOCK
-            45   : 632, // INSERT
-            46   : 633, // DELETE
-            36   : 634, // HOME
-            35   : 635, // END
-            33   : 636, // PAGE_UP
-            34   : 637, // PAGE_DOWN
+            Backspace         : 600,  //  The backspace key.
+            Delete            : 601,  //  The forward delete key.
+            Return            : 602,  //  Return key.
+            Escape            : 603,  //  Escape key.
+
+            CapsLock          : 700,  //  Capslock key.
+            LeftShift         : 701,  //  Left shift key.
+            RightShift        : 702,  //  Right shift key.
+            LeftControl       : 703,  //  Left Control key.
+            RightControl      : 704,  //  Right Control key.
+            LeftAlt           : 705,  //  Left Alt key.
+            RightAlt          : 706,  //  Right Alt key.
+            LeftCommand       : 707,  //  Left Command key.
+            RightCommand      : 708,  //  Right Command key.
+
+            F1                : 800,  //  F1 function key.
+            F2                : 801,  //  F2 function key.
+            F3                : 802,  //  F3 function key.
+            F4                : 803,  //  F4 function key.
+            F5                : 804,  //  F5 function key.
+            F6                : 805,  //  F6 function key.
+            F7                : 806,  //  F7 function key.
+            F8                : 807,  //  F8 function key.
+            F9                : 808,  //  F9 function key.
+            F10               : 809,  //  F10 function key.
+            F11               : 810,  //  F11 function key.
+            F12               : 811   //  F12 function key.
         };
 
-        // If Mac OS GRAVE can sometimes come through as 0
-        if (navigator.appVersion.indexOf('Mac') !== -1) {
-            webkitKeyMapping[0] = 500; // GRAVE (mac gecko + safari 5.1)
-        }
+        var standardKeyMappings = {
+            32  : KeyCodes.Space,             //  Space key.
+            33  : KeyCodes.Exclaim,           //  Exclamation mark key '!'.
+            34  : KeyCodes.DoubleQuote,       //  Double quote key '"'.
+            35  : KeyCodes.Hash,              //  Hash key '#'.
+            36  : KeyCodes.Dollar,            //  Dollar sign key '$'.
+            37  : KeyCodes.Percent,           //  Percent key '%'.
+            38  : KeyCodes.Ampersand,         //  Ampersand key '&'.
+            39  : KeyCodes.Quote,             //  Quote key '.
+            40  : KeyCodes.LeftParen,         //  Left Parenthesis key '('.
+            41  : KeyCodes.RightParen,        //  Right Parenthesis key ')'.
+            42  : KeyCodes.Asterisk,          //  Asterisk key '*'.
+            43  : KeyCodes.Plus,              //  Plus key '+'.
+            44  : KeyCodes.Comma,             //  Comma ',' key.
+            45  : KeyCodes.Minus,             //  Minus '-' key.
+            46  : KeyCodes.Period,            //  Period '.' key.
+            47  : KeyCodes.Slash,             //  Slash '/' key.
+            58  : KeyCodes.Colon,             //  Colon ':' key.
+            59  : KeyCodes.Semicolon,         //  Semicolon ';' key.
+            60  : KeyCodes.Less,              //  Less than '<' key.
+            61  : KeyCodes.Equals,            //  Equals '=' key.
+            62  : KeyCodes.Greater,           //  Greater than '>' key.
+            63  : KeyCodes.Question,          //  Question mark '?' key.
+            64  : KeyCodes.At,                //  At key '@'.
+            91  : KeyCodes.LeftBracket,       //  Left square bracket key '['.
+            92  : KeyCodes.Backslash,         //  Backslash key '\'.
+            93  : KeyCodes.RightBracket,      //  Right square bracket key ']'.
+            123 : KeyCodes.LeftCurlyBracket,  //  Left square bracket key '{'.
+            124 : KeyCodes.Pipe,              //  Backslash key '|'.
+            125 : KeyCodes.RightCurlyBracket, //  Right square bracket key '}'.
+            94  : KeyCodes.Caret,             //  Caret key '^'.
+            95  : KeyCodes.Underscore,        //  Underscore '_' key.
+            96  : KeyCodes.BackQuote,         //  Back quote key '`'.
+            126 : KeyCodes.Tilde,             //  Back quote key '~'.
 
-        // Default input device key mapping
-        KeyboardDevice.keyCodes = {
-            A : 0,
-            B : 1,
-            C : 2,
-            D : 3,
-            E : 4,
-            F : 5,
-            G : 6,
-            H : 7,
-            I : 8,
-            J : 9,
-            K : 10,
-            L : 11,
-            M : 12,
-            N : 13,
-            O : 14,
-            P : 15,
-            Q : 16,
-            R : 17,
-            S : 18,
-            T : 19,
-            U : 20,
-            V : 21,
-            W : 22,
-            X : 23,
-            Y : 24,
-            Z : 25,
+            65  : KeyCodes.A,                 //  'A' key.
+            66  : KeyCodes.B,                 //  'B' key.
+            67  : KeyCodes.C,                 //  'C' key.
+            68  : KeyCodes.D,                 //  'D' key.
+            69  : KeyCodes.E,                 //  'E' key.
+            70  : KeyCodes.F,                 //  'F' key.
+            71  : KeyCodes.G,                 //  'G' key.
+            72  : KeyCodes.H,                 //  'H' key.
+            73  : KeyCodes.I,                 //  'I' key.
+            74  : KeyCodes.J,                 //  'J' key.
+            75  : KeyCodes.K,                 //  'K' key.
+            76  : KeyCodes.L,                 //  'L' key.
+            77  : KeyCodes.M,                 //  'M' key.
+            78  : KeyCodes.N,                 //  'N' key.
+            79  : KeyCodes.O,                 //  'O' key.
+            80  : KeyCodes.P,                 //  'P' key.
+            81  : KeyCodes.Q,                 //  'Q' key.
+            82  : KeyCodes.R,                 //  'R' key.
+            83  : KeyCodes.S,                 //  'S' key.
+            84  : KeyCodes.T,                 //  'T' key.
+            85  : KeyCodes.U,                 //  'U' key.
+            86  : KeyCodes.V,                 //  'V' key.
+            87  : KeyCodes.W,                 //  'W' key.
+            88  : KeyCodes.X,                 //  'X' key.
+            89  : KeyCodes.Y,                 //  'Y' key.
+            90  : KeyCodes.Z,                 //  'Z' key.
 
-            NUMBER_0 : 100,
-            NUMBER_1 : 101,
-            NUMBER_2 : 102,
-            NUMBER_3 : 103,
-            NUMBER_4 : 104,
-            NUMBER_5 : 105,
-            NUMBER_6 : 106,
-            NUMBER_7 : 107,
-            NUMBER_8 : 108,
-            NUMBER_9 : 109,
+            97  : KeyCodes.A,                 //  'a' key.
+            98  : KeyCodes.B,                 //  'b' key.
+            99  : KeyCodes.C,                 //  'c' key.
+            100 : KeyCodes.D,                 //  'd' key.
+            101 : KeyCodes.E,                 //  'e' key.
+            102 : KeyCodes.F,                 //  'f' key.
+            103 : KeyCodes.G,                 //  'g' key.
+            104 : KeyCodes.H,                 //  'h' key.
+            105 : KeyCodes.I,                 //  'i' key.
+            106 : KeyCodes.J,                 //  'j' key.
+            107 : KeyCodes.K,                 //  'k' key.
+            108 : KeyCodes.L,                 //  'l' key.
+            109 : KeyCodes.M,                 //  'm' key.
+            110 : KeyCodes.N,                 //  'n' key.
+            111 : KeyCodes.O,                 //  'o' key.
+            112 : KeyCodes.P,                 //  'p' key.
+            113 : KeyCodes.Q,                 //  'q' key.
+            114 : KeyCodes.R,                 //  'r' key.
+            115 : KeyCodes.S,                 //  's' key.
+            116 : KeyCodes.T,                 //  't' key.
+            117 : KeyCodes.U,                 //  'u' key.
+            118 : KeyCodes.V,                 //  'v' key.
+            119 : KeyCodes.W,                 //  'w' key.
+            120 : KeyCodes.X,                 //  'x' key.
+            121 : KeyCodes.Y,                 //  'y' key.
+            122 : KeyCodes.Z,                 //  'z' key.
 
-            LEFT : 200,
-            RIGHT : 201,
-            UP : 202,
-            DOWN : 203,
-
-            LEFT_SHIFT : 300,
-            RIGHT_SHIFT : 301,
-            LEFT_CONTROL : 302,
-            RIGHT_CONTROL : 303,
-
-            LEFT_ALT : 304,
-            RIGHT_ALT : 305,
-            ESCAPE : 400,
-            TAB : 401,
-            SPACE :    402,
-            BACKSPACE : 403,
-            RETURN : 404,
-            GRAVE : 500,
-            MINUS : 501,
-            EQUALS : 502,
-            LEFT_BRACKET : 503,
-            RIGHT_BRACKET : 504,
-            SEMI_COLON : 505,
-            APOSTROPHE : 506,
-            COMMA : 507,
-            PERIOD : 508,
-            SLASH: 509,
-            BACKSLASH: 510,
-
-            F1 : 600,
-            F2 : 601,
-            F3 : 602,
-            F4 : 603,
-            F5 : 604,
-            F6 : 605,
-            F7 : 606,
-            F8 : 607,
-            F9 : 608,
-            F10 : 609,
-            F11 : 610,
-            F12 : 611,
-
-            NUMPAD_0 : 612,
-            NUMPAD_1 : 613,
-            NUMPAD_2 : 614,
-            NUMPAD_3 : 615,
-            NUMPAD_4 : 616,
-            NUMPAD_5 : 617,
-            NUMPAD_6 : 618,
-            NUMPAD_7 : 619,
-            NUMPAD_8 : 620,
-            NUMPAD_9 : 621,
-            NUMPAD_ENTER : 622,
-            NUMPAD_DIVIDE : 623,
-            NUMPAD_MULTIPLY : 624,
-            NUMPAD_ADD : 625,
-            NUMPAD_SUBTRACT : 626,
-
-            LEFT_WIN : 627,
-            RIGHT_WIN : 628,
-            LEFT_OPTION : 629,
-            RIGHT_OPTION : 630,
-            CAPS_LOCK : 631,
-            INSERT : 632,
-            DELETE : 633,
-            HOME : 634,
-            END : 635,
-            PAGE_UP: 636,
-            PAGE_DOWN: 637,
-            BACK: 638
+            48  : KeyCodes.Number0,           //  Numeric 0.
+            49  : KeyCodes.Number1,           //  Numeric 1.
+            50  : KeyCodes.Number2,           //  Numeric 2.
+            51  : KeyCodes.Number3,           //  Numeric 3.
+            52  : KeyCodes.Number4,           //  Numeric 4.
+            53  : KeyCodes.Number5,           //  Numeric 5.
+            54  : KeyCodes.Number6,           //  Numeric 6.
+            55  : KeyCodes.Number7,           //  Numeric 7.
+            56  : KeyCodes.Number8,           //  Numeric 8.
+            57  : KeyCodes.Number9            //  Numeric 9.
         };
+
+        var specialKeyMappings = {
+            9   : KeyCodes.Tab,               //  The tab key.
+
+            38  : KeyCodes.UpArrow,           //  Up arrow key.
+            40  : KeyCodes.DownArrow,         //  Down arrow key.
+            39  : KeyCodes.RightArrow,        //  Right arrow key.
+            37  : KeyCodes.LeftArrow,         //  Left arrow key.
+
+            45  : KeyCodes.Insert,            //  Insert key key.
+            36  : KeyCodes.Home,              //  Home key.
+            35  : KeyCodes.End,               //  End key.
+            33  : KeyCodes.PageUp,            //  Page up.
+            34  : KeyCodes.PageDown,          //  Page down.
+
+            8   : KeyCodes.Backspace,         //  The backspace key.
+            46  : KeyCodes.Delete,            //  The forward delete key.
+            13  : KeyCodes.Return,            //  Return key.
+            27  : KeyCodes.Escape,            //  Escape key.
+
+            20  : KeyCodes.CapsLock,          //  Capslock key.
+          //16  : KeyCodes.RightShift,        //  Right shift key.
+            16  : KeyCodes.LeftShift,         //  Left shift key.
+          //17  : KeyCodes.RightControl,      //  Right Control key.
+            17  : KeyCodes.LeftControl,       //  Left Control key.
+          //18  : KeyCodes.RightAlt,          //  Right Alt key.
+            18  : KeyCodes.LeftAlt,           //  Left Alt key.
+
+            91  : KeyCodes.LeftCommand,       //  Left Command key.
+            93  : KeyCodes.RightCommand,      //  Right Command key.
+
+            112 : KeyCodes.F1,                //  F1 function key.
+            113 : KeyCodes.F2,                //  F2 function key.
+            114 : KeyCodes.F3,                //  F3 function key.
+            115 : KeyCodes.F4,                //  F4 function key.
+            116 : KeyCodes.F5,                //  F5 function key.
+            117 : KeyCodes.F6,                //  F6 function key.
+            118 : KeyCodes.F7,                //  F7 function key.
+            119 : KeyCodes.F8,                //  F8 function key.
+            120 : KeyCodes.F9,                //  F9 function key.
+            121 : KeyCodes.F10,               //  F10 function key.
+            122 : KeyCodes.F11,               //  F11 function key.
+            123 : KeyCodes.F12                //  F12 function key.
+        };
+
+        var characterMapping = {};
+        characterMapping[KeyCodes.Exclaim]           = '!';
+        characterMapping[KeyCodes.DoubleQuote]       = '"';
+        characterMapping[KeyCodes.Hash]              = '#';
+        characterMapping[KeyCodes.Dollar]            = '$';
+        characterMapping[KeyCodes.Percent]           = '%';
+        characterMapping[KeyCodes.Ampersand]         = '&';
+        characterMapping[KeyCodes.Quote]             = '\'';
+        characterMapping[KeyCodes.LeftParen]         = '(';
+        characterMapping[KeyCodes.RightParen]        = ')';
+        characterMapping[KeyCodes.Asterisk]          = '*';
+        characterMapping[KeyCodes.Plus]              = '+';
+        characterMapping[KeyCodes.Comma]             = ',';
+        characterMapping[KeyCodes.Minus]             = '-';
+        characterMapping[KeyCodes.Period]            = '.';
+        characterMapping[KeyCodes.Slash]             = '/';
+        characterMapping[KeyCodes.Colon]             = ':';
+        characterMapping[KeyCodes.Semicolon]         = ';';
+        characterMapping[KeyCodes.Less]              = '<';
+        characterMapping[KeyCodes.Equals]            = '=';
+        characterMapping[KeyCodes.Greater]           = '>';
+        characterMapping[KeyCodes.Question]          = '?';
+        characterMapping[KeyCodes.At]                = '@';
+        characterMapping[KeyCodes.LeftBracket]       = '[';
+        characterMapping[KeyCodes.Backslash]         = '\\';
+        characterMapping[KeyCodes.RightBracket]      = ']';
+        characterMapping[KeyCodes.LeftCurlyBracket]  = '{';
+        characterMapping[KeyCodes.Pipe]              = '|';
+        characterMapping[KeyCodes.RightCurlyBracket] = '}';
+        characterMapping[KeyCodes.Caret]             = '^';
+        characterMapping[KeyCodes.Underscore]        = '_';
+        characterMapping[KeyCodes.BackQuote]         = '`';
+        characterMapping[KeyCodes.Tilde]             = '~';
+        characterMapping[KeyCodes.Space]             = ' ';
+        characterMapping[KeyCodes.Tab]               = '\t';
+        characterMapping[KeyCodes.Return]            = '\n';
+        characterMapping[KeyCodes.Backspace]         = '\b';
+
+        characterMapping[KeyCodes.Number0]           = '0';
+        characterMapping[KeyCodes.Number1]           = '1';
+        characterMapping[KeyCodes.Number2]           = '2';
+        characterMapping[KeyCodes.Number3]           = '3';
+        characterMapping[KeyCodes.Number4]           = '4';
+        characterMapping[KeyCodes.Number5]           = '5';
+        characterMapping[KeyCodes.Number6]           = '6';
+        characterMapping[KeyCodes.Number7]           = '7';
+        characterMapping[KeyCodes.Number8]           = '8';
+        characterMapping[KeyCodes.Number9]           = '9';
+
+        characterMapping[KeyCodes.A]                 = 'a';
+        characterMapping[KeyCodes.B]                 = 'b';
+        characterMapping[KeyCodes.C]                 = 'c';
+        characterMapping[KeyCodes.D]                 = 'd';
+        characterMapping[KeyCodes.E]                 = 'e';
+        characterMapping[KeyCodes.F]                 = 'f';
+        characterMapping[KeyCodes.G]                 = 'g';
+        characterMapping[KeyCodes.H]                 = 'h';
+        characterMapping[KeyCodes.I]                 = 'i';
+        characterMapping[KeyCodes.J]                 = 'j';
+        characterMapping[KeyCodes.K]                 = 'k';
+        characterMapping[KeyCodes.L]                 = 'l';
+        characterMapping[KeyCodes.M]                 = 'm';
+        characterMapping[KeyCodes.N]                 = 'n';
+        characterMapping[KeyCodes.O]                 = 'o';
+        characterMapping[KeyCodes.P]                 = 'p';
+        characterMapping[KeyCodes.Q]                 = 'q';
+        characterMapping[KeyCodes.R]                 = 'r';
+        characterMapping[KeyCodes.S]                 = 's';
+        characterMapping[KeyCodes.T]                 = 't';
+        characterMapping[KeyCodes.U]                 = 'u';
+        characterMapping[KeyCodes.V]                 = 'v';
+        characterMapping[KeyCodes.W]                 = 'w';
+        characterMapping[KeyCodes.X]                 = 'x';
+        characterMapping[KeyCodes.Y]                 = 'y';
+        characterMapping[KeyCodes.Z]                 = 'z';
+
+        var upperCaseMapping = {};
+        upperCaseMapping[KeyCodes.A]                 = 'A';
+        upperCaseMapping[KeyCodes.B]                 = 'B';
+        upperCaseMapping[KeyCodes.C]                 = 'C';
+        upperCaseMapping[KeyCodes.D]                 = 'D';
+        upperCaseMapping[KeyCodes.E]                 = 'E';
+        upperCaseMapping[KeyCodes.F]                 = 'F';
+        upperCaseMapping[KeyCodes.G]                 = 'G';
+        upperCaseMapping[KeyCodes.H]                 = 'H';
+        upperCaseMapping[KeyCodes.I]                 = 'I';
+        upperCaseMapping[KeyCodes.J]                 = 'J';
+        upperCaseMapping[KeyCodes.K]                 = 'K';
+        upperCaseMapping[KeyCodes.L]                 = 'L';
+        upperCaseMapping[KeyCodes.M]                 = 'M';
+        upperCaseMapping[KeyCodes.N]                 = 'N';
+        upperCaseMapping[KeyCodes.O]                 = 'O';
+        upperCaseMapping[KeyCodes.P]                 = 'P';
+        upperCaseMapping[KeyCodes.Q]                 = 'Q';
+        upperCaseMapping[KeyCodes.R]                 = 'R';
+        upperCaseMapping[KeyCodes.S]                 = 'S';
+        upperCaseMapping[KeyCodes.T]                 = 'T';
+        upperCaseMapping[KeyCodes.U]                 = 'U';
+        upperCaseMapping[KeyCodes.V]                 = 'V';
+        upperCaseMapping[KeyCodes.W]                 = 'W';
+        upperCaseMapping[KeyCodes.X]                 = 'X';
+        upperCaseMapping[KeyCodes.Y]                 = 'Y';
+        upperCaseMapping[KeyCodes.Z]                 = 'Z';
 
         return KeyboardDevice;
     }

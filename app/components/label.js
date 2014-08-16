@@ -1,12 +1,14 @@
 define([
         'lodash',
         'core/component',
-        'math/vector3'
+        'math/vector3',
+        'input/keyboardDevice'
     ],
     function(
         _,
         Component,
-        Vector3
+        Vector3,
+        KeyboardDevice
     ) {
         'use strict';
 
@@ -76,27 +78,6 @@ define([
             */
             setText: function(text) {
                 this.text = text + '';
-                this.setDirty(true);
-            },
-
-            /**
-            *   This method adds a character to the end of the string.
-            *
-            *   @method appendKeyCode
-            *   @param {keyCode}
-            *   @returns {undefined}
-            */
-            appendKeyCode: function(keyCode) {
-                switch (keyCode) {
-                    case 16: // shift
-                        break;
-                    case 8: // backspace
-                        this.text = this.text.slice(0, this.text.length - 1);
-                        break;
-                    default:
-                        this.text += String.fromCharCode(keyCode);
-                        break;
-                }
                 this.setDirty(true);
             },
 

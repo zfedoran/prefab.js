@@ -31,10 +31,6 @@ define([
             *   @returns {undefined}
             */
             init: function() {
-                var $win = $(window);
-
-                $win.on('blur', $.proxy(this.resetState, this));
-
                 this.initEvents();
             },
 
@@ -45,10 +41,6 @@ define([
             *   @returns {undefined}
             */
             destroy: function() {
-                var $win = $(window);
-
-                $win.off('blur', $.proxy(this.resetState, this));
-
                 this.removeEvents();
             },
 
@@ -72,19 +64,7 @@ define([
             */
             removeEvents: function() {
                 throw 'InputDevice: removeEvents() not implemented.';
-            },
-
-            /**
-            *   Abstract method for reseting this input device. This may happen
-            *   if the window blurs. Webkit does not provide input state for
-            *   devices when the window is not in focus.
-            *
-            *   @method resetState
-            *   @returns {undefined}
-            */
-            resetState: function() {
-                throw 'InputDevice: resetState() not implemented.';
-            },
+            }
         };
 
         // Add event support

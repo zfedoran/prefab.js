@@ -89,14 +89,22 @@ define([
                     }
                 }, this);
 
-                this.context.on('mouseup', function(event, mouseDevice) {
+                var keyboardDevice = this.context.getKeyboardDevice();
+                var mouseDevice = this.context.getMouseDevice();
+
+                mouseDevice.on('mouseup', function(event, mouseDevice) {
                     uiInput.handleState(event);
                 }, this);
 
-                this.context.on('keydown', function(event, keyboardDevice) {
-                    if (uiInput.hasFocusState()) {
-                        foregroundLabel.appendKeyCode(event.keyCode);
-                    }
+                keyboardDevice.on('keydown', function(event, keyboardDevice) {
+                    //if (uiInput.hasFocusState()) {
+                        if (keyboardDevice.currentKey === keyboardDevice.keyCodes.Backspace) {
+                            foregroundLabel.text = foregroundLabel.text.slice(0, foregroundLabel.text.length - 1);
+                        } else {
+                            foregroundLabel.text += keyboardDevice.currentChar;
+                        }
+                        foregroundLabel.setDirty(true);
+                    //}
                 }, this);
 
                 return entity;
