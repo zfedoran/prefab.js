@@ -77,6 +77,8 @@ This milestone will focus on adding support for multiple non-overlaping windows 
 	* Scene Graph view
 	* Asset view
 
+<img src="https://github.com/zfedoran/prefab.js/raw/master/doc/images/wireframe.png" alt="" />
+
 ###Milestone 5
 This milestone will focus on adding the texture painting and mapping functionality. 
 
@@ -92,8 +94,6 @@ This milestone will focus on adding features that are required to actually save 
 * File format for scenes
 * File menu for application 
 * Undo/Redo support
-
-<img src="https://github.com/zfedoran/prefab.js/raw/master/doc/images/wireframe.png" alt="" />
 
 ##Screenshots
 
