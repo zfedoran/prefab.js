@@ -11,7 +11,7 @@ define([
         'use strict';
 
         /**
-        *   UIElement component class.
+        *   Abstract UIElement component class.
         *
         *   @class 
         *   @constructor
@@ -111,18 +111,7 @@ define([
             */
             getCurrentBackground: function() {
                 return this.getCurrentStyle().background;
-            },
-
-            /**
-            *   This method handles input events for UIElements
-            *
-            *   @method handleState
-            *   @param {event}
-            *   @returns {undefined}
-            */
-            handleState: function(event) {
-                throw 'UIElement: handleState() function not implemented.';
-            },
+            }
 
         });
 

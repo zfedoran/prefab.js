@@ -32,6 +32,61 @@ define([
             constructor: UIInput,
 
             /**
+            *   This method is called when this component is added to an entity.
+            *
+            *   @method init
+            *   @param {entity}
+            *   @param {context}
+            *   @returns {undefined}
+            */
+            init: function(entity, context) {
+                this._context = context;
+
+                // Global Events
+                context.on('blur', this.onGlobalBlurEvent, this);
+
+                // Entity Events
+                entity.on('mouseenter', this.onEntityMouseEnter, this);
+                entity.on('mouseleave', this.onEntityMouseLeave, this);
+                entity.on('mousedown', this.onEntityMouseDown, this);
+
+                // Input Device Events
+                var keyboardDevice = context.getKeyboardDevice();
+                var mouseDevice    = context.getMouseDevice();
+
+                mouseDevice.on('mouseup', this.onDeviceMouseUp, this);
+                keyboardDevice.on('keydown', this.onDeviceKeyDown, this);
+                keyboardDevice.on('keyup', this.onDeviceKeyUp, this);
+            },
+
+            /**
+            *   This method is called when this component is removed from an
+            *   entity.
+            *
+            *   @method uninitialize
+            *   @param {entity}
+            *   @param {context}
+            *   @returns {undefined}
+            */
+            uninitialize: function(entity, context) {
+                // Global Events
+                context.off('blur', this.onGlobalBlurEvent, this);
+
+                // Entity Events
+                entity.off('mouseenter', this.onEntityMouseEnter, this);
+                entity.off('mouseleave', this.onEntityMouseLeave, this);
+                entity.off('mousedown', this.onEntityMouseDown, this);
+
+                // Input Device Events
+                var keyboardDevice = context.getKeyboardDevice();
+                var mouseDevice    = context.getMouseDevice();
+
+                mouseDevice.off('mouseup', this.onDeviceMouseUp, this);
+                keyboardDevice.off('keydown', this.onDeviceKeyDown, this);
+                keyboardDevice.off('keyup', this.onDeviceKeyUp, this);
+            },
+
+            /**
             *   This method sets this button text to the provided string
             *
             *   @method setText
@@ -41,40 +96,6 @@ define([
             setText: function(text) {
                 this.text = text + '';
                 this.setDirty(true);
-            },
-
-            /**
-            *   This method handles input events for UIButtons
-            *
-            *   @method handleState
-            *   @param {event}
-            *   @returns {undefined}
-            */
-            handleState: function(event) {
-                switch (this.state) {
-                    case UIElement.STATE_NORMAL:
-                        if (event === 'mouseenter') {
-                            this.setState(UIElement.STATE_HOVER);
-                        }
-                        break;
-                    case UIElement.STATE_HOVER:
-                        if (event === 'mousedown') {
-                            this.setState(UIElement.STATE_ACTIVE);
-                        } else if (event === 'mouseleave') {
-                            this.setState(UIElement.STATE_NORMAL);
-                        }
-                        break;
-                    case UIElement.STATE_ACTIVE:
-                        if (event === 'mouseup') {
-                            this.setState(UIElement.STATE_FOCUS);
-                        }
-                        break;
-                    case UIElement.STATE_FOCUS:
-                        if (event === 'focus') {
-                            this.setState(UIElement.STATE_NORMAL);
-                        }
-                        break;
-                }
             },
 
             /**
@@ -102,7 +123,94 @@ define([
             isCursorVisible: function() {
                 return this.hasFocusState() 
                     && this._cursorBlinkTime > (this._cursorBlinkDelay / 2);
-            }
+            },
+
+            /**
+            *   This method handles the mouseenter event.
+            *
+            *   @method onEntityMouseEnter
+            *   @returns {undefined}
+            */
+            onEntityMouseEnter: function() {
+                if (this.state === UIElement.STATE_NORMAL) {
+                    this.setState(UIElement.STATE_HOVER);
+                }
+            },
+
+            /**
+            *   This method handles the mouseleave event.
+            *
+            *   @method onEntityMouseLeave
+            *   @returns {undefined}
+            */
+            onEntityMouseLeave: function() {
+                if (this.state === UIElement.STATE_HOVER) {
+                    this.setState(UIElement.STATE_NORMAL);
+                }
+            },
+
+            /**
+            *   This method handles the mousedown event.
+            *
+            *   @method onEntityMouseDown
+            *   @returns {undefined}
+            */
+            onEntityMouseDown: function() {
+                if (this.state === UIElement.STATE_HOVER) {
+                    this.setState(UIElement.STATE_ACTIVE);
+                    this._context.trigger('blur');
+                }
+            },
+
+            /**
+            *   This method handles the mouseup event.
+            *
+            *   @method onDeviceMouseUp
+            *   @returns {undefined}
+            */
+            onDeviceMouseUp: function() {
+                if (this.state === UIElement.STATE_ACTIVE) {
+                    this.setState(UIElement.STATE_FOCUS);
+                }
+            },
+
+            /**
+            *   This method handles the blur event.
+            *
+            *   @method onGlobalBlurEvent
+            *   @returns {undefined}
+            */
+            onGlobalBlurEvent: function() {
+                if (this.state === UIElement.STATE_FOCUS) {
+                    this.setState(UIElement.STATE_NORMAL);
+                }
+            },
+
+            /**
+            *   This method handles the keyup event.
+            *
+            *   @method onDeviceKeyUp
+            *   @returns {undefined}
+            */
+            onDeviceKeyUp: function(keyboardDevice) {
+            },
+
+            /**
+            *   This method handles the keydown event.
+            *
+            *   @method onDeviceKeyDown
+            *   @returns {undefined}
+            */
+            onDeviceKeyDown: function(keyboardDevice) {
+                if (this.state === UIElement.STATE_FOCUS) {
+                    if (keyboardDevice.currentKey === keyboardDevice.keyCodes.Backspace) {
+                        this.text = this.text.slice(0, this.text.length - 1);
+                    } else {
+                        this.text += keyboardDevice.currentChar;
+                    }
+                    this.setDirty(true);
+                }
+            },
         });
 
         return UIInput;

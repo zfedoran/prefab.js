@@ -18,8 +18,10 @@ define([
         *
         *   @class
         *   @constructor
+        *   @param {name}
+        *   @param {entityManager}
         */
-        var Entity = function(entityManager, name){
+        var Entity = function(name, entityManager){
             if (typeof entityManager === 'undefined') {
                 throw 'Entity: cannot create entities without a manager.';
             }
@@ -41,6 +43,53 @@ define([
 
             // Add this entity to the manager
             this.entityManager.addEntity(this);
+
+            // Private variable
+            var _context = this.entityManager.getContext();
+
+            /**
+            *   Add a component to this entity.
+            *
+            *   @method addComponent
+            *   @param {component}
+            *   @returns {undefined}
+            */
+            this.addComponent = function(component) {
+                if (component instanceof Component) {
+                    if (typeof component.constructor.__name__ === 'undefined') {
+                        throw 'Entity: addComponent(), cannot add component with undefined constructor.__name__';
+                    }
+
+                    component.init(this, _context);
+
+                    this.components[component.constructor.__name__] = component;
+                    this.trigger('added:component', component);
+                } else {
+                    throw 'Entity: cannot addComponent() if the component is not an instance of Component.';
+                }
+            };
+
+            /**
+            *   Remove a component with the name or type provided, if it
+            *   exists.
+            *
+            *   @method removeComponent
+            *   @param {type}
+            *   @returns {undefined}
+            */
+            this.removeComponent = function(type) {
+                if (typeof type !== 'string') {
+                    type = type.__name__;
+                }
+
+                var component = this.components[type];
+                delete this.components[type];
+
+                if (component) {
+                    component.uninitialize(this, _context);
+                    this.trigger('removed:component', component);
+                }
+            };
         };
 
         Entity.prototype = {
@@ -208,26 +257,6 @@ define([
             },
 
             /**
-            *   Add a component to this entity.
-            *
-            *   @method addComponent
-            *   @param {component}
-            *   @returns {undefined}
-            */
-            addComponent: function(component) {
-                if (component instanceof Component) {
-                    if (typeof component.constructor.__name__ === 'undefined') {
-                        throw 'Entity: addComponent(), cannot add component with undefined constructor.__name__';
-                    }
-                    component.setEntity(this);
-                    this.components[component.constructor.__name__] = component;
-                    this.trigger('added:component', component);
-                } else {
-                    throw 'Entity: cannot addComponent() if the component is not an instance of Component.';
-                }
-            },
-
-            /**
             *   Get a component which matches the name or type provided.
             *
             *   @method getComponent
@@ -271,27 +300,6 @@ define([
                     }
                 }
                 return true;
-            },
-
-            /**
-            *   Remove a component with the name or type provided, if it
-            *   exists.
-            *
-            *   @method removeComponent
-            *   @param {type}
-            *   @returns {undefined}
-            */
-            removeComponent: function(type) {
-                if (typeof type !== 'string') {
-                    type = type.__name__;
-                }
-
-                var component = this.components[type];
-                delete this.components[type];
-
-                if (component) {
-                    this.trigger('removed:component', component);
-                }
             },
 
             /**

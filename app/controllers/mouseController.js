@@ -4,6 +4,7 @@ define([
         'math/vector2',
         'math/vector3',
         'math/vector4',
+        'math/ray',
         'graphics/meshFactory',
         'graphics/material',
         'graphics/mesh',
@@ -17,6 +18,7 @@ define([
         Vector2,
         Vector3,
         Vector4,
+        Ray,
         MeshFactory,
         Material,
         Mesh,
@@ -35,8 +37,7 @@ define([
         var MouseController = function(context) {
             Controller.call(this, context);
 
-            this.prevCollisionList = [];
-            this.currCollisionList = [];
+            this.currEntityList = [];
 
             this.graphicsDevice = this.context.getGraphicsDevice();
             this.mouseDevice    = this.context.getMouseDevice();
@@ -46,34 +47,6 @@ define([
 
         MouseController.prototype = _.create(Controller.prototype, {
             constructor: MouseController,
-
-            /**
-            *   This function binds the controller to the mouse device events.
-            *
-            *   @method initEvents
-            *   @returns {undefined}
-            */
-            initEvents: function() {
-                // All events that this controller handles
-                this.events = [
-                    'mousemove',
-                    'mousedown',
-                    'mouseup',
-                    'mousescroll'
-                ].join(' ');
-
-                this.mouseDevice.on(this.events, this.onMouseEvent, this);
-            },
-
-            /**
-            *   This function removes the events bound to the mouse device.
-            *
-            *   @method removeEvents
-            *   @returns {undefined}
-            */
-            removeEvents: function() {
-                this.mouseDevice.off(this.events, this.onMouseEvent, this);
-            },
 
             /**
             *   This function is called once per frame.
@@ -86,69 +59,169 @@ define([
             },
 
             /**
-            *   This function handles mouse events.
+            *   This function binds the controller to the mouse device events.
             *
-            *   @method onMouseEvent
+            *   @method initEvents
             *   @returns {undefined}
             */
-            onMouseEvent: function(event) {
-                // Clear the current collision list
-                this.currCollisionList.length = 0;
-
-                // Raycast the mouse position against entities with box colliders
-                this.raycast(this.getMousePosition());
-
-                // Sort the collision list by depth
-                this.currCollisionList.sort(function (a, b) {
-                    return a.depth - b.depth;
-                });
-
-                //TODO: This should be optimized
-                var mouseenterDiff = _.difference(_.pluck(this.currCollisionList, 'entity'), _.pluck(this.prevCollisionList, 'entity'));
-                var mouseenter     = _.filter(this.currCollisionList, function(obj) { return mouseenterDiff.indexOf(obj.entity) >= 0; });
-
-                var mouseleaveDiff = _.difference(_.pluck(this.prevCollisionList, 'entity'), _.pluck(this.currCollisionList, 'entity'));
-                var mouseleave     = _.filter(this.prevCollisionList, function(obj) { return mouseleaveDiff.indexOf(obj.entity) >= 0; });
-
-                var i, len, info;
-
-                // Trigger mouseenter events
-                for (i = 0, len = mouseenter.length; i < len; i++) {
-                    info = mouseenter[i];
-                    info.entity.trigger('mouseenter', this.mouseDevice);
-                }
-
-                // Trigger mouseleave events
-                for (i = 0, len = mouseleave.length; i < len; i++) {
-                    info = mouseleave[i];
-                    info.entity.trigger('mouseleave', this.mouseDevice);
-                }
-
-                // Trigger click, mousedown, mouseup, mousemove, and scroll events on entities
-                for (i = 0, len = this.currCollisionList.length; i < len; i++) {
-                    info = this.currCollisionList[i];
-                    info.entity.trigger(event, this.mouseDevice);
-                }
-
-                // Swap the collision lists
-                var tmp = this.prevCollisionList;
-                this.prevCollisionList = this.currCollisionList;
-                this.currCollisionList = tmp;
+            initEvents: function() {
+                this.mouseDevice.on('mousemove', this.onMouseMove, this);
+                this.mouseDevice.on('mousedown', this.onMouseDown, this);
+                this.mouseDevice.on('mouseup', this.onMouseUp, this);
+                this.mouseDevice.on('scroll', this.onMouseScroll, this);
             },
 
             /**
-            *   This function returns the current mouse position with the
-            *   origin in the lower left corner.
+            *   This function removes the events bound to the mouse device.
             *
-            *   @method getMousePosition
-            *   @returns {vector2}
+            *   @method removeEvents
+            *   @returns {undefined}
             */
-            getMousePosition: (function() {
-                var position = new Vector2();
-                return function() {
-                    position.x = this.mouseDevice.relativeX;
-                    position.y = this.graphicsDevice.getHeight() - this.mouseDevice.relativeY;
-                    return position;
+            removeEvents: function() {
+                this.mouseDevice.off('mousemove', this.onMouseMove, this);
+                this.mouseDevice.off('mousedown', this.onMouseDown, this);
+                this.mouseDevice.off('mouseup', this.onMouseUp, this);
+                this.mouseDevice.off('scroll', this.onMouseScroll, this);
+            },
+
+            /**
+            *   This method handles the mousedown event.
+            *
+            *   @method onMouseDown
+            *   @param {mouseDown}
+            *   @returns {undefined}
+            */
+            onMouseDown: function(mouseDevice) {
+                var i, entity, len = this.currEntityList.length;
+                for (i = 0; i < len; i++) {
+                    entity = this.currEntityList[i];
+                    entity.trigger('mousedown', mouseDevice);
+                }
+            },
+
+            /**
+            *   This method handles the mouseup event.
+            *
+            *   @method onMouseUp
+            *   @param {mouseUp}
+            *   @returns {undefined}
+            */
+            onMouseUp: function(mouseDevice) {
+                var i, entity, len = this.currEntityList.length;
+                for (i = 0; i < len; i++) {
+                    entity = this.currEntityList[i];
+                    entity.trigger('mouseup', mouseDevice);
+                }
+            },
+
+            /**
+            *   This method handles the mousescroll event.
+            *
+            *   @method onMouseScroll
+            *   @param {mouseDevice}
+            *   @returns {undefined}
+            */
+            onMouseScroll: function(mouseDevice) {
+                var i, entity, len = this.currEntityList.length;
+                for (i = 0; i < len; i++) {
+                    entity = this.currEntityList[i];
+                    entity.trigger('mousescroll', mouseDevice);
+                }
+            },
+
+            /**
+            *   This function handles mouse events.
+            *
+            *   @method onMouseMove
+            *   @returns {undefined}
+            */
+            onMouseMove: (function () {
+                var constPositionVec      = new Vector2();
+                var constCurrCollisionMap = {};
+                var constPrevCollisionMap = {};
+                var constMouseEnterList   = [];
+                var constMouseLeaveList   = [];
+
+                return function(mouseDevice) {
+                    this.currEntityList.length = 0;
+                    constMouseEnterList.length = 0;
+                    constMouseLeaveList.length = 0;
+
+                    constPositionVec.x = mouseDevice.relativeX;
+                    constPositionVec.y = this.graphicsDevice.getHeight() - mouseDevice.relativeY;
+
+                    var key, entity, isNewEntity, isOldEntity, info;
+
+                    // Clear the current collision map
+                    for (key in constCurrCollisionMap) {
+                        if (constCurrCollisionMap.hasOwnProperty(key)) {
+                            delete constCurrCollisionMap[key];
+                        }
+                    }
+
+                    // Raycast the mouse position against entities with box colliders
+                    this.raycast(constPositionVec, constCurrCollisionMap);
+
+                    // MouseEnter, for each entity found under the mouse, check if it was previously found
+                    for (key in constCurrCollisionMap) {
+                        entity      = constCurrCollisionMap[key].entity;
+                        isNewEntity = !constPrevCollisionMap.hasOwnProperty(key);
+                        if (isNewEntity) {
+                            info = constCurrCollisionMap[key];
+                            constMouseEnterList.push(info);
+                        } 
+
+                        // Create a list of current entities (used by mouseup, mousedown, mousescroll)
+                        this.currEntityList.push(entity);
+                    }
+
+                    // MouseLeave, for each previously found entity, check if it is still under the mouse
+                    for (key in constPrevCollisionMap) {
+                        entity      = constPrevCollisionMap[key].entity;
+                        isOldEntity = !constCurrCollisionMap.hasOwnProperty(key);
+                        if (isOldEntity) {
+                            info = constPrevCollisionMap[key];
+                            constMouseLeaveList.push(info);
+                        } 
+                    }
+                    
+                    // Sort the mouseenter and mouseleave lists
+                    this.sortByDepth(constMouseEnterList);
+                    this.sortByDepth(constMouseLeaveList);
+                    this.sortByDepth(this.currEntityList);
+
+                    var i, len = constMouseEnterList.length;
+                    for (i = 0; i < len; i++) {
+                        entity = constMouseEnterList[i].entity;
+                        entity.trigger('mouseenter', mouseDevice, info);
+                    }
+
+                    len = constMouseLeaveList.length;
+                    for (i = 0; i < len; i++) {
+                        entity = constMouseLeaveList[i].entity;
+                        entity.trigger('mouseleave', mouseDevice, info);
+                    }
+
+                    // Swap the collision lists
+                    var tmp = constPrevCollisionMap;
+                    constPrevCollisionMap = constCurrCollisionMap;
+                    constCurrCollisionMap = tmp;
+                };
+            })(),
+
+            /**
+            *   This method sorts the raycast collision list based on depth.
+            *
+            *   @method sortByDepth
+            *   @returns {undefined}
+            */
+            sortByDepth: (function() {
+                var sortFunction = function(a, b) {
+                    return a.depth - b.depth;
+                };
+                return function(list) {
+                    // Sort the collision list by depth
+                    list.sort(sortFunction);
                 };
             })(),
 
@@ -157,33 +230,36 @@ define([
             *   against rendered entities.
             *
             *   @method raycast
-            *   @param {pos}
+            *   @param {vec2Pos}
             *   @returns {undefined}
             */
-            raycast: function(pos) {
-                // For each camera
-                this.filterBy(['Transform', 'Camera'], function(entity) {
-                    var camera = entity.getComponent('Camera');
+            raycast: (function() {
+                var constRay = new Ray();
 
-                    // If the camera is active
-                    if (camera.isEnabled() && camera.renderGroups.length > 0) {
-                        var i, group;
+                return function(vec2Pos, collisionMap) {
+                    // For each camera
+                    this.filterBy(['Transform', 'Camera'], function(entity) {
+                        var camera = entity.getComponent('Camera');
 
-                        var ray = camera.createPickingRay(pos);
+                        // If the camera is active
+                        if (camera.isEnabled() && camera.renderGroups.length > 0) {
+                            var i, group;
 
-                        //this.addDebugLine(ray);
+                            camera.createPickingRay(vec2Pos, /*out*/ constRay);
 
-                        // For each render group
-                        for (i = 0; i < camera.renderGroups.length; i++) {
-                            group = camera.renderGroups[i];
+                            //this.addDebugLine(ray);
 
-                            // Ray cast each entity that belongs to that group
-                            this.raycastGroup(group, ray);
+                            // For each render group
+                            for (i = 0; i < camera.renderGroups.length; i++) {
+                                group = camera.renderGroups[i];
+
+                                // Ray cast each entity that belongs to that group
+                                this.raycastGroup(group, constRay, collisionMap);
+                            }
                         }
-                    }
-                }, this);
-
-            },
+                    }, this);
+                };
+            })(),
 
             /**
             *   This method handles a group of entites using the provided ray.
@@ -193,9 +269,9 @@ define([
             *   @param {ray} The ray to use for the raycast
             *   @returns {undefined}
             */
-            raycastGroup: function(group, ray) {
+            raycastGroup: function(group, ray, collisionMap) {
                 this.filterBy(group, function(entity) {
-                    this.raycastEntity(entity, ray);
+                    this.raycastEntity(entity, ray, collisionMap);
                 }, this);
             },
 
@@ -207,16 +283,16 @@ define([
             *   @param {ray}
             *   @returns {undefined}
             */
-            raycastEntity: function(entity, ray) {
+            raycastEntity: function(entity, ray, collisionMap) {
                 // Raycast the BoxCollider associated with this entity
                 if (entity.hasComponent('BoxCollider')) {
-                    this.raycastBoxCollider(entity, ray);
+                    this.raycastBoxCollider(entity, ray, collisionMap);
                 }
 
                 // Raycast any child entities
                 if (entity.hasChildren()) {
                     for (var i = 0; i < entity.children.length; i++) {
-                        this.raycastEntity(entity.children[i], ray);
+                        this.raycastEntity(entity.children[i], ray, collisionMap);
                     }
                 }
             },
@@ -230,7 +306,7 @@ define([
             *   @param {ray}
             *   @returns {undefined}
             */
-            raycastBoxCollider: function(entity, ray) {
+            raycastBoxCollider: function(entity, ray, collisionMap) {
                 var transform    = entity.getComponent('Transform');
                 var boxCollider  = entity.getComponent('BoxCollider');
 
@@ -251,13 +327,14 @@ define([
 
                     // Find the distance from the camera
                     var depth = Vector3.subtract(rayTestResult, ray.origin).length();
+                    var info  = {
+                        entity : entity,
+                        depth  : depth,
+                        point  : rayTestResult
+                    };
 
                     // Add the collision info to the collision list
-                    this.currCollisionList.push({
-                        entity: entity,
-                        depth: depth,
-                        point: rayTestResult
-                    });
+                    collisionMap[entity.id] = info;
                 }
             },
             

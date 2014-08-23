@@ -1,13 +1,11 @@
 define([
         'lodash',
         'core/entityManager',
-        'core/entity',
         'core/events'
     ],
     function(
         _,
         EntityManager,
-        Entity,
         Events
     ) {
         'use strict';
@@ -133,7 +131,7 @@ define([
             *   @returns {entity}
             */
             createNewEntity: function(name) {
-                return (new Entity(this._application.entityManager, name));
+                return this._application.entityManager.createNewEntity(name);
             }
         };
 

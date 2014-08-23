@@ -72,41 +72,6 @@ define([
                 entity.tagEntity(quadEntity);
                 entity.tagEntity(cursorEntity);
 
-                // Tell the UIInput entity to update itself on mouse events
-                var uiInput = entity.getComponent('UIInput');
-                entity.on('mouseenter mouseleave mousedown mouseup', function(event, mouseDevice) {
-                    uiInput.handleState(event);
-                    if (uiInput.isDirty()) {
-                        if (uiInput.hasFocusState()) {
-                            this.context.trigger('focus', entity);
-                        }
-                    }
-                }, this);
-
-                this.context.on('focus', function(event, target) {
-                    if (entity !== target) {
-                        uiInput.handleState(event);
-                    }
-                }, this);
-
-                var keyboardDevice = this.context.getKeyboardDevice();
-                var mouseDevice = this.context.getMouseDevice();
-
-                mouseDevice.on('mouseup', function(event, mouseDevice) {
-                    uiInput.handleState(event);
-                }, this);
-
-                keyboardDevice.on('keydown', function(event, keyboardDevice) {
-                    //if (uiInput.hasFocusState()) {
-                        if (keyboardDevice.currentKey === keyboardDevice.keyCodes.Backspace) {
-                            foregroundLabel.text = foregroundLabel.text.slice(0, foregroundLabel.text.length - 1);
-                        } else {
-                            foregroundLabel.text += keyboardDevice.currentChar;
-                        }
-                        foregroundLabel.setDirty(true);
-                    //}
-                }, this);
-
                 return entity;
             }
         });

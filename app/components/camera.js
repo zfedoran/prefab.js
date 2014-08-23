@@ -44,6 +44,29 @@ define([
         Camera.prototype = _.create(Component.prototype, {
             constructor: Camera,
 
+            /**
+            *   This method is called when this component is added to an entity.
+            *
+            *   @method init
+            *   @param {entity}
+            *   @param {context}
+            *   @returns {undefined}
+            */
+            init: function(entity, context) {
+            },
+
+            /**
+            *   This method is called when this component is removed from an
+            *   entity.
+            *
+            *   @method uninitialize
+            *   @param {entity}
+            *   @param {context}
+            *   @returns {undefined}
+            */
+            uninitialize: function(entity, context) {
+            },
+
             containsRenderGroup: function(name) {
                 var i, group;
                 for (i = 0; i < this.renderGroups.length; i++) {
@@ -158,17 +181,23 @@ define([
             *
             *   @method createPickingRay
             *   @param {vec2Pos}
+            *   @param {result}
             *   @returns {undefined}
             */
-            createPickingRay: function(vec2Pos) {
-                var start = new Vector3(vec2Pos.x, vec2Pos.y, 0.0);
-                var end   = new Vector3(vec2Pos.x, vec2Pos.y, 1.0);
+            createPickingRay: (function() {
+                var constStart = new Vector3();
+                var constEnd   = new Vector3();
 
-                this.unprojectVector(start, /*out*/ start);
-                this.unprojectVector(end, /*out*/ end);
+                return function(vec2Pos, result) {
+                    constStart.set(vec2Pos.x, vec2Pos.y, 0.0);
+                    constEnd.set(vec2Pos.x, vec2Pos.y, 1.0);
 
-                return Ray.createFromSegment(start, end);
-            }
+                    this.unprojectVector(constStart, /*out*/ constStart);
+                    this.unprojectVector(constEnd, /*out*/ constEnd);
+
+                    return Ray.createFromSegment(constStart, constEnd, result);
+                };
+            })()
         });
 
 

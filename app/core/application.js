@@ -42,7 +42,7 @@ define([
             this.assetLibrary = new AssetLibrary(this.context);
 
             // Create the entity manager
-            this.entityManager = new EntityManager();
+            this.entityManager = new EntityManager(this.context);
 
             // Create the controller manager
             this.controllerManager = new ControllerManager(this.context);

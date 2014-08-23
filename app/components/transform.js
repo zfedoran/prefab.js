@@ -18,21 +18,56 @@ define([
             Component.call(this);
 
             this.localPosition = position || new Vector3();
-            this.localScale = scale || new Vector3(1,1,1);
+            this.localScale    = scale    || new Vector3(1,1,1);
             this.localRotation = rotation || new Quaternion();
 
-            this._position = new Vector3();
-            this._scale = new Vector3();
-            this._rotation = new Quaternion();
+            this._position    = new Vector3();
+            this._scale       = new Vector3();
+            this._rotation    = new Quaternion();
 
             this._worldMatrix = new Matrix4();
             this._localMatrix = new Matrix4();
+
+            this._entity = null;
         };
 
         Transform.__name__ = 'Transform';
 
         Transform.prototype = _.create(Component.prototype, {
             constructor: Transform,
+
+            /**
+            *   This method is called when this component is added to an entity.
+            *
+            *   @method init
+            *   @param {entity}
+            *   @param {context}
+            *   @returns {undefined}
+            */
+            init: function(entity, context) {
+                this._entity = entity;
+            },
+
+            /**
+            *   This method is called when this component is removed from an
+            *   entity.
+            *
+            *   @method uninitialize
+            *   @param {entity}
+            *   @param {context}
+            *   @returns {undefined}
+            */
+            uninitialize: function(entity, context) {
+                this._entity = null;
+            },
+
+            getEntity: function() {
+                if (this._entity) {
+                    return this._entity;
+                }
+
+                throw 'Transform: cannot getEntity(), are you sure this component is attached to an entity?';
+            },
 
             /**
             *   This method updates this transform relative to all of its

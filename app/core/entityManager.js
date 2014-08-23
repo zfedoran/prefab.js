@@ -1,8 +1,10 @@
 define([
+        'core/entity',
         'core/entityFilter',
         'core/entityGroup'
     ],
     function(
+        Entity,
         EntityFilter,
         EntityGroup
     ) {
@@ -14,11 +16,13 @@ define([
         *
         *   @class 
         *   @constructor
+        *   @param {context}
         */
-        var EntityManager = function() {
+        var EntityManager = function(context) {
             this.entities = {};
-            this.filters = {};
-            this.groups = {};
+            this.filters  = {};
+            this.groups   = {};
+            this.context  = context;
 
             // Private Methods
             // ----------------------------------------------------------------
@@ -202,6 +206,28 @@ define([
                 }
 
                 return group.getEntities();
+            },
+
+            /**
+            *   This method returns a new instance of Entity.
+            *
+            *   @method createNewEntity
+            *   @param {name}
+            *   @returns {undefined}
+            */
+            createNewEntity: function(name) {
+                return new Entity(name, this);
+            },
+
+            /**
+            *   This method returns the context that was used to create this
+            *   entity manager.
+            *
+            *   @method getContext
+            *   @returns {undefined}
+            */
+            getContext: function() {
+                return this.context;
             }
         };
 
