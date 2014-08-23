@@ -193,6 +193,9 @@ define([
             *   @returns {undefined}
             */
             onDeviceKeyUp: function(keyboardDevice) {
+                if (this.state === UIElement.STATE_FOCUS) {
+                    this.setDirty(true);
+                }
             },
 
             /**

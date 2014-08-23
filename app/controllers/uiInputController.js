@@ -75,24 +75,24 @@ define([
                 var labelTransform = labelEntity.getComponent('Transform');
                 labelTransform.setPosition(uiStyle.paddingLeft, -uiStyle.paddingTop, 0);
 
-                // Update the cursor
-                if (uiInput.hasFocusState()) {
-                    // Update cursor color
-                    var cursorMaterial     = cursorEntity.getComponent('MeshRenderer').material;
-                    cursorMaterial.diffuse = uiStyle.fontColor;
-
-                    // Update cursor position
-                    var cursorTranform = cursorEntity.getComponent('Transform');
-                    var dx = foregroundLabel.getComputedWidth() + uiStyle.paddingLeft;
-                    var dy = foregroundLabel.getComputedHeight() / 2;
-                    cursorTranform.setPosition(dx, -dy, 0);
-                }
-
                 // Update the quad once the label has been updated
                 foregroundLabel.once('updated', function() {
                     // Set the quad to be the label size + padding
                     backgroundQuad.setWidth(foregroundLabel.getComputedWidth() + uiStyle.paddingLeft + uiStyle.paddingRight);
                     backgroundQuad.setHeight(foregroundLabel.getComputedHeight() + uiStyle.paddingTop + uiStyle.paddingBottom);
+
+                    // Update the cursor
+                    if (uiInput.hasFocusState()) {
+                        // Update cursor color
+                        var cursorMaterial     = cursorEntity.getComponent('MeshRenderer').material;
+                        cursorMaterial.diffuse = uiStyle.fontColor;
+
+                        // Update cursor position
+                        var cursorTranform = cursorEntity.getComponent('Transform');
+                        var dx = foregroundLabel.getComputedWidth() + uiStyle.paddingLeft;
+                        var dy = foregroundLabel.getComputedHeight() / 2;
+                        cursorTranform.setPosition(dx, -dy, 0);
+                    }
                 });
 
                 // Set the boxCollider bounding box once the quad mesh is available
