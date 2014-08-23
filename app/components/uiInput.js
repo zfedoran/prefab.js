@@ -54,6 +54,7 @@ define([
                 var keyboardDevice = context.getKeyboardDevice();
                 var mouseDevice    = context.getMouseDevice();
 
+                mouseDevice.on('mousedown', this.onDeviceMouseDown, this);
                 mouseDevice.on('mouseup', this.onDeviceMouseUp, this);
                 keyboardDevice.on('keydown', this.onDeviceKeyDown, this);
                 keyboardDevice.on('keyup', this.onDeviceKeyUp, this);
@@ -81,6 +82,7 @@ define([
                 var keyboardDevice = context.getKeyboardDevice();
                 var mouseDevice    = context.getMouseDevice();
 
+                mouseDevice.off('mousedown', this.onDeviceMouseDown, this);
                 mouseDevice.off('mouseup', this.onDeviceMouseUp, this);
                 keyboardDevice.off('keydown', this.onDeviceKeyDown, this);
                 keyboardDevice.off('keyup', this.onDeviceKeyUp, this);
@@ -163,6 +165,16 @@ define([
             },
 
             /**
+            *   This method handles the mousedown event.
+            *
+            *   @method onDeviceMouseDown
+            *   @returns {undefined}
+            */
+            onDeviceMouseDown: function() {
+                // TODO: unfocus the current input if user clicks outside of it
+            },
+
+            /**
             *   This method handles the mouseup event.
             *
             *   @method onDeviceMouseUp
@@ -193,9 +205,7 @@ define([
             *   @returns {undefined}
             */
             onDeviceKeyUp: function(keyboardDevice) {
-                if (this.state === UIElement.STATE_FOCUS) {
-                    this.setDirty(true);
-                }
+                // TODO: do we need anything here?
             },
 
             /**
@@ -206,6 +216,8 @@ define([
             */
             onDeviceKeyDown: function(keyboardDevice) {
                 if (this.state === UIElement.STATE_FOCUS) {
+                    // TODO: add ability to hold down a button to trigger it multiple times
+
                     if (keyboardDevice.currentKey === keyboardDevice.keyCodes.Backspace) {
                         this.text = this.text.slice(0, this.text.length - 1);
                     } else {
