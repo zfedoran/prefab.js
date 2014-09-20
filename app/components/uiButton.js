@@ -82,9 +82,10 @@ define([
             *   This method handles the mouseenter event.
             *
             *   @method onEntityMouseEnter
+            *   @param {mouseDevice}
             *   @returns {undefined}
             */
-            onEntityMouseEnter: function() {
+            onEntityMouseEnter: function(mouseDevice) {
                 if (this.state === UIElement.STATE_NORMAL) {
                     this.setState(UIElement.STATE_HOVER);
                 }
@@ -94,9 +95,10 @@ define([
             *   This method handles the mouseleave event.
             *
             *   @method onEntityMouseLeave
+            *   @param {mouseDevice}
             *   @returns {undefined}
             */
-            onEntityMouseLeave: function() {
+            onEntityMouseLeave: function(mouseDevice) {
                 if (this.state === UIElement.STATE_HOVER) {
                     this.setState(UIElement.STATE_NORMAL);
                 }
@@ -106,9 +108,12 @@ define([
             *   This method handles the mouseleave event.
             *
             *   @method onEntityMouseDown
+            *   @param {mouseDevice}
             *   @returns {undefined}
             */
-            onEntityMouseDown: function() {
+            onEntityMouseDown: function(mouseDevice) {
+                mouseDevice.stopEventPropagation();
+
                 if (this.state === UIElement.STATE_HOVER) {
                     this.setState(UIElement.STATE_ACTIVE);
                 }

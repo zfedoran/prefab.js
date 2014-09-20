@@ -1,10 +1,8 @@
 define([
-        'jquery',
         'lodash',
         'input/inputDevice'
     ],
     function(
-        $,
         _,
         InputDevice
     ) {
@@ -27,6 +25,9 @@ define([
 
             // A map of all buttons that may be down
             this.pressedButtons = {};
+
+            // Boolean for event bubbling support
+            this._eventPropagation = true;
         };
 
         MouseDevice.prototype = _.create(InputDevice.prototype, {
@@ -39,12 +40,15 @@ define([
             *   @returns {undefined}
             */
             initEvents: function() {
-                var $win = $(window);
+                this._onMouseMove   = this.onMouseMove.bind(this);
+                this._onMouseUp     = this.onMouseUp.bind(this);
+                this._onMouseDown   = this.onMouseDown.bind(this);
+                this._onMouseScroll = this.onMouseScroll.bind(this);
 
-                $win.on('mousemove', $.proxy(this.onMouseMove, this));
-                $win.on('mouseup', $.proxy(this.onMouseUp, this));
-                $win.on('mousedown', $.proxy(this.onMouseDown, this));
-                $win.on('scroll', $.proxy(this.onMouseScroll, this));
+                window.addEventListener('mousemove', this._onMouseMove, false);
+                window.addEventListener('mouseup', this._onMouseUp, false);
+                window.addEventListener('mousedown', this._onMouseDown, false);
+                window.addEventListener('scroll', this._onMouseScroll, false);
             },
 
             /**
@@ -54,12 +58,10 @@ define([
             *   @returns {undefined}
             */
             removeEvents: function() {
-                var $win = $(window);
-
-                $win.off('mousemove', this.onMouseMove);
-                $win.off('mouseup', this.onMouseUp);
-                $win.off('mousedown', this.onMouseDown);
-                $win.off('scroll', this.onMouseScroll);
+                window.removeEventListener('mousemove', this._onMouseMove, false);
+                window.removeEventListener('mouseup', this._onMouseUp, false);
+                window.removeEventListener('mousedown', this._onMouseDown, false);
+                window.removeEventListener('scroll', this._onMouseScroll, false);
             },
 
             /**
@@ -71,23 +73,6 @@ define([
             */
             convertButtonCode: function(webkitButtonCode) {
                 return webkitButtonMapping[webkitButtonCode];
-            },
-
-            /**
-            *   This method restores the state of this mouse device.
-            *
-            *   @method resetState
-            *   @returns {undefined}
-            */
-            resetState: function() {
-                this.currentButton = null;
-                this.deltaScroll   = 0;
-
-                for (var val in this.pressedButtons) {
-                    if (this.pressedButtons.hasOwnProperty(val)) {
-                        this.pressedButtons[val] = false;
-                    }
-                }
             },
 
             /**
@@ -108,6 +93,8 @@ define([
                 this.relativeX     = event.pageX;
                 this.relativeY     = event.pageY;
                 this.currentButton = null;
+
+                this._eventPropagation = true;
 
                 this.trigger('mousemove', this);
             },
@@ -132,6 +119,8 @@ define([
 
                 // Convert the buttonCode
                 var buttonCode = this.convertButtonCode(event.button);
+
+                this._eventPropagation = true;
 
                 // If the buttonCode exists
                 if (typeof buttonCode !== 'undefined') {
@@ -167,6 +156,8 @@ define([
                 // Convert the buttonCode
                 var buttonCode = this.convertButtonCode(event.button);
 
+                this._eventPropagation = true;
+
                 // If the buttonCode exists
                 if (typeof buttonCode !== 'undefined') {
                     this.pressedButtons[buttonCode] = false;
@@ -195,6 +186,8 @@ define([
                 this.relativeY     = event.pageY;
                 this.currentButton = null;
 
+                this._eventPropagation = true;
+
                 this.trigger('mousescroll', this);
             },
 
@@ -206,6 +199,39 @@ define([
             */
             getCurrentButton: function() {
                 return this.currentButton;
+            },
+
+            /**
+            *   This method tells external controllers to stop propagating
+            *   events from this device.
+            *
+            *   @method stopEventPropagation
+            *   @returns {undefined}
+            */
+            stopEventPropagation: function() {
+                this._eventPropagation = false;
+            },
+
+            /**
+            *   This method returns whether event propagation is enabled on
+            *   this device.
+            *
+            *   @method isEventPropagationEnabled
+            *   @returns {undefined}
+            */
+            isEventPropagationEnabled: function() {
+                return this._eventPropagation;
+            },
+
+            /**
+            *   This method enables event propagation on external controllers
+            *   for this device.
+            *
+            *   @method enableEventPropagation
+            *   @returns {undefined}
+            */
+            enableEventPropagation: function() {
+                this._eventPropagation = true;
             }
         });
 

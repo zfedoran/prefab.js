@@ -37,7 +37,7 @@ define([
         var MouseController = function(context) {
             Controller.call(this, context);
 
-            this.currEntityList = [];
+            this.currInfoList = [];
 
             this.graphicsDevice = this.context.getGraphicsDevice();
             this.mouseDevice    = this.context.getMouseDevice();
@@ -92,11 +92,7 @@ define([
             *   @returns {undefined}
             */
             onMouseDown: function(mouseDevice) {
-                var i, entity, len = this.currEntityList.length;
-                for (i = 0; i < len; i++) {
-                    entity = this.currEntityList[i];
-                    entity.trigger('mousedown', mouseDevice);
-                }
+                this.handleMouseEvent('mousedown', mouseDevice);
             },
 
             /**
@@ -107,11 +103,7 @@ define([
             *   @returns {undefined}
             */
             onMouseUp: function(mouseDevice) {
-                var i, entity, len = this.currEntityList.length;
-                for (i = 0; i < len; i++) {
-                    entity = this.currEntityList[i];
-                    entity.trigger('mouseup', mouseDevice);
-                }
+                this.handleMouseEvent('mouseup', mouseDevice);
             },
 
             /**
@@ -122,90 +114,99 @@ define([
             *   @returns {undefined}
             */
             onMouseScroll: function(mouseDevice) {
-                var i, entity, len = this.currEntityList.length;
-                for (i = 0; i < len; i++) {
-                    entity = this.currEntityList[i];
-                    entity.trigger('mousescroll', mouseDevice);
-                }
+                this.handleMouseEvent('mousescroll', mouseDevice);
             },
 
             /**
-            *   This function handles mouse events.
+            *   This method handles the mousemove event.
+            *
+            *   @method onMouseMove
+            *   @param {mouseDevice}
+            *   @returns {undefined}
+            */
+            onMouseMove: function(mouseDevice) {
+                this.handleMouseEvent('mousemove', mouseDevice);
+            },
+
+            /**
+            *   This function triggers the provided event name on all current
+            *   entities if event propagation is enabled.
             *
             *   @method onMouseMove
             *   @returns {undefined}
             */
-            onMouseMove: (function () {
-                var constPositionVec      = new Vector2();
-                var constCurrCollisionMap = {};
-                var constPrevCollisionMap = {};
-                var constMouseEnterList   = [];
-                var constMouseLeaveList   = [];
+            handleMouseEvent: (function () {
+                var _positionVec      = new Vector2();
+                var _currCollisionMap = {};
+                var _prevCollisionMap = {};
+                var _topOfStack       = null;
 
-                return function(mouseDevice) {
-                    this.currEntityList.length = 0;
-                    constMouseEnterList.length = 0;
-                    constMouseLeaveList.length = 0;
+                return function(eventName, mouseDevice) {
+                    this.currInfoList.length = 0;
 
-                    constPositionVec.x = mouseDevice.relativeX;
-                    constPositionVec.y = this.graphicsDevice.getHeight() - mouseDevice.relativeY;
+                    _positionVec.x = mouseDevice.relativeX;
+                    _positionVec.y = this.graphicsDevice.getHeight() - mouseDevice.relativeY;
 
-                    var key, entity, isNewEntity, isOldEntity, info;
+                    var key, entity, info;
 
                     // Clear the current collision map
-                    for (key in constCurrCollisionMap) {
-                        if (constCurrCollisionMap.hasOwnProperty(key)) {
-                            delete constCurrCollisionMap[key];
+                    for (key in _currCollisionMap) {
+                        if (_currCollisionMap.hasOwnProperty(key)) {
+                            delete _currCollisionMap[key];
                         }
                     }
 
                     // Raycast the mouse position against entities with box colliders
-                    this.raycast(constPositionVec, constCurrCollisionMap);
+                    this.raycast(_positionVec, _currCollisionMap);
 
                     // MouseEnter, for each entity found under the mouse, check if it was previously found
-                    for (key in constCurrCollisionMap) {
-                        entity      = constCurrCollisionMap[key].entity;
-                        isNewEntity = !constPrevCollisionMap.hasOwnProperty(key);
-                        if (isNewEntity) {
-                            info = constCurrCollisionMap[key];
-                            constMouseEnterList.push(info);
-                        } 
+                    for (key in _currCollisionMap) {
+                        if (_currCollisionMap.hasOwnProperty(key)) {
+                            info = _currCollisionMap[key];
 
-                        // Create a list of current entities (used by mouseup, mousedown, mousescroll)
-                        this.currEntityList.push(entity);
+                            // Create a list of current entities (used by mouseup, mousedown, mousescroll)
+                            this.currInfoList.push(info);
+                        }
                     }
 
-                    // MouseLeave, for each previously found entity, check if it is still under the mouse
-                    for (key in constPrevCollisionMap) {
-                        entity      = constPrevCollisionMap[key].entity;
-                        isOldEntity = !constCurrCollisionMap.hasOwnProperty(key);
-                        if (isOldEntity) {
-                            info = constPrevCollisionMap[key];
-                            constMouseLeaveList.push(info);
-                        } 
-                    }
                     
                     // Sort the mouseenter and mouseleave lists
-                    this.sortByDepth(constMouseEnterList);
-                    this.sortByDepth(constMouseLeaveList);
-                    this.sortByDepth(this.currEntityList);
+                    this.sortByDepth(this.currInfoList);
 
-                    var i, len = constMouseEnterList.length;
-                    for (i = 0; i < len; i++) {
-                        entity = constMouseEnterList[i].entity;
-                        entity.trigger('mouseenter', mouseDevice, info);
+                    // Handle the mouseenter and mouseleave events
+                    if (this.currInfoList.length) {
+                        if (_topOfStack !== this.currInfoList[0].entity) {
+                            if (_topOfStack !== null) {
+                                _topOfStack.trigger('mouseleave', mouseDevice, info);
+                            }
+                            _topOfStack = this.currInfoList[0].entity;
+                            _topOfStack.trigger('mouseenter', mouseDevice, info);
+                        }
+                    } else {
+                        if (_topOfStack !== null) {
+                            _topOfStack.trigger('mouseleave', mouseDevice, info);
+                        }
+                        _topOfStack = null;
                     }
 
-                    len = constMouseLeaveList.length;
+                    // Reset event propagation to enabled
+                    mouseDevice.enableEventPropagation();
+
+                    // Trigger the event type
+                    var i, len = this.currInfoList.length;
                     for (i = 0; i < len; i++) {
-                        entity = constMouseLeaveList[i].entity;
-                        entity.trigger('mouseleave', mouseDevice, info);
+                        entity = this.currInfoList[i].entity;
+                        entity.trigger(eventName, mouseDevice);
+
+                        if (!mouseDevice.isEventPropagationEnabled()) {
+                            break;
+                        }
                     }
 
                     // Swap the collision lists
-                    var tmp = constPrevCollisionMap;
-                    constPrevCollisionMap = constCurrCollisionMap;
-                    constCurrCollisionMap = tmp;
+                    var tmp = _prevCollisionMap;
+                    _prevCollisionMap = _currCollisionMap;
+                    _currCollisionMap = tmp;
                 };
             })(),
 
@@ -216,12 +217,12 @@ define([
             *   @returns {undefined}
             */
             sortByDepth: (function() {
-                var sortFunction = function(a, b) {
-                    return a.depth - b.depth;
+                var _sortFunction = function(a, b) {
+                    return a.depth - b.depth || b.entity.id - a.entity.id;
                 };
                 return function(list) {
                     // Sort the collision list by depth
-                    list.sort(sortFunction);
+                    list.sort(_sortFunction);
                 };
             })(),
 
@@ -234,7 +235,7 @@ define([
             *   @returns {undefined}
             */
             raycast: (function() {
-                var constRay = new Ray();
+                var _ray = new Ray();
 
                 return function(vec2Pos, collisionMap) {
                     // For each camera
@@ -245,7 +246,7 @@ define([
                         if (camera.isEnabled() && camera.renderGroups.length > 0) {
                             var i, group;
 
-                            camera.createPickingRay(vec2Pos, /*out*/ constRay);
+                            camera.createPickingRay(vec2Pos, /*out*/ _ray);
 
                             //this.addDebugLine(ray);
 
@@ -254,7 +255,7 @@ define([
                                 group = camera.renderGroups[i];
 
                                 // Ray cast each entity that belongs to that group
-                                this.raycastGroup(group, constRay, collisionMap);
+                                this.raycastGroup(group, _ray, collisionMap);
                             }
                         }
                     }, this);

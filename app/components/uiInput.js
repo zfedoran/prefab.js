@@ -131,9 +131,10 @@ define([
             *   This method handles the mouseenter event.
             *
             *   @method onEntityMouseEnter
+            *   @param {mouseDevice}
             *   @returns {undefined}
             */
-            onEntityMouseEnter: function() {
+            onEntityMouseEnter: function(mouseDevice) {
                 if (this.state === UIElement.STATE_NORMAL) {
                     this.setState(UIElement.STATE_HOVER);
                 }
@@ -143,9 +144,10 @@ define([
             *   This method handles the mouseleave event.
             *
             *   @method onEntityMouseLeave
+            *   @param {mouseDevice}
             *   @returns {undefined}
             */
-            onEntityMouseLeave: function() {
+            onEntityMouseLeave: function(mouseDevice) {
                 if (this.state === UIElement.STATE_HOVER) {
                     this.setState(UIElement.STATE_NORMAL);
                 }
@@ -155,9 +157,12 @@ define([
             *   This method handles the mousedown event.
             *
             *   @method onEntityMouseDown
+            *   @param {mouseDevice}
             *   @returns {undefined}
             */
-            onEntityMouseDown: function() {
+            onEntityMouseDown: function(mouseDevice) {
+                mouseDevice.stopEventPropagation();
+
                 if (this.state === UIElement.STATE_HOVER) {
                     this.setState(UIElement.STATE_ACTIVE);
                     this._context.trigger('blur');
@@ -171,7 +176,14 @@ define([
             *   @returns {undefined}
             */
             onDeviceMouseDown: function() {
-                // TODO: unfocus the current input if user clicks outside of it
+                // TODO: when the user clicks the mouse down, we need to check
+                // if the thing being clicked on already has focus. If it does,
+                // it should remain in focus.
+
+                // TODO: maintain a single UIElement in the context as having focus. Only one thing should ever have focus...
+                if (this.state === UIElement.STATE_FOCUS) {
+                    this.setState(UIElement.STATE_NORMAL);
+                }
             },
 
             /**
