@@ -166,6 +166,8 @@ define([
                 if (this.state === UIElement.STATE_HOVER) {
                     this.setState(UIElement.STATE_ACTIVE);
                     this._context.trigger('blur');
+                } else {
+                    this.isCursorPositionUpdate = true;
                 }
             },
 
@@ -176,12 +178,9 @@ define([
             *   @returns {undefined}
             */
             onDeviceMouseDown: function() {
-                // TODO: when the user clicks the mouse down, we need to check
-                // if the thing being clicked on already has focus. If it does,
-                // it should remain in focus.
-
-                // TODO: maintain a single UIElement in the context as having focus. Only one thing should ever have focus...
-                if (this.state === UIElement.STATE_FOCUS) {
+                // If this entity is focused AND another entity was clicked on
+                if (this.state === UIElement.STATE_FOCUS 
+                && !this.isCursorPositionUpdate) {
                     this.setState(UIElement.STATE_NORMAL);
                 }
             },
@@ -196,6 +195,7 @@ define([
                 if (this.state === UIElement.STATE_ACTIVE) {
                     this.setState(UIElement.STATE_FOCUS);
                 }
+                this.isCursorPositionUpdate = false;
             },
 
             /**
