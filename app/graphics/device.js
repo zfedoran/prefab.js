@@ -523,7 +523,7 @@ define([
                     ve = currentVertexDeclaration.elements[i];
                     al = gl.getAttribLocation(currentShaderProgram, ve.attribute);
                     gl.enableVertexAttribArray(al);
-                    gl.vertexAttribPointer(al, ve.numElem, gl.FLOAT, false, currentVertexDeclaration.stride, ve.offset);
+                    gl.vertexAttribPointer(al, ve.numElem, gl.FLOAT, false, currentVertexDeclaration.strideInBytes, ve.offset);
                 }
 
                 //bind index buffer

@@ -56,7 +56,7 @@ define([
             },
 
             isValid: function() {
-                return !(isNaN(this.origin) || isNaN(this.direction));
+                return this.origin.isValid() && this.direction.isValid();
             },
 
             toString: function() {

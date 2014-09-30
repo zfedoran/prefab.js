@@ -11,11 +11,11 @@ define([
                 throw 'PrimitiveBatch: no VertexDeclaration specified';
             }
 
-            this.device = device;
+            this.device            = device;
             this.vertexDeclaration = vertexDeclaration;
-            this.vertexBuffer = this.device.createBuffer();
-            this.vertices = new Float32Array(1024);
-            this.stride = vertexDeclaration.getCurrentOffset();
+            this.vertexBuffer      = this.device.createBuffer();
+            this.vertices          = new Float32Array(1024);
+            this.stride            = vertexDeclaration.getCurrentOffset();
         };
 
         PrimitiveBatch.prototype = {

@@ -91,6 +91,7 @@ define([
                     'controllers/mouseController',
                     'controllers/uiButtonController',
                     'controllers/uiInputController',
+                    'controllers/clipController',
                     'editor/controllers/gridController'
                 ], callback);
 

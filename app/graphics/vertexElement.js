@@ -5,9 +5,9 @@ define([
         'use strict';
 
         var VertexElement = function(offset, type, attribute) {
-            this.offset = offset;
-            this.size = VertexElement.getSize(type);
-            this.numElem = VertexElement.getLength(type);
+            this.offset    = offset;
+            this.size      = VertexElement.getSize(type);
+            this.numElem   = VertexElement.getLength(type);
             this.attribute = attribute;
         };
 

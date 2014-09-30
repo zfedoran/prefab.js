@@ -178,7 +178,7 @@ define([
 
                 // Get the paragraph lines for this label
                 var lines, autoWidth;
-                if (label.width) {
+                if (this.multiLine && label.width) {
                     lines     = this.generateParagraphLines(label);
                     autoWidth = label.width;
                 } else {

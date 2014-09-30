@@ -169,7 +169,7 @@ define([
                 var transform    = entity.getComponent('Transform');
                 var meshFilter   = entity.getComponent('MeshFilter');
                 var meshRenderer = entity.getComponent('MeshRenderer');
-                var mesh         = meshFilter.mesh;
+                var mesh         = meshFilter.getMesh();
                 var material     = meshRenderer.material;
                 var shader       = material._shader;
 
@@ -193,6 +193,11 @@ define([
 
                 this.device.bindShader(shader);
                 this.device.setViewport(camera.viewRect.x, camera.viewRect.y, camera.viewRect.width, camera.viewRect.height);
+
+                // Draw the clipped mesh, if one exists
+                if (meshFilter.hasClippedMesh()) {
+                    mesh = meshFilter.getClippedMesh();
+                } 
 
                 mesh.draw();
             }

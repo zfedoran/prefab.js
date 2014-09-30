@@ -6,6 +6,7 @@ define([
         'graphics/texture',
         'components/transform',
         'components/boxCollider',
+        'components/meshClip',
         'factories/blockFactory',
         'factories/quadFactory',
         'factories/labelFactory',
@@ -24,6 +25,7 @@ define([
         Texture,
         Transform,
         BoxCollider,
+        MeshClip,
         BlockFactory,
         QuadFactory,
         LabelFactory,
@@ -86,11 +88,17 @@ define([
             initScene: function() {
                 this.root = this.context.createNewEntity('root');
                 this.root.addComponent(new Transform());
+                this.root.addComponent(MeshClip.createFromMinMax(new Vector3(-1, -1, -1), new Vector3(1,1,1)));
                 this.root.addToGroup('scene');
 
-                var grid = this.gridFactory.create(20, 0, 20);
-                grid.name = 'grid';
-                grid.addToGroup('scene');
+                var gridEntity = this.gridFactory.create(20, 20, 20);
+                gridEntity.name = 'grid';
+                gridEntity.addToGroup('scene');
+
+                var grid = gridEntity.getComponent('Grid');
+                grid.hasXYPlane = false;
+                grid.hasXZPlane = true;
+                grid.hasYZPlane = false;
 
                 this.initCamera();
                 this.initBlocks();
@@ -160,7 +168,7 @@ define([
                 var prev, transform;
 
                 prev = this.root;
-                for (var i = 0; i < 100; i++) {
+                for (var i = 0; i < 10; i++) {
                     var block = this.blockFactory.create(sprite.getTexture(), 1, 1, 1);
                     block.name = 'block-' + i;
                     block.getComponent('Block').setAllFacesTo(sprite);
@@ -168,7 +176,7 @@ define([
 
                     transform = block.getComponent('Transform');
                     transform.setPosition((Math.random() - 0.5)*2, (Math.random() - 0.5)*2, (Math.random() - 0.5)*2);
-                    transform.setRotationFromEuler(-0.1, -0.1, -0.1);
+                    //transform.setRotationFromEuler(-0.1, -0.1, -0.1);
 
                     prev.addChild(block);
                     prev = block;
@@ -246,14 +254,14 @@ define([
                 var time = this.context.getTotalTimeInSeconds();
 
                 var transform = this.camera.getComponent('Transform');
-                transform.localPosition.x = Math.sin(time*0.01) * 5;
-                transform.localPosition.y = Math.cos(time*0.02) * 5;
-                transform.localPosition.z = Math.cos(time*0.01) * 5;
+                transform.localPosition.x = Math.sin(time*0.1) * 5;
+                transform.localPosition.y = Math.cos(time*0.2) * 5;
+                transform.localPosition.z = Math.cos(time*0.1) * 5;
                 transform.setDirty(true);
 
                 this.camera.getComponent('Camera').target = this.root;
 
-                //this.button.getComponent('UIButton').setText(time);
+                this.input.getComponent('UIInput').setText(this.context.getFramesPerSecond());
             }
 
         });

@@ -14,6 +14,8 @@ requirejs.config({
 requirejs(['jquery', 'prefab'], function($, Prefab) {
     'use strict';
 
+    process.on('uncaughtException', function(e) { });
+
     // Disable scrolling
     $('html, body').css({ 'overflow': 'hidden', 'height': '100%' });
 
@@ -25,6 +27,7 @@ requirejs(['jquery', 'prefab'], function($, Prefab) {
     win.on('blur', function() { window.hasFocus = false; });
 
     window.hasFocus = true;
+
 
     // Create the application
     $(function() {
