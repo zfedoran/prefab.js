@@ -8,15 +8,22 @@ define([
     ) {
         'use strict';
 
-        var UIInputController = function(context) {
+        /**
+        *   This controller is for the UITextBox component.
+        *
+        *   @class 
+        *   @constructor
+        *   @param {context}
+        */
+        var UITextBoxController = function(context) {
             Controller.call(this, context);
         };
 
-        UIInputController.prototype = _.create(Controller.prototype, {
-            constructor: UIInputController,
+        UITextBoxController.prototype = _.create(Controller.prototype, {
+            constructor: UITextBoxController,
 
             /**
-            *   Update all entities which contain the UIInput components.
+            *   Update all entities which contain the UITextBox components.
             *
             *   @method update
             *   @returns {undefined}
@@ -24,12 +31,12 @@ define([
             update: function(elapsed) {
                 this.elapsed = elapsed;
 
-                this.filterBy(['Transform', 'UIInput', 'BoxCollider'], function(entity) {
-                    var uiInput = entity.getComponent('UIInput');
+                this.filterBy(['Transform', 'UITextBox', 'BoxCollider'], function(entity) {
+                    var uiTextBox = entity.getComponent('UITextBox');
 
-                    if (uiInput.isDirty()) {
+                    if (uiTextBox.isDirty()) {
                         this.updateInput(entity);
-                        uiInput.setDirty(false);
+                        uiTextBox.setDirty(false);
                     }
 
                     this.updateCursor(entity);
@@ -46,51 +53,51 @@ define([
             updateInput: function(entity) {
                 var transform   = entity.getComponent('Transform');
                 var boxCollider = entity.getComponent('BoxCollider');
-                var uiInput     = entity.getComponent('UIInput');
-                var uiStyle     = uiInput.getCurrentStyle();
+                var uiTextBox   = entity.getComponent('UITextBox');
+                var uiStyle     = uiTextBox.getCurrentStyle();
 
-                // Get the Label and Quad child entities
-                var labelEntity, quadEntity, cursorEntity;
-                labelEntity  = entity.getWithTag('foreground');
+                // Get the UIText and Quad child entities
+                var uiTextEntity, quadEntity, cursorEntity;
+                uiTextEntity = entity.getWithTag('foreground');
                 quadEntity   = entity.getWithTag('background');
                 cursorEntity = entity.getWithTag('cursor');
 
-                // Get the Label and Quad components
-                var foregroundLabel = labelEntity.getComponent('Label');
+                // Get the UIText and Quad components
+                var foregroundText = uiTextEntity.getComponent('UIText');
                 var backgroundQuad  = quadEntity.getComponent('Quad');
                 var cursorQuad      = cursorEntity.getComponent('Quad');
 
                 // Update the child components (and set dirty)
-                foregroundLabel.setText(uiInput.text);
+                foregroundText.setText(uiTextBox.text);
                 backgroundQuad.setSprite(uiStyle.background);
 
                 // Update the materials
-                var labelMaterial = labelEntity.getComponent('MeshRenderer').material;
-                var quadMaterial  = quadEntity.getComponent('MeshRenderer').material;
+                var uiTextMaterial = uiTextEntity.getComponent('MeshRenderer').material;
+                var quadMaterial   = quadEntity.getComponent('MeshRenderer').material;
 
-                labelMaterial.diffuse   = uiStyle.fontColor;
+                uiTextMaterial.diffuse  = uiStyle.fontColor;
                 quadMaterial.diffuseMap = uiStyle.background;
 
-                // Set the label position to be offset by the padding
-                var labelTransform = labelEntity.getComponent('Transform');
-                labelTransform.setPosition(uiStyle.paddingLeft, -uiStyle.paddingTop, 0);
+                // Set the uiText position to be offset by the padding
+                var uiTextTransform = uiTextEntity.getComponent('Transform');
+                uiTextTransform.setPosition(uiStyle.paddingLeft, -uiStyle.paddingTop, 0);
 
-                // Update the quad once the label has been updated
-                foregroundLabel.once('updated', function() {
-                    // Set the quad to be the label size + padding
-                    backgroundQuad.setWidth(foregroundLabel.getComputedWidth() + uiStyle.paddingLeft + uiStyle.paddingRight);
-                    backgroundQuad.setHeight(foregroundLabel.getComputedHeight() + uiStyle.paddingTop + uiStyle.paddingBottom);
+                // Update the quad once the uiText has been updated
+                foregroundText.once('updated', function() {
+                    // Set the quad to be the uiText size + padding
+                    backgroundQuad.setWidth(foregroundText.getComputedWidth() + uiStyle.paddingLeft + uiStyle.paddingRight);
+                    backgroundQuad.setHeight(foregroundText.getComputedHeight() + uiStyle.paddingTop + uiStyle.paddingBottom);
 
                     // Update the cursor
-                    if (uiInput.hasFocusState()) {
+                    if (uiTextBox.hasFocusState()) {
                         // Update cursor color
                         var cursorMaterial     = cursorEntity.getComponent('MeshRenderer').material;
                         cursorMaterial.diffuse = uiStyle.fontColor;
 
                         // Update cursor position
                         var cursorTranform = cursorEntity.getComponent('Transform');
-                        var dx = foregroundLabel.getComputedWidth() + uiStyle.paddingLeft;
-                        var dy = foregroundLabel.getComputedHeight() / 2;
+                        var dx = foregroundText.getComputedWidth() + uiStyle.paddingLeft;
+                        var dy = foregroundText.getComputedHeight() / 2;
                         cursorTranform.setPosition(dx, -dy, 0);
                     }
                 });
@@ -104,20 +111,20 @@ define([
             },
 
             /**
-            *   This method controls the UIInput blinking cursor.
+            *   This method controls the UITextBox blinking cursor.
             *
             *   @method updateCursor
             *   @param {entity}
             *   @returns {undefined}
             */
             updateCursor: function(entity) {
-                var uiInput        = entity.getComponent('UIInput');
-                var uiStyle        = uiInput.getCurrentStyle();
+                var uiTextBox      = entity.getComponent('UITextBox');
+                var uiStyle        = uiTextBox.getCurrentStyle();
                 var cursorEntity   = entity.getWithTag('cursor');
                 var cursorRenderer = cursorEntity.getComponent('MeshRenderer');
                 
-                uiInput.addCursorTime(this.elapsed);
-                if (uiInput.isCursorVisible()) {
+                uiTextBox.addCursorTime(this.elapsed);
+                if (uiTextBox.isCursorVisible()) {
                     cursorRenderer.setEnabled(true);
                 } else {
                     cursorRenderer.setEnabled(false);
@@ -126,6 +133,6 @@ define([
 
         });
 
-        return UIInputController;
+        return UITextBoxController;
     }
 );

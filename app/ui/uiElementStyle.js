@@ -1,5 +1,5 @@
 define([
-        'core/uiStyle'
+        'ui/uiStyle'
     ],
     function(
         UIStyle

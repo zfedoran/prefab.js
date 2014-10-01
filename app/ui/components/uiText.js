@@ -13,9 +13,9 @@ define([
         'use strict';
 
         /**
-        *   Label component class.
+        *   UIText component class.
         *
-        *   Any entity with a Label component will have its MeshFilter
+        *   Any entity with a UIText component will have its MeshFilter
         *   automatically updated with a matching quad Mesh.
         *
         *   @class 
@@ -24,7 +24,7 @@ define([
         *   @param {sprite}
         *   @constructor
         */
-        var Label = function(text, fontFamily, fontSize, width, height, lineHeight) {
+        var UIText = function(text, fontFamily, fontSize, width, height, lineHeight) {
             Component.call(this);
 
             // If no width / height is provided, make this label size automatically
@@ -46,7 +46,7 @@ define([
             this.fontFamily   = fontFamily || 'arial';
             this.fontSize     = fontSize || 10;
             this.lineHeight   = lineHeight;
-            this.textAlign    = Label.TEXT_ALIGN_LEFT;
+            this.textAlign    = UIText.TEXT_ALIGN_LEFT;
 
             // The following properties change how the dynamic spriteFont is generated
             this.antiAlias    = true;
@@ -55,10 +55,10 @@ define([
             this.anchor       = new Vector3(0, 0, 0);
         };
 
-        Label.__name__ = 'Label';
+        UIText.__name__ = 'UIText';
 
-        Label.prototype = _.create(Component.prototype, {
-            constructor: Label,
+        UIText.prototype = _.create(Component.prototype, {
+            constructor: UIText,
 
             /**
             *   This method is called when this component is added to an entity.
@@ -153,10 +153,10 @@ define([
 
         });
 
-        Label.TEXT_ALIGN_LEFT   = 'left';
-        Label.TEXT_ALIGN_RIGHT  = 'right';
-        Label.TEXT_ALIGN_CENTER = 'center';
+        UIText.TEXT_ALIGN_LEFT   = 'left';
+        UIText.TEXT_ALIGN_RIGHT  = 'right';
+        UIText.TEXT_ALIGN_CENTER = 'center';
 
-        return Label;
+        return UIText;
     }
 );

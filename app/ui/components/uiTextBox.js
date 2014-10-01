@@ -1,22 +1,22 @@
 define([
         'lodash',
-        'components/uiElement',
-        'math/vector4'
+        'math/vector4',
+        'ui/components/uiElement'
     ],
     function(
         _,
-        UIElement,
-        Vector4
+        Vector4,
+        UIElement
     ) {
         'use strict';
 
         /**
-        *   UIInput component class.
+        *   UITextBox component class.
         *
         *   @class 
         *   @constructor
         */
-        var UIInput = function(text, uiElementStyle) {
+        var UITextBox = function(text, uiElementStyle) {
             UIElement.call(this, uiElementStyle);
 
             this.text = text;
@@ -26,10 +26,10 @@ define([
             this._cursorBlinkDelay = 1;
         };
 
-        UIInput.__name__ = 'UIInput';
+        UITextBox.__name__ = 'UITextBox';
 
-        UIInput.prototype = _.create(UIElement.prototype, {
-            constructor: UIInput,
+        UITextBox.prototype = _.create(UIElement.prototype, {
+            constructor: UITextBox,
 
             /**
             *   This method is called when this component is added to an entity.
@@ -117,7 +117,7 @@ define([
             },
 
             /**
-            *   Check if the cursor for this UIInput component is visible.
+            *   Check if the cursor for this UITextBox component is visible.
             *
             *   @method isCursorVisible
             *   @returns {undefined}
@@ -240,6 +240,6 @@ define([
             },
         });
 
-        return UIInput;
+        return UITextBox;
     }
 );

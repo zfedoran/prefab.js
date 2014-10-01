@@ -86,12 +86,12 @@ define([
                     'controllers/cameraController',
                     'controllers/blockController',
                     'controllers/quadController',
-                    'controllers/labelController',
                     'controllers/colliderController',
                     'controllers/mouseController',
-                    'controllers/uiButtonController',
-                    'controllers/uiInputController',
                     'controllers/clipController',
+                    'ui/controllers/uiTextController',
+                    'ui/controllers/uiTextBoxController',
+                    'ui/controllers/uiButtonController',
                     'editor/controllers/gridController'
                 ], callback);
 

@@ -1,6 +1,6 @@
 define([
         'lodash',
-        'core/uiElementStyle'
+        'ui/uiElementStyle'
     ],
     function(
         _,

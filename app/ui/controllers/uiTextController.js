@@ -6,7 +6,7 @@ define([
         'graphics/meshFactory',
         'graphics/mesh',
         'graphics/spriteFont',
-        'components/label'
+        'ui/components/uiText'
     ], 
     function(
         _,
@@ -16,41 +16,41 @@ define([
         MeshFactory,
         Mesh,
         SpriteFont,
-        Label
+        UIText
     ) {
         'use strict';
 
         /**
         *   This class updates the mesh associated with entities which have a
-        *   Label component.
+        *   UIText component.
         *
         *   @class 
         *   @param {context}
         *   @constructor
         */
-        var LabelController = function(context) {
+        var UITextController = function(context) {
             Controller.call(this, context);
 
             this.meshFactory = new MeshFactory(this.device);
             this.fontCache   = {};
         };
 
-        LabelController.prototype = _.create(Controller.prototype, {
-            constructor: LabelController,
+        UITextController.prototype = _.create(Controller.prototype, {
+            constructor: UITextController,
 
             /**
-            *   Update all entities which contain the Label and MeshFilter
+            *   Update all entities which contain the UIText and MeshFilter
             *   components.
             *
             *   @method update
             *   @returns {undefined}
             */
             update: function() {
-                this.filterBy(['Transform', 'Label', 'MeshFilter', 'MeshRenderer'], function(entity) {
-                    var transform    = entity.getComponent('Transform');
-                    var label        = entity.getComponent('Label');
+                this.filterBy(['Transform', 'UIText', 'MeshFilter', 'MeshRenderer'], function(entity) {
+                    var transform = entity.getComponent('Transform');
+                    var uiText    = entity.getComponent('UIText');
 
-                    if (label.isDirty()) {
+                    if (uiText.isDirty()) {
                         var meshRenderer = entity.getComponent('MeshRenderer');
                         var meshFilter   = entity.getComponent('MeshFilter');
                         var mesh         = meshFilter.getMesh();
@@ -62,63 +62,63 @@ define([
                         }
 
                         // Check if a SpriteFont exists
-                        if (!label.spriteFont) {
-                            var fontName   = label.getFontName();
+                        if (!uiText.spriteFont) {
+                            var fontName   = uiText.getFontName();
                             var spriteFont = this.fontCache[fontName];
 
                             // Create a new SpriteFont if one is not found
                             if (!spriteFont) {
                                 spriteFont = new SpriteFont(this.device, {
-                                    fontFamily   : label.fontFamily,
-                                    fontSize     : label.fontSize,
-                                    antiAlias    : label.antiAlias,
-                                    invertColors : label.invertColors,
+                                    fontFamily   : uiText.fontFamily,
+                                    fontSize     : uiText.fontSize,
+                                    antiAlias    : uiText.antiAlias,
+                                    invertColors : uiText.invertColors,
                                     firstChar    : 32,
                                     lastChar     : 126
                                 });
 
-                                // Set the label font
-                                label.spriteFont = spriteFont;
+                                // Set the uiText font
+                                uiText.spriteFont = spriteFont;
 
                                 // Update the font cache
-                                this.fontCache[label.getFontName()] = label.spriteFont;
+                                this.fontCache[uiText.getFontName()] = uiText.spriteFont;
                             } else {
 
-                                // Update the label with the cached font
-                                label.spriteFont = spriteFont;
+                                // Update the uiText with the cached font
+                                uiText.spriteFont = spriteFont;
                             }
                         }
 
-                        // Generate the new label mesh
-                        this.generateLabelMesh(label, mesh);
+                        // Generate the new uiText mesh
+                        this.generateTextMesh(uiText, mesh);
 
                         // Set the mesh
                         meshFilter.setMesh(mesh);
 
                         // Set the spriteFont texture on the material
-                        meshRenderer.material.diffuseMap = label.spriteFont._texture;
+                        meshRenderer.material.diffuseMap = uiText.spriteFont._texture;
 
-                        label.setDirty(false);
+                        uiText.setDirty(false);
                     }
                 }, this);
             },
 
             /**
-            *   This method splits label text into a series of lines according
-            *   to the label width.
+            *   This method splits uiText text into a series of lines according
+            *   to the uiText width.
             *
             *   @method generateParagraphLines
-            *   @param {label}
+            *   @param {uiText}
             *   @returns {lines} An array of strings
             */
-            generateParagraphLines: function(label) {
-                var font         = label.spriteFont,
-                    text         = label.text,
-                    maxWidth     = label.width,
+            generateParagraphLines: function(uiText) {
+                var font         = uiText.spriteFont,
+                    text         = uiText.text,
+                    maxWidth     = uiText.width,
                     lines        = [],
                     currentLine  = '';
 
-                // Go through all characters in the label text
+                // Go through all characters in the uiText text
                 var dx = 0, i, len = text.length;
                 for (i = 0; i < len; i++) {
                     var current      = text.charAt(i);
@@ -164,38 +164,38 @@ define([
             },
 
             /**
-            *   Generate the character quads for a label and return a mesh.
+            *   Generate the character quads for a uiText and return a mesh.
             *
-            *   @method generateLabelMesh
-            *   @param {label}
+            *   @method generateTextMesh
+            *   @param {uiText}
             *   @returns {mesh}
             */
-            generateLabelMesh: function(label, mesh) {
+            generateTextMesh: function(uiText, mesh) {
                 this.meshFactory.begin(mesh);
 
                 // Get the sprite font
-                var font = label.spriteFont;
+                var font = uiText.spriteFont;
 
-                // Get the paragraph lines for this label
+                // Get the paragraph lines for this uiText
                 var lines, autoWidth;
-                if (this.multiLine && label.width) {
-                    lines     = this.generateParagraphLines(label);
-                    autoWidth = label.width;
+                if (this.multiLine && uiText.width) {
+                    lines     = this.generateParagraphLines(uiText);
+                    autoWidth = uiText.width;
                 } else {
-                    lines     = [label.text];
-                    autoWidth = font.measureText(label.text);
+                    lines     = [uiText.text];
+                    autoWidth = font.measureText(uiText.text);
                 }
 
                 // Get fontFamily meta-data
                 var charWidth  = font.getCharWidth();
                 var charHeight = font.getCharWidth();
 
-                // Calcualte the label height
-                var autoHeight = label.height || (lines.length * (label.lineHeight || charHeight));
+                // Calcualte the uiText height
+                var autoHeight = uiText.height || (lines.length * (uiText.lineHeight || charHeight));
 
                 // Set internal width and height values
-                label._width  = autoWidth;
-                label._height = autoHeight;
+                uiText._width  = autoWidth;
+                uiText._height = autoHeight;
 
                 // Go through each line
                 var dx, dy = 0;
@@ -203,10 +203,10 @@ define([
                     var currentLine = lines[lineIndex];
 
                     // Get the new line offset based on the textAlign property
-                    if (label.textAlign === Label.TEXT_ALIGN_RIGHT) {
+                    if (uiText.textAlign === UIText.TEXT_ALIGN_RIGHT) {
                         // Put the starting position at the end
                         dx = autoWidth - font.measureText(currentLine);
-                    } else if (label.textAlign === Label.TEXT_ALIGN_CENTER) {
+                    } else if (uiText.textAlign === UIText.TEXT_ALIGN_CENTER) {
                         // Put the starting position half way through
                         dx = Math.floor(autoWidth / 2) - Math.floor(font.measureText(currentLine) / 2);
                     } else {
@@ -214,7 +214,7 @@ define([
                     }
 
                     // Go to the next line
-                    dy -= label.lineHeight || charHeight;
+                    dy -= uiText.lineHeight || charHeight;
 
                     // Go through each character
                     for (var charIndex = 0; charIndex < currentLine.length; charIndex++) {
@@ -231,8 +231,8 @@ define([
                             // Generate the glyph face
                             this.generateFace(kerning, 
                                               charHeight, 
-                                              dx - Math.floor(autoWidth / 2) * (1 - label.anchor.x), 
-                                              dy + Math.floor(autoHeight / 2) * (1 + label.anchor.y), 
+                                              dx - Math.floor(autoWidth / 2) * (1 - uiText.anchor.x), 
+                                              dy + Math.floor(autoHeight / 2) * (1 + uiText.anchor.y), 
                                               sprite);
 
                             // Set the offset values for the next glyph
@@ -281,6 +281,6 @@ define([
             }
         });
 
-        return LabelController;
+        return UITextController;
     }
 );

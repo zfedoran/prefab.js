@@ -9,10 +9,10 @@ define([
         'components/meshClip',
         'factories/blockFactory',
         'factories/quadFactory',
-        'factories/labelFactory',
+        'ui/factories/uiTextFactory',
         'factories/cameraFactory',
-        'factories/uiButtonFactory',
-        'factories/uiInputFactory',
+        'ui/factories/uiButtonFactory',
+        'ui/factories/uiTextBoxFactory',
         'editor/factories/gridFactory',
         'editor/ui/uiEditorButton',
         'editor/ui/uiEditorInput'
@@ -28,10 +28,10 @@ define([
         MeshClip,
         BlockFactory,
         QuadFactory,
-        LabelFactory,
+        UITextFactory,
         CameraFactory,
         UIButtonFactory,
-        UIInputFactory,
+        UITextBoxFactory,
         GridFactory,
         UIEditorButton,
         UIEditorInput
@@ -72,11 +72,11 @@ define([
             *   @returns {undefined}
             */
             initFactories: function() {
-                this.cameraFactory   = new CameraFactory(this.context);
-                this.blockFactory    = new BlockFactory(this.context);
-                this.quadFactory     = new QuadFactory(this.context);
-                this.labelFactory    = new LabelFactory(this.context);
-                this.gridFactory     = new GridFactory(this.context);
+                this.cameraFactory = new CameraFactory(this.context);
+                this.blockFactory  = new BlockFactory(this.context);
+                this.quadFactory   = new QuadFactory(this.context);
+                this.uiTextFactory = new UITextFactory(this.context);
+                this.gridFactory   = new GridFactory(this.context);
             },
 
             /**
@@ -112,8 +112,8 @@ define([
             */
             initEditor: function() {
                 // Factories
-                this.uiButtonFactory = new UIButtonFactory(this.context);
-                this.uiInputFactory  = new UIInputFactory(this.context);
+                this.uiButtonFactory  = new UIButtonFactory(this.context);
+                this.uiTextBoxFactory = new UITextBoxFactory(this.context);
 
                 // Styles
                 this.uiEditorButton = new UIEditorButton(this.context);
@@ -132,19 +132,19 @@ define([
                 transform = this.button.getComponent('Transform');
                 transform.setPosition(150, 100, -1);
 
-                this.input = this.uiInputFactory.create('0.4200', this.uiEditorInput);
+                this.input = this.uiTextBoxFactory.create('0.4200', this.uiEditorInput);
                 this.input.addToGroup('ui');
 
                 transform = this.input.getComponent('Transform');
                 transform.setPosition(250, 100, -1);
 
-                this.input = this.uiInputFactory.create('0.2138', this.uiEditorInput);
+                this.input = this.uiTextBoxFactory.create('0.2138', this.uiEditorInput);
                 this.input.addToGroup('ui');
 
                 transform = this.input.getComponent('Transform');
                 transform.setPosition(310, 100, -1);
 
-                this.input = this.uiInputFactory.create('0.9034', this.uiEditorInput);
+                this.input = this.uiTextBoxFactory.create('0.9034', this.uiEditorInput);
                 this.input.addToGroup('ui');
 
                 transform = this.input.getComponent('Transform');
@@ -168,7 +168,7 @@ define([
                 var prev, transform;
 
                 prev = this.root;
-                for (var i = 0; i < 10; i++) {
+                for (var i = 0; i < 100; i++) {
                     var block = this.blockFactory.create(sprite.getTexture(), 1, 1, 1);
                     block.name = 'block-' + i;
                     block.getComponent('Block').setAllFacesTo(sprite);
@@ -176,29 +176,11 @@ define([
 
                     transform = block.getComponent('Transform');
                     transform.setPosition((Math.random() - 0.5)*2, (Math.random() - 0.5)*2, (Math.random() - 0.5)*2);
-                    //transform.setRotationFromEuler(-0.1, -0.1, -0.1);
+                    transform.setRotationFromEuler(-0.1, -0.1, -0.1);
 
                     prev.addChild(block);
                     prev = block;
                 }
-
-                
-                /*
-                var self = this;
-                setTimeout(function() {
-                    var saveAsFileDialog = new SaveAsFileDialog();
-                    saveAsFileDialog.init('hello-world.png');
-                    saveAsFileDialog.trigger(function(filename) {
-                        var base64String = self.fpsLabel.getComponent('Label').spriteFont._canvas.toDataURL('image/png').split(',')[1];
-                        var buffer       = new Buffer(base64String, 'base64');
-
-                        var fs = require('fs');
-                        fs.writeFileSync(filename, buffer);
-
-                        saveAsFileDialog.destroy();
-                    });
-                }, 5000);
-                */
             },
 
             /**
@@ -261,7 +243,7 @@ define([
 
                 this.camera.getComponent('Camera').target = this.root;
 
-                this.input.getComponent('UIInput').setText(this.context.getFramesPerSecond());
+                this.input.getComponent('UITextBox').setText(this.context.getFramesPerSecond());
             }
 
         });

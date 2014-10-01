@@ -8,6 +8,13 @@ define([
     ) {
         'use strict';
 
+        /**
+        *   This controller is for the UIButton component.
+        *
+        *   @class 
+        *   @constructor
+        *   @param {context}
+        */
         var UIButtonController = function(context) {
             Controller.call(this, context);
         };
@@ -44,35 +51,35 @@ define([
                 var boxCollider = entity.getComponent('BoxCollider');
                 var uiStyle     = uiButton.getCurrentStyle();
 
-                // Get the Label and Quad child entities
-                var labelEntity, quadEntity;
-                labelEntity = entity.getWithTag('foreground');
-                quadEntity  = entity.getWithTag('background');
+                // Get the UIText and Quad child entities
+                var uiTextEntity, quadEntity;
+                uiTextEntity = entity.getWithTag('foreground');
+                quadEntity   = entity.getWithTag('background');
 
-                // Get the Label and Quad components
-                var label = labelEntity.getComponent('Label');
-                var quad  = quadEntity.getComponent('Quad');
+                // Get the UIText and Quad components
+                var uiText = uiTextEntity.getComponent('UIText');
+                var quad   = quadEntity.getComponent('Quad');
 
                 // Update the child components (and set dirty)
-                label.setText(uiButton.text);
+                uiText.setText(uiButton.text);
                 quad.setSprite(uiStyle.background);
 
                 // Update the materials
-                var labelMaterial = labelEntity.getComponent('MeshRenderer').material;
-                var quadMaterial  = quadEntity.getComponent('MeshRenderer').material;
+                var uiTextMaterial = uiTextEntity.getComponent('MeshRenderer').material;
+                var quadMaterial   = quadEntity.getComponent('MeshRenderer').material;
 
-                labelMaterial.diffuse   = uiStyle.fontColor;
+                uiTextMaterial.diffuse  = uiStyle.fontColor;
                 quadMaterial.diffuseMap = uiStyle.background;
 
-                // Set the label position to be offset by the padding
-                var labelTransform = labelEntity.getComponent('Transform');
-                labelTransform.setPosition(uiStyle.paddingLeft, -uiStyle.paddingTop, 0);
+                // Set the uiText position to be offset by the padding
+                var uiTextTransform = uiTextEntity.getComponent('Transform');
+                uiTextTransform.setPosition(uiStyle.paddingLeft, -uiStyle.paddingTop, 0);
 
-                // Update the quad once the label has been updated
-                label.once('updated', function() {
-                    // Set the quad to be the label size + padding
-                    quad.setWidth(label.getComputedWidth() + uiStyle.paddingLeft + uiStyle.paddingRight);
-                    quad.setHeight(label.getComputedHeight() + uiStyle.paddingTop + uiStyle.paddingBottom);
+                // Update the quad once the uiText has been updated
+                uiText.once('updated', function() {
+                    // Set the quad to be the uiText size + padding
+                    quad.setWidth(uiText.getComputedWidth() + uiStyle.paddingLeft + uiStyle.paddingRight);
+                    quad.setHeight(uiText.getComputedHeight() + uiStyle.paddingTop + uiStyle.paddingBottom);
                 });
 
                 // Set the boxCollider bounding box once the quad mesh is available

@@ -1,22 +1,22 @@
 define([
         'lodash',
         'core/factory',
-        'factories/labelFactory',
         'factories/quadFactory',
         'components/transform',
-        'components/uiElement',
-        'components/uiButton',
-        'components/boxCollider'
+        'components/boxCollider',
+        'ui/factories/uiTextFactory',
+        'ui/components/uiElement',
+        'ui/components/uiButton'
     ],
     function(
         _,
         Factory,
-        LabelFactory,
         QuadFactory,
         Transform,
+        BoxCollider,
+        UITextFactory,
         UIElement,
-        UIButton,
-        BoxCollider
+        UIButton
     ) {
         'use strict';
     
@@ -25,8 +25,8 @@ define([
         var UIButtonFactory = function(context) {
             Factory.call(this, context);
 
-            this.labelFactory = new LabelFactory(context);
-            this.quadFactory  = new QuadFactory(context);
+            this.uiTextFactory = new UITextFactory(context);
+            this.quadFactory   = new QuadFactory(context);
         };
 
         UIButtonFactory.prototype = _.create(Factory.prototype, {
@@ -41,29 +41,29 @@ define([
                 entity.addComponent(new BoxCollider());
 
                 // Child Entities
-                var defaultStyle = entity.getComponent('UIButton').getCurrentStyle();
-                var labelEntity  = this.labelFactory.create(text, defaultStyle.fontFamily, defaultStyle.fontSize);
-                var quadEntity   = this.quadFactory.create(defaultStyle.background);
+                var defaultStyle  = entity.getComponent('UIButton').getCurrentStyle();
+                var uiTextEntity  = this.uiTextFactory.create(text, defaultStyle.fontFamily, defaultStyle.fontSize);
+                var quadEntity    = this.quadFactory.create(defaultStyle.background);
 
-                labelEntity.name = 'foreground';
-                quadEntity.name  = 'background';
+                uiTextEntity.name = 'foreground';
+                quadEntity.name   = 'background';
 
-                var label = labelEntity.getComponent('Label');
-                var quad  = quadEntity.getComponent('Quad');
+                var uiText        = uiTextEntity.getComponent('UIText');
+                var quad          = quadEntity.getComponent('Quad');
 
                 quad.useSlicedMode();
                 
                 // Set anchor positions
-                label.anchor.set(1, -1, 0);
+                uiText.anchor.set(1, -1, 0);
                 quad.anchor.set(1, -1, 0);
 
                 // Set the child hierarchy
                 entity.addChild(quadEntity);
-                entity.addChild(labelEntity);
+                entity.addChild(uiTextEntity);
 
                 // Tag entities to make them more easily accessible later
                 entity.tagEntity(quadEntity);
-                entity.tagEntity(labelEntity);
+                entity.tagEntity(uiTextEntity);
 
                 return entity;
             }

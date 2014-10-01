@@ -1,12 +1,12 @@
 define([
         'lodash',
-        'components/uiElement',
-        'math/vector4'
+        'math/vector4',
+        'ui/components/uiElement'
     ],
     function(
         _,
-        UIElement,
-        Vector4
+        Vector4,
+        UIElement
     ) {
         'use strict';
 
