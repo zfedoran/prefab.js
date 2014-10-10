@@ -41,11 +41,11 @@ define([
             *   @returns {undefined}
             */
             update: function() {
-                this.filterBy(['Transform', 'Block', 'MeshFilter'], function(entity) {
-                    var transform  = entity.getComponent('Transform');
+                this.filterBy(['Transform', 'Block', 'Dimensions', 'MeshFilter'], function(entity) {
                     var block      = entity.getComponent('Block');
+                    var dimensions = entity.getComponent('Dimensions');
 
-                    if (block.isDirty()) {
+                    if (block.isDirty() || dimensions.isDirty()) {
                         var meshFilter = entity.getComponent('MeshFilter');
                         var mesh       = meshFilter.getMesh();
 
@@ -55,7 +55,7 @@ define([
                             mesh = new Mesh(this.device, Mesh.TRIANGLES);
                         }
 
-                        this.generateBlockMesh(block, mesh);
+                        this.generateBlockMesh(entity, mesh);
                         meshFilter.setMesh(mesh);
 
                         block.setDirty(false);
@@ -67,15 +67,19 @@ define([
             *   Generate the 6 faces of a block and return a mesh.
             *
             *   @method generateBlockMesh
-            *   @param {block}
+            *   @param {entity}
+            *   @param {mesh}
             *   @returns {mesh}
             */
-            generateBlockMesh: function(block, mesh) {
+            generateBlockMesh: function(entity, mesh) {
+                var block      = entity.getComponent('Block');
+                var dimensions = entity.getComponent('Dimensions');
+
                 var w, h, d, hw, hh, hd;
 
-                w = block.width;
-                h = block.height;
-                d = block.depth;
+                w = dimensions.getWidth();
+                h = dimensions.getHeight();
+                d = dimensions.getDepth();
 
                 hw = w / 2;
                 hh = h / 2;
@@ -83,12 +87,12 @@ define([
 
                 this.meshFactory.begin(mesh);
 
-                this.generateFaceFront(hw, hh, hd, block.front, block.anchor);
-                this.generateFaceBack(hw, hh, hd, block.back, block.anchor);
-                this.generateFaceLeft(hw, hh, hd, block.left, block.anchor);
-                this.generateFaceRight(hw, hh, hd, block.right, block.anchor);
-                this.generateFaceTop(hw, hh, hd, block.top, block.anchor);
-                this.generateFaceBottom(hw, hh, hd, block.bottom, block.anchor);
+                this.generateFaceFront(hw, hh, hd, block.front);
+                this.generateFaceBack(hw, hh, hd, block.back);
+                this.generateFaceLeft(hw, hh, hd, block.left);
+                this.generateFaceRight(hw, hh, hd, block.right);
+                this.generateFaceTop(hw, hh, hd, block.top);
+                this.generateFaceBottom(hw, hh, hd, block.bottom);
 
                 this.meshFactory.end();
 
@@ -103,10 +107,9 @@ define([
             *   @param {h} height
             *   @param {d} depth
             *   @param {sprite} sprite texture
-            *   @param {anchor} anchor point
             *   @returns {undefined}
             */
-            generateFaceFront: function(w, h, d, sprite, anchor) {
+            generateFaceFront: function(w, h, d, sprite) {
                 var vertexCount = this.meshFactory.getVertexCount();
 
                 var u, v, s, t;
@@ -115,15 +118,10 @@ define([
                 s = sprite.getUVWidth();
                 t = sprite.getUVHeight();
 
-                var ax, ay, az;
-                ax = anchor.x * w;
-                ay = anchor.y * h;
-                az = anchor.z * d;
-
-                this.meshFactory.addVertex(new Vector3(-w + ax, -h + ay, d + az));
-                this.meshFactory.addVertex(new Vector3(-w + ax,  h + ay, d + az));
-                this.meshFactory.addVertex(new Vector3( w + ax,  h + ay, d + az));
-                this.meshFactory.addVertex(new Vector3( w + ax, -h + ay, d + az));
+                this.meshFactory.addVertex(new Vector3(-w, -h, d));
+                this.meshFactory.addVertex(new Vector3(-w,  h, d));
+                this.meshFactory.addVertex(new Vector3( w,  h, d));
+                this.meshFactory.addVertex(new Vector3( w, -h, d));
 
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
@@ -142,10 +140,9 @@ define([
             *   @param {h} height
             *   @param {d} depth
             *   @param {sprite} sprite texture
-            *   @param {anchor} anchor point
             *   @returns {undefined}
             */
-            generateFaceBack: function(w, h, d, sprite, anchor) {
+            generateFaceBack: function(w, h, d, sprite) {
                 var vertexCount = this.meshFactory.getVertexCount();
 
                 var u, v, s, t;
@@ -154,15 +151,10 @@ define([
                 s = sprite.getUVWidth();
                 t = sprite.getUVHeight();
 
-                var ax, ay, az;
-                ax = anchor.x * w;
-                ay = anchor.y * h;
-                az = anchor.z * d;
-
-                this.meshFactory.addVertex(new Vector3(-w + ax, -h + ay, -d + az));
-                this.meshFactory.addVertex(new Vector3(-w + ax,  h + ay, -d + az));
-                this.meshFactory.addVertex(new Vector3( w + ax,  h + ay, -d + az));
-                this.meshFactory.addVertex(new Vector3( w + ax, -h + ay, -d + az));
+                this.meshFactory.addVertex(new Vector3(-w, -h, -d));
+                this.meshFactory.addVertex(new Vector3(-w,  h, -d));
+                this.meshFactory.addVertex(new Vector3( w,  h, -d));
+                this.meshFactory.addVertex(new Vector3( w, -h, -d));
 
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
@@ -181,10 +173,9 @@ define([
             *   @param {h} height
             *   @param {d} depth
             *   @param {sprite} sprite texture
-            *   @param {anchor} anchor point
             *   @returns {undefined}
             */
-            generateFaceLeft: function(w, h, d, sprite, anchor) {
+            generateFaceLeft: function(w, h, d, sprite) {
                 var vertexCount = this.meshFactory.getVertexCount();
 
                 var u, v, s, t;
@@ -193,15 +184,10 @@ define([
                 s = sprite.getUVWidth();
                 t = sprite.getUVHeight();
 
-                var ax, ay, az;
-                ax = anchor.x * w;
-                ay = anchor.y * h;
-                az = anchor.z * d;
-
-                this.meshFactory.addVertex(new Vector3(-w + ax, -h + ay, -d + az));
-                this.meshFactory.addVertex(new Vector3(-w + ax,  h + ay, -d + az));
-                this.meshFactory.addVertex(new Vector3(-w + ax,  h + ay,  d + az));
-                this.meshFactory.addVertex(new Vector3(-w + ax, -h + ay,  d + az));
+                this.meshFactory.addVertex(new Vector3(-w, -h, -d));
+                this.meshFactory.addVertex(new Vector3(-w,  h, -d));
+                this.meshFactory.addVertex(new Vector3(-w,  h,  d));
+                this.meshFactory.addVertex(new Vector3(-w, -h,  d));
 
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
@@ -220,10 +206,9 @@ define([
             *   @param {h} height
             *   @param {d} depth
             *   @param {sprite} sprite texture
-            *   @param {anchor} anchor point
             *   @returns {undefined}
             */
-            generateFaceRight: function(w, h, d, sprite, anchor) {
+            generateFaceRight: function(w, h, d, sprite) {
                 var vertexCount = this.meshFactory.getVertexCount();
 
                 var u, v, s, t;
@@ -232,15 +217,10 @@ define([
                 s = sprite.getUVWidth();
                 t = sprite.getUVHeight();
 
-                var ax, ay, az;
-                ax = anchor.x * w;
-                ay = anchor.y * h;
-                az = anchor.z * d;
-
-                this.meshFactory.addVertex(new Vector3(w + ax, -h + ay, -d + az));
-                this.meshFactory.addVertex(new Vector3(w + ax,  h + ay, -d + az));
-                this.meshFactory.addVertex(new Vector3(w + ax,  h + ay,  d + az));
-                this.meshFactory.addVertex(new Vector3(w + ax, -h + ay,  d + az));
+                this.meshFactory.addVertex(new Vector3(w, -h, -d));
+                this.meshFactory.addVertex(new Vector3(w,  h, -d));
+                this.meshFactory.addVertex(new Vector3(w,  h,  d));
+                this.meshFactory.addVertex(new Vector3(w, -h,  d));
 
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
@@ -259,10 +239,9 @@ define([
             *   @param {h} height
             *   @param {d} depth
             *   @param {sprite} sprite texture
-            *   @param {anchor} anchor point
             *   @returns {undefined}
             */
-            generateFaceTop: function(w, h, d, sprite, anchor) {
+            generateFaceTop: function(w, h, d, sprite) {
                 var vertexCount = this.meshFactory.getVertexCount();
 
                 var u, v, s, t;
@@ -271,15 +250,10 @@ define([
                 s = sprite.getUVWidth();
                 t = sprite.getUVHeight();
 
-                var ax, ay, az;
-                ax = anchor.x * w;
-                ay = anchor.y * h;
-                az = anchor.z * d;
-
-                this.meshFactory.addVertex(new Vector3(-w + ax, h + ay, -d + az));
-                this.meshFactory.addVertex(new Vector3( w + ax, h + ay, -d + az));
-                this.meshFactory.addVertex(new Vector3( w + ax, h + ay,  d + az));
-                this.meshFactory.addVertex(new Vector3(-w + ax, h + ay,  d + az));
+                this.meshFactory.addVertex(new Vector3(-w, h, -d));
+                this.meshFactory.addVertex(new Vector3( w, h, -d));
+                this.meshFactory.addVertex(new Vector3( w, h,  d));
+                this.meshFactory.addVertex(new Vector3(-w, h,  d));
 
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + 0));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + s, v + t));
@@ -298,10 +272,9 @@ define([
             *   @param {h} height
             *   @param {d} depth
             *   @param {sprite} sprite texture
-            *   @param {anchor} anchor point
             *   @returns {undefined}
             */
-            generateFaceBottom: function(w, h, d, sprite, anchor) {
+            generateFaceBottom: function(w, h, d, sprite) {
                 var vertexCount = this.meshFactory.getVertexCount();
 
                 var u, v, s, t;
@@ -310,15 +283,10 @@ define([
                 s = sprite.getUVWidth();
                 t = sprite.getUVHeight();
 
-                var ax, ay, az;
-                ax = anchor.x * w;
-                ay = anchor.y * h;
-                az = anchor.z * d;
-
-                this.meshFactory.addVertex(new Vector3(-w + ax, -h + ay, -d + az));
-                this.meshFactory.addVertex(new Vector3( w + ax, -h + ay, -d + az));
-                this.meshFactory.addVertex(new Vector3( w + ax, -h + ay,  d + az));
-                this.meshFactory.addVertex(new Vector3(-w + ax, -h + ay,  d + az));
+                this.meshFactory.addVertex(new Vector3(-w, -h, -d));
+                this.meshFactory.addVertex(new Vector3( w, -h, -d));
+                this.meshFactory.addVertex(new Vector3( w, -h,  d));
+                this.meshFactory.addVertex(new Vector3(-w, -h,  d));
 
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + 0));
                 this.meshFactory.addUVtoLayer0(new Vector2(u + 0, v + t));

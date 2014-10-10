@@ -1,12 +1,12 @@
 define([
         'lodash',
         'core/component',
-        'math/vector4'
+        'math/vector3'
     ],
     function(
         _,
         Component,
-        Vector4
+        Vector3
     ) {
         'use strict';
 
@@ -112,7 +112,6 @@ define([
             getCurrentBackground: function() {
                 return this.getCurrentStyle().background;
             }
-
         });
 
         UIElement.STATE_NORMAL = 'normal';

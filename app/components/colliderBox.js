@@ -10,7 +10,7 @@ define([
     ) {
         'use strict';
 
-        var BoxCollider = function(boundingBox) {
+        var ColliderBox = function(boundingBox) {
             Component.call(this);
 
             if (typeof boundingBox === 'undefined') {
@@ -18,13 +18,13 @@ define([
             }
 
             this.isTrigger   = false;
-            this.boundingBox = boundingBox;
+            this.boundingBox = new BoundingBox();
         };
 
-        BoxCollider.__name__ = 'BoxCollider';
+        ColliderBox.__name__ = 'ColliderBox';
 
-        BoxCollider.prototype = _.create(Component.prototype, {
-            constructor: BoxCollider,
+        ColliderBox.prototype = _.create(Component.prototype, {
+            constructor: ColliderBox,
 
             /**
             *   This method is called when this component is added to an entity.
@@ -54,18 +54,18 @@ define([
             },
 
             setBoundingBox: function(boundingBox) {
-                this.boundingBox = boundingBox;
+                this.boundingBox.setFrom(boundingBox);
             }
         });
 
-        BoxCollider.createFromMesh = function(mesh) {
-            return new BoxCollider(mesh.getBoundingBox());
+        ColliderBox.createFromMesh = function(mesh) {
+            return new ColliderBox(mesh.getBoundingBox());
         };
 
-        BoxCollider.createFromMinMax = function(min, max) {
-            return new BoxCollider(new BoundingBox(min, max));
+        ColliderBox.createFromMinMax = function(min, max) {
+            return new ColliderBox(new BoundingBox(min, max));
         };
 
-        return BoxCollider;
+        return ColliderBox;
     }
 );

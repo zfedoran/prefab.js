@@ -19,7 +19,9 @@ define([
         var UITextBox = function(text, uiElementStyle) {
             UIElement.call(this, uiElementStyle);
 
-            this.text = text;
+            this.uiTextComponent     = null;
+            this.uiRectComponent     = null;
+            this.cursorQuadComponent = null;
 
             this._cursorPosition   = 0;
             this._cursorBlinkTime  = 0;
@@ -89,15 +91,111 @@ define([
             },
 
             /**
-            *   This method sets this button text to the provided string
+            *   This method sets the UIRect component used by this button
+            *   entity.
+            *
+            *   @method setUIRectComponent
+            *   @param {uiRect}
+            *   @returns {undefined}
+            */
+            setUIRectComponent: function(uiRect) {
+                this.uiRectComponent = uiRect;
+                this.setDirty(true);
+            },
+
+            /**
+            *   This method returns the UIRect component used by this button.
+            *
+            *   @method getUIRectComponent
+            *   @returns {undefined}
+            */
+            getUIRectComponent: function() {
+                return this.uiRectComponent;
+            },
+
+            /**
+            *   This method sets the UIText component used by this button
+            *   entity.
+            *
+            *   @method setUITextComponent
+            *   @param {uiText}
+            *   @returns {undefined}
+            */
+            setUITextComponent: function(uiText) {
+                this.uiTextComponent = uiText;
+                this.setDirty(true);
+            },
+
+            /**
+            *   This method returns the UIText component used by this button.
+            *
+            *   @method getUITextComponent
+            *   @returns {undefined}
+            */
+            getUITextComponent: function() {
+                return this.uiTextComponent;
+            },
+
+            /**
+            *   This method sets the CursorQuad component used by this button
+            *   entity.
+            *
+            *   @method setCursorQuadComponent
+            *   @param {uiText}
+            *   @returns {undefined}
+            */
+            setCursorQuadComponent: function(quad) {
+                this.cursorQuadComponent = quad;
+                this.setDirty(true);
+            },
+
+            /**
+            *   This method returns the CursorQuad component used by this button.
+            *
+            *   @method getCursorQuadComponent
+            *   @returns {undefined}
+            */
+            getCursorQuadComponent: function() {
+                return this.cursorQuadComponent;
+            },
+
+            /**
+            *   This method sets the text to the provided string.
             *
             *   @method setText
             *   @param {text}
             *   @returns {undefined}
             */
             setText: function(text) {
-                this.text = text + '';
+                this.uiTextComponent.setText(text);
                 this.setDirty(true);
+            },
+            
+            /**
+            *   This method gets the text.
+            *
+            *   @method getText
+            *   @returns {undefined}
+            */
+            getText: function() {
+                return this.uiTextComponent.getText();
+            },
+
+            /**
+            *   This method updates the UIElement state and sets this component
+            *   to dirty if the new state is different from the previous state.
+            *
+            *   @method setState
+            *   @param {state}
+            *   @returns {undefined}
+            */
+            setState: function(state) {
+                if (this.state !== state) {
+                    this.state = state;
+                    this.uiTextComponent.setState(state);
+                    this.uiRectComponent.setState(state);
+                    this.setDirty(true);
+                }
             },
 
             /**
@@ -228,13 +326,15 @@ define([
             */
             onDeviceKeyDown: function(keyboardDevice) {
                 if (this.state === UIElement.STATE_FOCUS) {
-                    // TODO: add ability to hold down a button to trigger it multiple times
+                    var text = this.getText();
 
                     if (keyboardDevice.currentKey === keyboardDevice.keyCodes.Backspace) {
-                        this.text = this.text.slice(0, this.text.length - 1);
+                        text = text.slice(0, text.length - 1);
                     } else {
-                        this.text += keyboardDevice.currentChar;
+                        text += keyboardDevice.currentChar;
                     }
+
+                    this.setText(text);
                     this.setDirty(true);
                 }
             },

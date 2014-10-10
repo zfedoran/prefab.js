@@ -43,8 +43,8 @@ define([
             *   @param {depth} Depth of the grid
             *   @returns {undefined}
             */
-            create: function(width, height, depth) {
-                var entity = this.context.createNewEntity();
+            create: function(name, width, height, depth) {
+                var entity = this.context.createNewEntity(name);
 
                 var material = new Material(Material.BASIC);
                 material.diffuse.set(1, 1, 1, 1);

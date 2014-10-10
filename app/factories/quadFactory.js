@@ -1,8 +1,8 @@
 define([
         'lodash',
         'core/factory',
+        'factories/baseFactory',
         'graphics/material',
-        'components/transform',
         'components/quad',
         'components/meshFilter',
         'components/meshRenderer',
@@ -11,8 +11,8 @@ define([
     function(
         _,
         Factory,
+        BaseFactory,
         Material,
-        Transform,
         Quad,
         MeshFilter,
         MeshRenderer,
@@ -22,13 +22,17 @@ define([
     
         var QuadFactory = function(context) {
             Factory.call(this, context);
+
+            this.baseFactory = new BaseFactory(context);
         };
 
         QuadFactory.prototype = _.create(Factory.prototype, {
             construct: QuadFactory,
 
-            create: function(sprite, width, height) {
-                var entity = this.context.createNewEntity();
+            create: function(name, sprite, width, height) {
+                var entity = this.baseFactory.create(name);
+
+                entity.setDimensions(width, height);
 
                 var material;
                 if (sprite) {
@@ -38,8 +42,7 @@ define([
                     material            = new Material(Material.BASIC);
                 }
 
-                entity.addComponent(new Transform());
-                entity.addComponent(new Quad(sprite, width, height));
+                entity.addComponent(new Quad(sprite));
                 entity.addComponent(new MeshFilter());
                 entity.addComponent(new MeshRenderer(material));
 

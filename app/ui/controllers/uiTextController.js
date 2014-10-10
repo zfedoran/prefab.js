@@ -6,6 +6,7 @@ define([
         'graphics/meshFactory',
         'graphics/mesh',
         'graphics/spriteFont',
+        'ui/uiStyle',
         'ui/components/uiText'
     ], 
     function(
@@ -16,6 +17,7 @@ define([
         MeshFactory,
         Mesh,
         SpriteFont,
+        UIStyle,
         UIText
     ) {
         'use strict';
@@ -46,11 +48,11 @@ define([
             *   @returns {undefined}
             */
             update: function() {
-                this.filterBy(['Transform', 'UIText', 'MeshFilter', 'MeshRenderer'], function(entity) {
-                    var transform = entity.getComponent('Transform');
-                    var uiText    = entity.getComponent('UIText');
+                this.filterBy(['Transform', 'Dimensions', 'UIText', 'MeshFilter', 'MeshRenderer'], function(entity) {
+                    var uiText     = entity.getComponent('UIText');
+                    var dimensions = entity.getComponent('Dimensions');
 
-                    if (uiText.isDirty()) {
+                    if (uiText.isDirty() || dimensions.isDirty()) {
                         var meshRenderer = entity.getComponent('MeshRenderer');
                         var meshFilter   = entity.getComponent('MeshFilter');
                         var mesh         = meshFilter.getMesh();
@@ -61,42 +63,37 @@ define([
                             mesh = new Mesh(this.device, Mesh.TRIANGLES);
                         }
 
+                        var uiStyle    = uiText.getCurrentStyle();
+                        var spriteFont = uiStyle.getSpriteFont();
+
                         // Check if a SpriteFont exists
-                        if (!uiText.spriteFont) {
-                            var fontName   = uiText.getFontName();
-                            var spriteFont = this.fontCache[fontName];
+                        if (!spriteFont) {
+                            var fontID     = uiStyle.getFontID();
+                            var cachedFont = this.fontCache[fontID];
 
                             // Create a new SpriteFont if one is not found
-                            if (!spriteFont) {
-                                spriteFont = new SpriteFont(this.device, {
-                                    fontFamily   : uiText.fontFamily,
-                                    fontSize     : uiText.fontSize,
-                                    antiAlias    : uiText.antiAlias,
-                                    invertColors : uiText.invertColors,
-                                    firstChar    : 32,
-                                    lastChar     : 126
-                                });
+                            if (!cachedFont) {
+                                spriteFont = new SpriteFont(this.device, uiStyle);
 
-                                // Set the uiText font
-                                uiText.spriteFont = spriteFont;
-
-                                // Update the font cache
-                                this.fontCache[uiText.getFontName()] = uiText.spriteFont;
+                                // Updated the spriteFont cache
+                                this.fontCache[fontID] = spriteFont;
                             } else {
-
-                                // Update the uiText with the cached font
-                                uiText.spriteFont = spriteFont;
+                                spriteFont = cachedFont;
                             }
+
+                            // Update the uiText with the cached spriteFont
+                            uiStyle.setSpriteFont(spriteFont);
                         }
 
                         // Generate the new uiText mesh
-                        this.generateTextMesh(uiText, mesh);
+                        this.generateTextMesh(entity, mesh);
 
                         // Set the mesh
                         meshFilter.setMesh(mesh);
 
                         // Set the spriteFont texture on the material
-                        meshRenderer.material.diffuseMap = uiText.spriteFont._texture;
+                        meshRenderer.material.diffuseMap = spriteFont._texture;
+                        meshRenderer.material.diffuse    = uiStyle.fontColor;
 
                         uiText.setDirty(false);
                     }
@@ -109,14 +106,15 @@ define([
             *
             *   @method generateParagraphLines
             *   @param {uiText}
+            *   @param {maxWidth}
             *   @returns {lines} An array of strings
             */
-            generateParagraphLines: function(uiText) {
-                var font         = uiText.spriteFont,
-                    text         = uiText.text,
-                    maxWidth     = uiText.width,
-                    lines        = [],
-                    currentLine  = '';
+            generateParagraphLines: function(uiText, maxWidth) {
+                var uiStyle     = uiText.getCurrentStyle();
+                var spriteFont  = uiStyle.getSpriteFont(),
+                    text        = uiText.text,
+                    lines       = [],
+                    currentLine = '';
 
                 // Go through all characters in the uiText text
                 var dx = 0, i, len = text.length;
@@ -130,7 +128,7 @@ define([
                     } else {
 
                         // Get the kerning for the current glyph
-                        var kerning = font.getCharKerning(current);
+                        var kerning = spriteFont.getCharKerning(current);
 
                         // Only add the character to the current line if there is room for it
                         if (dx > 0 && (dx+kerning) >= maxWidth) {
@@ -167,35 +165,34 @@ define([
             *   Generate the character quads for a uiText and return a mesh.
             *
             *   @method generateTextMesh
-            *   @param {uiText}
+            *   @param {entity}
+            *   @param {mesh}
             *   @returns {mesh}
             */
-            generateTextMesh: function(uiText, mesh) {
-                this.meshFactory.begin(mesh);
+            generateTextMesh: function(entity, mesh) {
+                var uiText     = entity.getComponent('UIText');
+                var dimensions = entity.getComponent('Dimensions');
+                var uiStyle    = uiText.getCurrentStyle();
+                var spriteFont = uiStyle.getSpriteFont();
 
-                // Get the sprite font
-                var font = uiText.spriteFont;
-
-                // Get the paragraph lines for this uiText
-                var lines, autoWidth;
-                if (this.multiLine && uiText.width) {
-                    lines     = this.generateParagraphLines(uiText);
-                    autoWidth = uiText.width;
+                // By definition, for a label to be multiline, it must have a dimension
+                var lines, maxWidth;
+                if (uiText.multiLine) {
+                    maxWidth = dimensions.getWidth();
+                    lines    = this.generateParagraphLines(uiText, maxWidth);
                 } else {
-                    lines     = [uiText.text];
-                    autoWidth = font.measureText(uiText.text);
+                    maxWidth = Math.max(dimensions.getWidth(), spriteFont.measureText(uiText.text));
+                    lines    = [uiText.text];
                 }
 
+                this.meshFactory.begin(mesh);
+
                 // Get fontFamily meta-data
-                var charWidth  = font.getCharWidth();
-                var charHeight = font.getCharWidth();
+                var charWidth  = spriteFont.getCharWidth();
+                var charHeight = spriteFont.getCharWidth();
 
                 // Calcualte the uiText height
-                var autoHeight = uiText.height || (lines.length * (uiText.lineHeight || charHeight));
-
-                // Set internal width and height values
-                uiText._width  = autoWidth;
-                uiText._height = autoHeight;
+                var maxHeight = uiText.height || (lines.length * (uiText.lineHeight || charHeight));
 
                 // Go through each line
                 var dx, dy = 0;
@@ -203,12 +200,12 @@ define([
                     var currentLine = lines[lineIndex];
 
                     // Get the new line offset based on the textAlign property
-                    if (uiText.textAlign === UIText.TEXT_ALIGN_RIGHT) {
+                    if (uiStyle.textAlign === UIStyle.TEXT_ALIGN_RIGHT) {
                         // Put the starting position at the end
-                        dx = autoWidth - font.measureText(currentLine);
-                    } else if (uiText.textAlign === UIText.TEXT_ALIGN_CENTER) {
+                        dx = maxWidth - spriteFont.measureText(currentLine);
+                    } else if (uiStyle.textAlign === UIStyle.TEXT_ALIGN_CENTER) {
                         // Put the starting position half way through
-                        dx = Math.floor(autoWidth / 2) - Math.floor(font.measureText(currentLine) / 2);
+                        dx = Math.floor(maxWidth / 2) - Math.floor(spriteFont.measureText(currentLine) / 2);
                     } else {
                         dx = 0;
                     }
@@ -223,16 +220,16 @@ define([
                         // If the current character is not a newline
                         if (currentChar !== '\n') { 
                             // Get the kerning for the current glyph
-                            var kerning = font.getCharKerning(currentChar);
+                            var kerning = spriteFont.getCharKerning(currentChar);
 
                             // Get the sprite for the current glyph
-                            var sprite  = font.getCharSprite(currentChar);
+                            var sprite  = spriteFont.getCharSprite(currentChar);
 
                             // Generate the glyph face
                             this.generateFace(kerning, 
                                               charHeight, 
-                                              dx - Math.floor(autoWidth / 2) * (1 - uiText.anchor.x), 
-                                              dy + Math.floor(autoHeight / 2) * (1 + uiText.anchor.y), 
+                                              dx - maxWidth / 2, 
+                                              dy + maxHeight / 2, 
                                               sprite);
 
                             // Set the offset values for the next glyph
@@ -242,6 +239,11 @@ define([
                 }
 
                 this.meshFactory.end();
+
+                // Set the width and height of the dimensions component
+                var boundingBox = mesh.getBoundingBox();
+                dimensions.setDimensions(Math.max(boundingBox.getWidth(), maxWidth), 
+                                         Math.max(boundingBox.getHeight(), maxHeight));
 
                 return mesh;
             },

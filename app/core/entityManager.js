@@ -23,66 +23,21 @@ define([
             this.filters  = {};
             this.groups   = {};
             this.context  = context;
+        };
 
-            // Private Methods
-            // ----------------------------------------------------------------
-
-            /**
-            *   This method updates the internal filters used to filter the
-            *   provided entity by components.
-            *
-            *   @method updateFiltersForEntity
-            *   @param {entity}
-            *   @returns {undefined}
-            */
-            var _updateFiltersForEntity = (function(entity) {
-                var o, filter;
-                for (o in this.filters) {
-                    if (this.filters.hasOwnProperty(o)) {
-                        filter = this.filters[o];
-                        if (filter.matches(entity)) {
-                            filter.update();
-                        }
-                    }
-                }
-            }).bind(this);
+        EntityManager.prototype = {
+            constructor: EntityManager,
 
             /**
-            *   Remove an entity from all internal filters.
+            *   This method returns a new instance of Entity.
             *
-            *   @method removeEntityFromAllFilters
-            *   @param {entity}
+            *   @method createNewEntity
+            *   @param {name}
             *   @returns {undefined}
             */
-            var _removeEntityFromAllFilters = (function(entity) {
-                var o, filter;
-                for (o in this.filters) {
-                    if (this.filters.hasOwnProperty(o)) {
-                        filter = this.filters[o];
-                        filter.remove(entity);
-                    }
-                }
-            }).bind(this);
-
-            /**
-            *   Remove an entity from all groups.
-            *
-            *   @method removeEntityFromAllGroups
-            *   @param {entity}
-            *   @returns {undefined}
-            */
-            var _removeEntityFromAllGroups = (function(entity) {
-                var o, group;
-                for (o in this.groups) {
-                    if (this.groups.hasOwnProperty(o)) {
-                        group = this.groups[o];
-                        group.remove(entity);
-                    }
-                }
-            }).bind(this);
-
-            // Public Methods
-            // ----------------------------------------------------------------
+            createNewEntity: function(name) {
+                return new Entity(name, this, this.context);
+            },
 
             /**
             *   Add an entity to this manager and update the filters based on
@@ -92,11 +47,10 @@ define([
             *   @param {entity}
             *   @returns {undefined}
             */
-            this.addEntity = function(entity) {
+            addEntity: function(entity) {
                 this.entities[entity.id] = entity;
-                _updateFiltersForEntity(entity);
-                entity.on('added:component', function() { _updateFiltersForEntity(entity); }, this);
-            };
+                this.updateFiltersForEntity(entity);
+            },
 
             /**
             *   Remove an entity from this manager and update all filters which
@@ -106,18 +60,14 @@ define([
             *   @param {entity}
             *   @returns {undefined}
             */
-            this.removeEntity = function(entity) {
+            removeEntity: function(entity) {
                 var success = delete this.entities[entity.id];
                 if (success) {
-                    _removeEntityFromAllFilters(entity);
-                    _removeEntityFromAllGroups(entity);
+                    this.removeEntityFromAllFilters(entity);
+                    this.removeEntityFromAllGroups(entity);
                 }
                 return success;
-            };
-        };
-
-        EntityManager.prototype = {
-            constructor: EntityManager,
+            },
 
             /**
             *   Add the provided entity to the group name.
@@ -209,25 +159,58 @@ define([
             },
 
             /**
-            *   This method returns a new instance of Entity.
+            *   This method updates the internal filters used to filter the
+            *   provided entity by components.
             *
-            *   @method createNewEntity
-            *   @param {name}
+            *   @method updateFiltersForEntity
+            *   @param {entity}
             *   @returns {undefined}
             */
-            createNewEntity: function(name) {
-                return new Entity(name, this);
+            updateFiltersForEntity: function(entity) {
+                var o, filter;
+                for (o in this.filters) {
+                    if (this.filters.hasOwnProperty(o)) {
+                        filter = this.filters[o];
+                        // TODO: fix this (on component removal)
+                        if (filter.matches(entity)) {
+                            filter.update();
+                        }
+                    }
+                }
             },
 
             /**
-            *   This method returns the context that was used to create this
-            *   entity manager.
+            *   Remove an entity from all groups.
             *
-            *   @method getContext
+            *   @method removeEntityFromAllGroups
+            *   @param {entity}
             *   @returns {undefined}
             */
-            getContext: function() {
-                return this.context;
+            removeEntityFromAllGroups: function(entity) {
+                var o, group;
+                for (o in this.groups) {
+                    if (this.groups.hasOwnProperty(o)) {
+                        group = this.groups[o];
+                        group.remove(entity);
+                    }
+                }
+            },
+
+            /**
+            *   Remove an entity from all internal filters.
+            *
+            *   @method removeEntityFromAllFilters
+            *   @param {entity}
+            *   @returns {undefined}
+            */
+            removeEntityFromAllFilters: function(entity) {
+                var o, filter;
+                for (o in this.filters) {
+                    if (this.filters.hasOwnProperty(o)) {
+                        filter = this.filters[o];
+                        filter.remove(entity);
+                    }
+                }
             }
         };
 

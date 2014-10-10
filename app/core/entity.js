@@ -21,11 +21,12 @@ define([
         *   @param {name}
         *   @param {entityManager}
         */
-        var Entity = function(name, entityManager){
+        var Entity = function(name, entityManager, context){
             if (typeof entityManager === 'undefined') {
                 throw 'Entity: cannot create entities without a manager.';
             }
 
+            this.context       = context;
             this.entityManager = entityManager;
             this.uuid          = Entity.generateUUID();
 
@@ -43,41 +44,146 @@ define([
 
             // Add this entity to the manager
             this.entityManager.addEntity(this);
+        };
 
-            // Private variable
-            var _context = this.entityManager.getContext();
+        Entity.prototype = {
+            constructor: Entity,
+
+            /**
+            *   This method checks if there is a Transform component on this
+            *   entity and sets its local position to the values provided.
+            *
+            *   @method setPosition
+            *   @param {x}
+            *   @param {y}
+            *   @param {z}
+            *   @returns {undefined}
+            */
+            setPosition: function(x, y, z) {
+                var transform = this.getComponent('Transform');
+                if (transform) {
+                    transform.setPosition(x, y, z);
+                }
+
+                return this;
+            },
+
+            /**
+            *   This method checks if there is a Transform component on this
+            *   entity and sets its local scale to the values provided.
+            *
+            *   @method setScale
+            *   @param {x}
+            *   @param {y}
+            *   @param {z}
+            *   @returns {undefined}
+            */
+            setScale: function(x, y, z) {
+                var transform = this.getComponent('Transform');
+                if (transform) {
+                    transform.setScale(x, y, z);
+                }
+
+                return this;
+            },
+
+            /**
+            *   This method checks if there is a Transform component on this
+            *   entity and sets its local rotation to the values provided.
+            *
+            *   @method setRotationFromEuler
+            *   @param {x}
+            *   @param {y}
+            *   @param {z}
+            *   @returns {undefined}
+            */
+            setRotationFromEuler: function(x, y, z) {
+                var transform = this.getComponent('Transform');
+                if (transform) {
+                    transform.setRotationFromEuler(x, y, z);
+                }
+
+                return this;
+            },
+
+            /**
+            *   This method checks if there is an Anchor component on this
+            *   entity and sets its anchor point to the values provided.
+            *
+            *   @method setAnchorPoint
+            *   @param {x}
+            *   @param {y}
+            *   @param {z}
+            *   @returns {undefined}
+            */
+            setAnchorPoint: function(x, y, z) {
+                var anchor = this.getComponent('Anchor');
+                if (anchor) {
+                    anchor.setAnchorPoint(x, y, z);
+                }
+
+                return this;
+            },
+
+            /**
+            *   This method checks if there is a Dimensions component on this
+            *   entity and sets its width, height, and depth to the values
+            *   provided.
+            *
+            *   @method setDimensions
+            *   @param {width}
+            *   @param {height}
+            *   @param {depth}
+            *   @returns {undefined}
+            */
+            setDimensions: function(width, height, depth) {
+                var dimensions = this.getComponent('Dimensions');
+                if (dimensions) {
+                    dimensions.setDimensions(width, height, depth);
+                }
+
+                return this;
+            },
 
             /**
             *   Add a component to this entity.
+            *
+            *   (Important: only one component of each type may be applied to
+            *   an entity)
             *
             *   @method addComponent
             *   @param {component}
             *   @returns {undefined}
             */
-            this.addComponent = function(component) {
+            addComponent: function(component) {
                 if (component instanceof Component) {
                     if (typeof component.constructor.__name__ === 'undefined') {
                         throw 'Entity: addComponent(), cannot add component with undefined constructor.__name__';
                     }
 
-                    component.init(this, _context);
+                    component.setEntity(this);
 
                     this.components[component.constructor.__name__] = component;
-                    this.trigger('added:component', component);
+                    this.entityManager.updateFiltersForEntity(this);
                 } else {
                     throw 'Entity: cannot addComponent() if the component is not an instance of Component.';
                 }
-            };
+
+                return this;
+            },
 
             /**
             *   Remove a component with the name or type provided, if it
             *   exists.
             *
+            *   (Important: only one component of each type may be applied to
+            *   an entity)
+            *
             *   @method removeComponent
             *   @param {type}
             *   @returns {undefined}
             */
-            this.removeComponent = function(type) {
+            removeComponent: function(type) {
                 if (typeof type !== 'string') {
                     type = type.__name__;
                 }
@@ -86,14 +192,12 @@ define([
                 delete this.components[type];
 
                 if (component) {
-                    component.uninitialize(this, _context);
-                    this.trigger('removed:component', component);
+                    component.removeEntity(this);
+                    this.entityManager.updateFiltersForEntity(this);
                 }
-            };
-        };
 
-        Entity.prototype = {
-            constructor: Entity,
+                return this;
+            },
 
             /**
             *   Check if this entity has a parent class.
@@ -139,6 +243,8 @@ define([
                 } else {
                     throw 'Entity: cannot addChild() if the child is not an instance of Entity.';
                 }
+
+                return this;
             },
 
             /**
@@ -158,6 +264,8 @@ define([
                 } else {
                     throw 'Entity: cannot removeChild() if the child is not an instance of Entity.';
                 }
+
+                return this;
             },
 
             /**
@@ -189,6 +297,8 @@ define([
                         callback.call(context, child);
                     }
                 }
+
+                return this;
             },
 
             /**
@@ -205,6 +315,8 @@ define([
             */
             tagEntity: function(entity) {
                 this.tags[entity.name || entity.uuid] = entity;
+
+                return this;
             },
 
             /**
@@ -228,6 +340,8 @@ define([
             */
             addToGroup: function(name) {
                 this.entityManager.addEntityToGroup(this, name);
+
+                return this;
             },
 
             /**
@@ -239,6 +353,8 @@ define([
             */
             removeFromGroup: function(name) {
                 this.entityManager.removeFromGroup(this, name);
+
+                return this;
             },
 
             /**

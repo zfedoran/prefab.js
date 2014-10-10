@@ -1,10 +1,12 @@
 define([
         'lodash',
-        'core/controller'
+        'core/controller',
+        'ui/uiStyle'
     ], 
     function(
         _,
-        Controller
+        Controller,
+        UIStyle
     ) {
         'use strict';
 
@@ -31,12 +33,16 @@ define([
             update: function(elapsed) {
                 this.elapsed = elapsed;
 
-                this.filterBy(['Transform', 'UITextBox', 'BoxCollider'], function(entity) {
-                    var uiTextBox = entity.getComponent('UITextBox');
+                this.filterBy(['Transform', 'UITextBox', 'ColliderBox'], function(entity) {
+                    var uiTextBox  = entity.getComponent('UITextBox');
+                    var dimensions = entity.getComponent('Dimensions');
 
-                    if (uiTextBox.isDirty()) {
-                        this.updateInput(entity);
-                        uiTextBox.setDirty(false);
+                    if (uiTextBox.isDirty() || dimensions.isDirty()) {
+                        var uiText = uiTextBox.getUITextComponent();
+
+                        if (!uiText.isDirty()) {
+                            this.updateTextBox(entity);
+                        }
                     }
 
                     this.updateCursor(entity);
@@ -46,68 +52,61 @@ define([
             /**
             *   This method updates the input entity and its children.
             *
-            *   @method updateInput
+            *   @method updateTextBox
             *   @param {entity}
             *   @returns {undefined}
             */
-            updateInput: function(entity) {
-                var transform   = entity.getComponent('Transform');
-                var boxCollider = entity.getComponent('BoxCollider');
-                var uiTextBox   = entity.getComponent('UITextBox');
-                var uiStyle     = uiTextBox.getCurrentStyle();
+            updateTextBox: function(entity) {
+                var uiTextBox           = entity.getComponent('UITextBox');
+                var uiTextBoxBounds     = entity.getComponent('Bounds');
+                var uiTextBoxDimensions = entity.getComponent('Dimensions');
+                var uiTextBoxCollider   = entity.getComponent('ColliderBox');
+                var uiTextBoxTransform  = entity.getComponent('Transform');
 
-                // Get the UIText and Quad child entities
-                var uiTextEntity, quadEntity, cursorEntity;
-                uiTextEntity = entity.getWithTag('foreground');
-                quadEntity   = entity.getWithTag('background');
-                cursorEntity = entity.getWithTag('cursor');
+                var uiStyle             = uiTextBox.getCurrentStyle();
+                var cursorQuad          = uiTextBox.getCursorQuadComponent();
+                var uiText              = uiTextBox.getUITextComponent();
+                var uiRect              = uiTextBox.getUIRectComponent();
+                var uiTextDimensions    = uiText.getComponent('Dimensions');
+                var uiRectDimensions    = uiRect.getComponent('Dimensions');
 
-                // Get the UIText and Quad components
-                var foregroundText = uiTextEntity.getComponent('UIText');
-                var backgroundQuad  = quadEntity.getComponent('Quad');
-                var cursorQuad      = cursorEntity.getComponent('Quad');
+                uiText.getComponent('Transform').setPosition(uiStyle.paddingLeft, -uiStyle.paddingTop);
 
-                // Update the child components (and set dirty)
-                foregroundText.setText(uiTextBox.text);
-                backgroundQuad.setSprite(uiStyle.background);
+                var width, height;
+                switch (uiStyle.overflow) {
+                    case UIStyle.OVERFLOW_NONE:
+                        width  = Math.max(uiTextDimensions.getWidth(), uiTextBoxDimensions.getWidth());
+                        height = Math.max(uiTextDimensions.getHeight(), uiTextBoxDimensions.getHeight());
+                        break;
+                    case UIStyle.OVERFLOW_HIDDEN:
+                    case UIStyle.OVERFLOW_SCROLL:
+                        width  = uiTextBoxDimensions.getWidth();
+                        height = uiTextBoxDimensions.getHeight();
+                        break;
+                }
 
-                // Update the materials
-                var uiTextMaterial = uiTextEntity.getComponent('MeshRenderer').material;
-                var quadMaterial   = quadEntity.getComponent('MeshRenderer').material;
+                // Update the cursor
+                if (uiTextBox.hasFocusState()) {
+                    // Update cursor color
+                    var cursorMaterial     = cursorQuad.getComponent('MeshRenderer').material;
+                    cursorMaterial.diffuse = uiStyle.fontColor;
 
-                uiTextMaterial.diffuse  = uiStyle.fontColor;
-                quadMaterial.diffuseMap = uiStyle.background;
+                    // Update cursor position
+                    var dx = width + uiStyle.paddingLeft;
+                    var dy = height / 2;
+                    cursorQuad.getComponent('Transform').setPosition(dx, -dy, 0);
+                }
 
-                // Set the uiText position to be offset by the padding
-                var uiTextTransform = uiTextEntity.getComponent('Transform');
-                uiTextTransform.setPosition(uiStyle.paddingLeft, -uiStyle.paddingTop, 0);
+                width  += uiStyle.paddingLeft + uiStyle.paddingRight;
+                height += uiStyle.paddingTop + uiStyle.paddingBottom;
 
-                // Update the quad once the uiText has been updated
-                foregroundText.once('updated', function() {
-                    // Set the quad to be the uiText size + padding
-                    backgroundQuad.setWidth(foregroundText.getComputedWidth() + uiStyle.paddingLeft + uiStyle.paddingRight);
-                    backgroundQuad.setHeight(foregroundText.getComputedHeight() + uiStyle.paddingTop + uiStyle.paddingBottom);
+                uiRectDimensions.setWidth(width);
+                uiRectDimensions.setHeight(height);
+                uiRect.setDirty(true);
 
-                    // Update the cursor
-                    if (uiTextBox.hasFocusState()) {
-                        // Update cursor color
-                        var cursorMaterial     = cursorEntity.getComponent('MeshRenderer').material;
-                        cursorMaterial.diffuse = uiStyle.fontColor;
+                uiTextBoxCollider.setBoundingBox(uiRectDimensions.getComponent('Bounds').getLocalBoundingBox());
 
-                        // Update cursor position
-                        var cursorTranform = cursorEntity.getComponent('Transform');
-                        var dx = foregroundText.getComputedWidth() + uiStyle.paddingLeft;
-                        var dy = foregroundText.getComputedHeight() / 2;
-                        cursorTranform.setPosition(dx, -dy, 0);
-                    }
-                });
-
-                // Set the boxCollider bounding box once the quad mesh is available
-                backgroundQuad.once('updated', function() {
-                    var meshFilter  = quadEntity.getComponent('MeshFilter');
-                    var boundingBox = meshFilter.getMesh().getBoundingBox();
-                    boxCollider.setBoundingBox(boundingBox);
-                });
+                uiTextBox.setDirty(false);
             },
 
             /**
@@ -120,8 +119,8 @@ define([
             updateCursor: function(entity) {
                 var uiTextBox      = entity.getComponent('UITextBox');
                 var uiStyle        = uiTextBox.getCurrentStyle();
-                var cursorEntity   = entity.getWithTag('cursor');
-                var cursorRenderer = cursorEntity.getComponent('MeshRenderer');
+                var cursorQuad     = uiTextBox.getCursorQuadComponent();
+                var cursorRenderer = cursorQuad.getComponent('MeshRenderer');
                 
                 uiTextBox.addCursorTime(this.elapsed);
                 if (uiTextBox.isCursorVisible()) {

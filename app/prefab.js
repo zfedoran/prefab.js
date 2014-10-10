@@ -90,6 +90,7 @@ define([
                     'controllers/mouseController',
                     'controllers/clipController',
                     'ui/controllers/uiTextController',
+                    'ui/controllers/uiRectController',
                     'ui/controllers/uiTextBoxController',
                     'ui/controllers/uiButtonController',
                     'editor/controllers/gridController'
@@ -111,6 +112,8 @@ define([
             *   @returns {undefined}
             */
             render: function(elapsed) {
+                this.device.setScissor(0, 0, this.width, this.height);
+                this.device.enableScissorTest(false);
                 this.device.clear(this.backgroundColor);
 
                 // Render all visible meshes

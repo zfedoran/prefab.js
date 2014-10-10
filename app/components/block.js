@@ -22,16 +22,11 @@ define([
         *   @param {depth}
         *   @constructor
         */
-        var Block = function(texture, width, height, depth) {
+        var Block = function(texture) {
             Component.call(this);
 
             // Get a full texture sprite
             var sprite  = texture.getFullTextureSprite();
-
-            // Set the initial property values
-            this.width  = width;
-            this.height = height;
-            this.depth  = depth;
 
             this.top    = sprite;
             this.bottom = sprite;
@@ -41,8 +36,6 @@ define([
             this.back   = sprite;
 
             this.texture = texture;
-
-            this.anchor  = new Vector3(0, 0, 0);
         };
 
         Block.__name__ = 'Block';
@@ -73,6 +66,13 @@ define([
             uninitialize: function(entity, context) {
             },
 
+            /**
+            *   This method sets all block faces to the provided sprite.
+            *
+            *   @method setAllFacesTo
+            *   @param {sprite}
+            *   @returns {undefined}
+            */
             setAllFacesTo: function(sprite) {
                 this.front   = sprite;
                 this.left    = sprite;

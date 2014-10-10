@@ -1,5 +1,6 @@
 define([
         'lodash',
+        'math/matrix4',
         'graphics/material',
         'text!shaders/basic/vertex.shader',
         'text!shaders/basic/fragment.shader',
@@ -13,6 +14,7 @@ define([
     ],
     function(
         _,
+        Matrix4,
         Material,
         _basicVertexShader,
         _basicFragmentShader,
@@ -165,42 +167,83 @@ define([
             *   @param {camera}
             *   @returns {undefined}
             */
-            renderMesh: function(entity, camera) {
-                var transform    = entity.getComponent('Transform');
-                var meshFilter   = entity.getComponent('MeshFilter');
-                var meshRenderer = entity.getComponent('MeshRenderer');
-                var mesh         = meshFilter.getMesh();
-                var material     = meshRenderer.material;
-                var shader       = material._shader;
+            renderMesh: (function() {
+                var matrix = new Matrix4();
 
-                if (typeof mesh === 'undefined') {
-                    return;
-                }
+                return function(entity, camera) {
+                    var transform    = entity.getComponent('Transform');
+                    var anchor       = entity.getComponent('Anchor');
+                    var bounds       = entity.getComponent('Bounds');
+                    var meshFilter   = entity.getComponent('MeshFilter');
+                    var meshRenderer = entity.getComponent('MeshRenderer');
+                    var mesh         = meshFilter.getMesh();
+                    var material     = meshRenderer.material;
+                    var shader       = material._shader;
 
-                // update shader uniforms with material values
-                for (var prop in shader.uniforms) {
-                    if (material.hasOwnProperty(prop)) {
-                        shader.uniforms[prop].set(material[prop]);
+                    if (typeof mesh === 'undefined') {
+                        return;
                     }
-                }
 
-                var view = camera._viewMatrix;
-                var proj = camera._projectionMatrix;
+                    // Update shader uniforms with material values
+                    for (var prop in shader.uniforms) {
+                        if (material.hasOwnProperty(prop)) {
+                            shader.uniforms[prop].set(material[prop]);
+                        }
+                    }
 
-                shader.uniforms.uMMatrix.set(transform.getWorldMatrix());
-                shader.uniforms.uVMatrix.set(view);
-                shader.uniforms.uPMatrix.set(proj);
+                    var view  = camera._viewMatrix;
+                    var proj  = camera._projectionMatrix;
+                    var world = transform.getWorldMatrix();
 
-                this.device.bindShader(shader);
-                this.device.setViewport(camera.viewRect.x, camera.viewRect.y, camera.viewRect.width, camera.viewRect.height);
+                    if (anchor) {
+                        // TODO: we probably need to take the hierarchy into account (parent anchor)
+                        var boundingBox;
+                        if (bounds) {
+                            boundingBox = bounds.getLocalBoundingBox();
+                        } else {
+                            boundingBox = mesh.getBoundingBox();
+                        }
 
-                // Draw the clipped mesh, if one exists
-                if (meshFilter.hasClippedMesh()) {
-                    mesh = meshFilter.getClippedMesh();
-                } 
+                        var anchorPoint = anchor.getAnchorPoint();
+                        var width       = boundingBox.max.x - boundingBox.min.x;
+                        var height      = boundingBox.max.y - boundingBox.min.y;
+                        var depth       = boundingBox.max.z - boundingBox.min.z;
+                        
+                        Matrix4.createTranslation(anchorPoint.x * width * 0.5, 
+                                                  anchorPoint.y * height * 0.5, 
+                                                  anchorPoint.z * depth * 0.5,
+                                                 /*out*/ matrix);
+                        Matrix4.multiply(world, matrix, /*out*/ matrix);
+                        world = matrix;
+                    }
 
-                mesh.draw();
-            }
+                    shader.uniforms.uMMatrix.set(world);
+                    shader.uniforms.uVMatrix.set(view);
+                    shader.uniforms.uPMatrix.set(proj);
+
+                    this.device.bindShader(shader);
+                    this.device.setViewport(camera.viewRect.x, 
+                                            camera.viewRect.y, 
+                                            camera.viewRect.width, 
+                                            camera.viewRect.height);
+
+                    // Handle scissor rectangle
+                    this.device.enableScissorTest(meshRenderer.scissorEnabled);
+                    if (meshRenderer.scissorEnabled) {
+                        this.device.setScissor(meshRenderer.scissorRect.x, 
+                                               meshRenderer.scissorRect.y, 
+                                               meshRenderer.scissorRect.width, 
+                                               meshRenderer.scissorRect.height);
+                    } 
+
+                    // Draw the clipped mesh, if one exists
+                    if (meshFilter.hasClippedMesh()) {
+                        mesh = meshFilter.getClippedMesh();
+                    } 
+
+                    mesh.draw();
+                };
+            })()
         });
 
         return RenderController;

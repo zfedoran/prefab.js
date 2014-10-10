@@ -19,8 +19,8 @@ define([
         CameraFactory.prototype = _.create(Factory.prototype, {
             constructor: CameraFactory,
 
-            create: function(viewRect, near, far, fov) {
-                var entity = this.context.createNewEntity();
+            create: function(name, viewRect, near, far, fov) {
+                var entity = this.context.createNewEntity(name);
 
                 entity.addComponent(new Transform());
                 entity.addComponent(new Camera(viewRect, near, far, fov));

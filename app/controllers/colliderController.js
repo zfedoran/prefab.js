@@ -31,16 +31,19 @@ define([
             *   @returns {undefined}
             */
             update: function() {
-                this.filterBy(['Transform', 'BoxCollider', 'MeshFilter'], function(entity) {
-                    var boxCollider = entity.getComponent('BoxCollider');
+                this.filterBy(['Transform', 'ColliderBox', 'MeshFilter'], function(entity) {
+                    var colliderBox = entity.getComponent('ColliderBox');
 
-                    if (boxCollider.isDirty()) {
+                    if (colliderBox.isDirty()) {
                         var meshFilter  = entity.getComponent('MeshFilter');
                         var mesh        = meshFilter.getMesh();
-                        var boundingBox = mesh.getBoundingBox();
 
-                        boxCollider.setBoundingBox(boundingBox);
-                        boxCollider.setDirty(false);
+                        if (mesh) {
+                            var boundingBox = mesh.getBoundingBox();
+
+                            colliderBox.setBoundingBox(boundingBox);
+                            colliderBox.setDirty(false);
+                        }
                     }
                 }, this);
             }

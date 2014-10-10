@@ -4,8 +4,9 @@ define([
         'graphics/material',
         'components/meshFilter',
         'components/meshRenderer',
+        'graphics/mesh',
         'ui/factories/uiElementFactory',
-        'ui/components/uiText'
+        'ui/components/uiRect',
     ],
     function(
         _,
@@ -13,33 +14,34 @@ define([
         Material,
         MeshFilter,
         MeshRenderer,
+        Mesh,
         UIElementFactory,
-        UIText
+        UIRect
     ) {
         'use strict';
     
-        var UITextFactory = function(context) {
+        var UIRectFactory = function(context) {
             Factory.call(this, context);
 
             this.uiElementFactory = new UIElementFactory(context);
         };
 
-        UITextFactory.prototype = _.create(Factory.prototype, {
-            construct: UITextFactory,
+        UIRectFactory.prototype = _.create(Factory.prototype, {
+            construct: UIRectFactory,
 
-            create: function(name, text, uiElementStyle) {
+            create: function(name, uiElementStyle, width, height) {
                 var entity = this.uiElementFactory.create(name);
 
-                var material = new Material(Material.TEXT);
+                var material = new Material(Material.LAMBERT);
 
                 entity.addComponent(new MeshFilter());
                 entity.addComponent(new MeshRenderer(material));
-                entity.addComponent(new UIText(text, uiElementStyle));
+                entity.addComponent(new UIRect(uiElementStyle));
 
                 return entity;
             }
         });
 
-        return UITextFactory;
+        return UIRectFactory;
     }
 );

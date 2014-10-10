@@ -1,8 +1,8 @@
 define([
         'lodash',
         'core/factory',
+        'factories/baseFactory',
         'graphics/material',
-        'components/transform',
         'components/block',
         'components/meshFilter',
         'components/meshRenderer',
@@ -11,8 +11,8 @@ define([
     function(
         _,
         Factory,
+        BaseFactory,
         Material,
-        Transform,
         Block,
         MeshFilter,
         MeshRenderer,
@@ -22,19 +22,22 @@ define([
     
         var BlockFactory = function(context) {
             Factory.call(this, context);
+
+            this.baseFactory = new BaseFactory(context);
         };
 
         BlockFactory.prototype = _.create(Factory.prototype, {
             construct: BlockFactory,
 
-            create: function(texture, width, height, depth) {
-                var entity = this.context.createNewEntity();
+            create: function(name, texture, width, height, depth) {
+                var entity = this.baseFactory.create(name);
+
+                entity.setDimensions(width, height, depth);
 
                 var material = new Material(Material.LAMBERT);
                 material.diffuseMap = texture;
 
-                entity.addComponent(new Transform());
-                entity.addComponent(new Block(texture, width, height, depth));
+                entity.addComponent(new Block(texture));
                 entity.addComponent(new MeshFilter());
                 entity.addComponent(new MeshRenderer(material));
 

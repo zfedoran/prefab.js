@@ -5,12 +5,11 @@ define([
         'graphics/sprite',
         'graphics/texture',
         'components/transform',
-        'components/boxCollider',
+        'components/colliderBox',
         'components/meshClip',
         'factories/blockFactory',
-        'factories/quadFactory',
-        'ui/factories/uiTextFactory',
         'factories/cameraFactory',
+        'ui/factories/uiTextFactory',
         'ui/factories/uiButtonFactory',
         'ui/factories/uiTextBoxFactory',
         'editor/factories/gridFactory',
@@ -24,12 +23,11 @@ define([
         Sprite,
         Texture,
         Transform,
-        BoxCollider,
+        ColliderBox,
         MeshClip,
         BlockFactory,
-        QuadFactory,
-        UITextFactory,
         CameraFactory,
+        UITextFactory,
         UIButtonFactory,
         UITextBoxFactory,
         GridFactory,
@@ -74,7 +72,6 @@ define([
             initFactories: function() {
                 this.cameraFactory = new CameraFactory(this.context);
                 this.blockFactory  = new BlockFactory(this.context);
-                this.quadFactory   = new QuadFactory(this.context);
                 this.uiTextFactory = new UITextFactory(this.context);
                 this.gridFactory   = new GridFactory(this.context);
             },
@@ -91,8 +88,7 @@ define([
                 this.root.addComponent(MeshClip.createFromMinMax(new Vector3(-1, -1, -1), new Vector3(1,1,1)));
                 this.root.addToGroup('scene');
 
-                var gridEntity = this.gridFactory.create(20, 20, 20);
-                gridEntity.name = 'grid';
+                var gridEntity = this.gridFactory.create('scene-grid', 20, 20, 20);
                 gridEntity.addToGroup('scene');
 
                 var grid = gridEntity.getComponent('Grid');
@@ -120,35 +116,46 @@ define([
                 this.uiEditorInput  = new UIEditorInput(this.context);
 
                 // Entities
-                this.button = this.uiButtonFactory.create('apply', this.uiEditorButton);
+                this.button = this.uiButtonFactory.create('apply-btn', 'apply', this.uiEditorButton);
                 this.button.addToGroup('ui');
 
                 var transform = this.button.getComponent('Transform');
                 transform.setPosition(100, 100, -1);
 
-                this.button = this.uiButtonFactory.create('cancel', this.uiEditorButton);
+                this.button = this.uiButtonFactory.create('cancel-btn', 'cancel', this.uiEditorButton);
                 this.button.addToGroup('ui');
 
                 transform = this.button.getComponent('Transform');
                 transform.setPosition(150, 100, -1);
 
-                this.input = this.uiTextBoxFactory.create('0.4200', this.uiEditorInput);
+                this.input = this.uiTextBoxFactory.create('x-textbox', '0.4200', this.uiEditorInput);
                 this.input.addToGroup('ui');
 
                 transform = this.input.getComponent('Transform');
                 transform.setPosition(250, 100, -1);
 
-                this.input = this.uiTextBoxFactory.create('0.2138', this.uiEditorInput);
+                this.input = this.uiTextBoxFactory.create('y-textbox', '0.2138', this.uiEditorInput);
                 this.input.addToGroup('ui');
 
                 transform = this.input.getComponent('Transform');
                 transform.setPosition(310, 100, -1);
 
-                this.input = this.uiTextBoxFactory.create('0.9034', this.uiEditorInput);
+                this.input = this.uiTextBoxFactory.create('z-textbox', '0.9034', this.uiEditorInput);
                 this.input.addToGroup('ui');
 
                 transform = this.input.getComponent('Transform');
                 transform.setPosition(370, 100, -1);
+
+                this.uiTextFPS = this.uiTextFactory.create('fps-text', 'hello, world', this.uiEditorInput);
+                this.uiTextFPS.addToGroup('ui');
+                this.uiTextFPS.setDimensions(200, 0, 0);
+
+                var meshRenderer = this.uiTextFPS.getComponent('MeshRenderer');
+                //meshRenderer.scissorEnabled = true;
+                //meshRenderer.scissorRect.set(50, 120, 30, 30);
+
+                transform = this.uiTextFPS.getComponent('Transform');
+                transform.setPosition(100, 150, -1);
             },
 
             /**
@@ -169,10 +176,9 @@ define([
 
                 prev = this.root;
                 for (var i = 0; i < 100; i++) {
-                    var block = this.blockFactory.create(sprite.getTexture(), 1, 1, 1);
-                    block.name = 'block-' + i;
+                    var block = this.blockFactory.create('block-' + i, sprite.getTexture(), 1, 1, 1);
                     block.getComponent('Block').setAllFacesTo(sprite);
-                    block.addComponent(new BoxCollider());
+                    block.addComponent(new ColliderBox());
 
                     transform = block.getComponent('Transform');
                     transform.setPosition((Math.random() - 0.5)*2, (Math.random() - 0.5)*2, (Math.random() - 0.5)*2);
@@ -194,8 +200,7 @@ define([
                 var width  = device.getWidth();
                 var height = device.getHeight();
 
-                this.camera = this.cameraFactory.create(new Rectangle(0, 0, width, height), 0.1, 1000, 75);
-                this.camera.name = 'camera';
+                this.camera = this.cameraFactory.create('camera', new Rectangle(0, 0, width, height), 0.1, 1000, 75);
 
                 var cameraComponent = this.camera.getComponent('Camera');
                 cameraComponent.addRenderGroup('scene');
@@ -215,8 +220,7 @@ define([
                 var width  = device.getWidth();
                 var height = device.getHeight();
 
-                this.screen = this.cameraFactory.create(new Rectangle(0, 0, width, height), 0.1, 100);
-                this.screen.name = 'UICamera';
+                this.screen = this.cameraFactory.create('UICamera', new Rectangle(0, 0, width, height), 0.1, 100);
 
                 var cameraComponent = this.screen.getComponent('Camera');
                 cameraComponent.addRenderGroup('ui');
@@ -243,7 +247,7 @@ define([
 
                 this.camera.getComponent('Camera').target = this.root;
 
-                this.input.getComponent('UITextBox').setText(this.context.getFramesPerSecond());
+                this.uiTextFPS.getComponent('UIText').setText(this.context.getFramesPerSecond());
             }
 
         });

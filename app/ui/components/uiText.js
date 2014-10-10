@@ -1,14 +1,12 @@
 define([
         'lodash',
-        'core/component',
         'math/vector3',
-        'input/keyboardDevice'
+        'ui/components/uiElement'
     ],
     function(
         _,
-        Component,
         Vector3,
-        KeyboardDevice
+        UIElement
     ) {
         'use strict';
 
@@ -19,45 +17,20 @@ define([
         *   automatically updated with a matching quad Mesh.
         *
         *   @class 
-        *   @param {width}
-        *   @param {height}
-        *   @param {sprite}
+        *   @param {text}
+        *   @param {uiElementStyle}
         *   @constructor
         */
-        var UIText = function(text, fontFamily, fontSize, width, height, lineHeight) {
-            Component.call(this);
-
-            // If no width / height is provided, make this label size automatically
-            this.width  = (typeof width  === 'undefined') ? 0 : width;
-            this.height = (typeof height === 'undefined') ? 0 : height;
-
-            // Use the internal 'auto' representation
-            if (this.width === 'auto') { this.width = 0; }
-            if (this.height === 'auto') { this.height = 0; }
-            
-            // Internal width and height values
-            this._width       = 0;
-            this._height      = 0;
+        var UIText = function(text, uiElementStyle) {
+            UIElement.call(this, uiElementStyle);
 
             this.text         = text;
-            this.multiLine    = true;
-
-            this.spriteFont   = null;
-            this.fontFamily   = fontFamily || 'arial';
-            this.fontSize     = fontSize || 10;
-            this.lineHeight   = lineHeight;
-            this.textAlign    = UIText.TEXT_ALIGN_LEFT;
-
-            // The following properties change how the dynamic spriteFont is generated
-            this.antiAlias    = true;
-            this.invertColors = true; // Webkit seems to be better at rendering black font against white in the canvas element.
-
-            this.anchor       = new Vector3(0, 0, 0);
+            this.multiLine    = false;
         };
 
         UIText.__name__ = 'UIText';
 
-        UIText.prototype = _.create(Component.prototype, {
+        UIText.prototype = _.create(UIElement.prototype, {
             constructor: UIText,
 
             /**
@@ -84,16 +57,6 @@ define([
             },
 
             /**
-            *   This method returns the font-family name.
-            *
-            *   @method getFontName
-            *   @returns {undefined}
-            */
-            getFontName: function(label) {
-                return this.fontSize + 'px ' + this.fontFamily + ' ' + this.antiAlias + ' ' + this.invertColors;
-            },
-
-            /**
             *   This method sets this labels text to the provided string
             *
             *   @method setText
@@ -106,56 +69,15 @@ define([
             },
 
             /**
-            *   Set the width value for this label.
+            *   This method gets the labels text.
             *
-            *   @method setWidth
-            *   @param {width}
+            *   @method getText
             *   @returns {undefined}
             */
-            setWidth: function(width) {
-                this.width = width;
-                this.setDirty(true);
-            },
-
-            /**
-            *   Set the height value for this label.
-            *
-            *   @method setHeight
-            *   @param {height}
-            *   @returns {undefined}
-            */
-            setHeight: function(height) {
-                this.height = height;
-                this.setDirty(true);
-            },
-
-            /**
-            *   This method returns the computed width value (useful when using
-            *   auto widths).
-            *
-            *   @method getComputedWidth
-            *   @returns {number}
-            */
-            getComputedWidth: function() {
-                return this._width;
-            },
-
-            /**
-            *   This method returns the computed height value (useful when using
-            *   auto heights).
-            *
-            *   @method getComputedHeight
-            *   @returns {number}
-            */
-            getComputedHeight: function() {
-                return this._height;
-            },
-
+            getText: function() {
+                return this.text;
+            }
         });
-
-        UIText.TEXT_ALIGN_LEFT   = 'left';
-        UIText.TEXT_ALIGN_RIGHT  = 'right';
-        UIText.TEXT_ALIGN_CENTER = 'center';
 
         return UIText;
     }

@@ -16,12 +16,87 @@ define([
         *   @constructor 
         */
         var Component = function() {
-            this._dirty = true;
+            this._dirty   = true;
             this._enabled = true;
+            this._entity  = null;
         };
 
         Component.prototype = {
             constructor: Component,
+
+            /**
+            *   This function is called when a component is added to an entity.
+            *
+            *   @method addEntity
+            *   @param {entity}
+            *   @returns {undefined}
+            */
+            setEntity: function(entity) {
+                this._entity = entity;
+                this.init(entity, entity.context);
+            },
+
+            /**
+            *   This method returns the entity to which this transform has been
+            *   attached to.
+            *
+            *   @method getEntity
+            *   @returns {undefined}
+            */
+            getEntity: function() {
+                if (this._entity) {
+                    return this._entity;
+                }
+            },
+
+            /**
+            *   This function is called when a component is removed from an
+            *   entity.
+            *
+            *   @method removeEntity
+            *   @param {entity}
+            *   @returns {undefined}
+            */
+            removeEntity: function(entity) {
+                this.uninitialize(entity, entity.context);
+                this._entity = null;
+            },
+
+            /**
+            *   This method returns the component of Type type if the entity
+            *   has one attached, undefined if it doesn't.
+            *
+            *   @method getComponent
+            *   @param {type}
+            *   @returns {component}
+            */
+            getComponent: function(type) {
+                if (typeof type !== 'string') {
+                    type = type.__name__;
+                }
+
+                if (this._entity) {
+                    return this._entity.components[type];
+                }
+            },
+
+            /**
+            *   Check if a component with the name or type exists on this
+            *   entity.
+            *
+            *   @method hasComponent
+            *   @param {type}
+            *   @returns {boolean}
+            */
+            hasComponent: function(type) {
+                if (typeof type !== 'string') {
+                    type = type.__name__;
+                }
+
+                if (this._entity) {
+                    return typeof this._entity.components[type] !== 'undefined';
+                }
+            },
 
             /**
             *   Abstract method for initializing this component. This method is

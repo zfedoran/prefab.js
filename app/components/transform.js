@@ -3,32 +3,44 @@ define([
         'core/component',
         'math/vector3',
         'math/quaternion',
-        'math/matrix4'
+        'math/matrix4',
+        'math/boundingBox'
     ],
     function(
         _,
         Component,
         Vector3,
         Quaternion,
-        Matrix4
+        Matrix4,
+        BoundingBox
     ) {
         'use strict';
 
+        /**
+        *   The Transform component class.
+        *
+        *   @class 
+        *   @constructor
+        *   @param {position}
+        *   @param {scale}
+        *   @param {rotation}
+        */
         var Transform = function(position, scale, rotation) {
             Component.call(this);
 
-            this.localPosition = position || new Vector3();
-            this.localScale    = scale    || new Vector3(1,1,1);
-            this.localRotation = rotation || new Quaternion();
+            // Local transformations
+            this.localPosition    = position || new Vector3();
+            this.localScale       = scale    || new Vector3(1,1,1);
+            this.localRotation    = rotation || new Quaternion();
 
-            this._position    = new Vector3();
-            this._scale       = new Vector3();
-            this._rotation    = new Quaternion();
+            // Cached world transform values
+            this._position        = new Vector3();
+            this._scale           = new Vector3();
+            this._rotation        = new Quaternion();
 
-            this._worldMatrix = new Matrix4();
-            this._localMatrix = new Matrix4();
-
-            this._entity = null;
+            // Cached matrix values
+            this._worldMatrix     = new Matrix4();
+            this._localMatrix     = new Matrix4();
         };
 
         Transform.__name__ = 'Transform';
@@ -45,7 +57,6 @@ define([
             *   @returns {undefined}
             */
             init: function(entity, context) {
-                this._entity = entity;
             },
 
             /**
@@ -58,41 +69,6 @@ define([
             *   @returns {undefined}
             */
             uninitialize: function(entity, context) {
-                this._entity = null;
-            },
-
-            getEntity: function() {
-                if (this._entity) {
-                    return this._entity;
-                }
-
-                throw 'Transform: cannot getEntity(), are you sure this component is attached to an entity?';
-            },
-
-            /**
-            *   This method updates this transform relative to all of its
-            *   ancestors.
-            *
-            *   @method update
-            *   @returns {undefined}
-            */
-            update: function() {
-                var entity = this.getEntity();
-                var transform, parent = entity.getParent();
-                if (this.isDirty()) {
-                    this._localMatrix.compose(this.localPosition, this.localRotation, this.localScale);
-
-                    if (parent && parent.hasComponent(Transform)) {
-                        transform = parent.getComponent(Transform);
-                        transform.update();
-                        Matrix4.multiply(transform._worldMatrix, this._localMatrix, /*out*/ this._worldMatrix);
-                    } else {
-                        this._worldMatrix.setFrom(this._localMatrix);
-                    }
-
-                    this._worldMatrix.decompose(this._position, this._rotation, this._scale);
-                    this.setDirty(false);
-                }
             },
 
             /**
@@ -109,16 +85,17 @@ define([
                 // If the current transform is dirty
                 if (this._dirty) {
                     var entity = this.getEntity();
+                    if (entity) {
+                        // Set all child transforms to dirty
+                        var i, len = entity.children.length;
+                        for (i = 0; i < len; i++) {
+                            var childEntity    = entity.children[i];
+                            var childTransform = childEntity.getComponent(Transform);
 
-                    // Set all child transforms to dirty
-                    var child, transform, i, len = entity.children.length;
-                    for (i = 0; i < len; i++) {
-                        child     = entity.children[i];
-                        transform = child.getComponent(Transform);
-
-                        // Only if the child transform is not already dirty.
-                        if (transform && transform._dirty === false) {
-                            transform.setDirty(value);
+                            // Only if the child transform is not already dirty.
+                            if (childTransform && childTransform.isDirty()) {
+                                childTransform.setDirty(value);
+                            }
                         }
                     }
                 }
@@ -134,6 +111,10 @@ define([
             *   @returns {undefined}
             */
             setPosition: function(x, y, z) {
+                x = typeof x !== 'undefined' ? x : 0;
+                y = typeof y !== 'undefined' ? y : 0;
+                z = typeof z !== 'undefined' ? z : 0;
+
                 this.localPosition.x = x;
                 this.localPosition.y = y;
                 this.localPosition.z = z;
@@ -153,6 +134,10 @@ define([
             setRotationFromEuler: (function() {
                 var c1, c2, c3, s1, s2, s3;
                 return function(x, y, z) {
+                    x = typeof x !== 'undefined' ? x : 0;
+                    y = typeof y !== 'undefined' ? y : 0;
+                    z = typeof z !== 'undefined' ? z : 0;
+                    
                     c1 = Math.cos(x / 2);
                     c2 = Math.cos(y / 2);
                     c3 = Math.cos(z / 2);
@@ -179,6 +164,10 @@ define([
             *   @returns {undefined}
             */
             setScale: function(x, y, z) {
+                x = typeof x !== 'undefined' ? x : 1;
+                y = typeof y !== 'undefined' ? y : 1;
+                z = typeof z !== 'undefined' ? z : 1;
+
                 this.localScale.x = x;
                 this.localScale.y = y;
                 this.localScale.z = z;
@@ -192,7 +181,7 @@ define([
             *   @returns {Vector3}
             */
             getWorldPosition: function() {
-                if (this.isDirty()) { this.update(); }
+                if (this.isDirty()) { this.getWorldMatrix(); }
                 return this._position;
             },
 
@@ -203,7 +192,7 @@ define([
             *   @returns {Quaternion}
             */
             getWorldRotation: function() {
-                if (this.isDirty()) { this.update(); }
+                if (this.isDirty()) { this.getWorldMatrix(); }
                 return this._rotation;
             },
 
@@ -214,7 +203,7 @@ define([
             *   @returns {Vector3}
             */
             getWorldScale: function() {
-                if (this.isDirty()) { this.update(); }
+                if (this.isDirty()) { this.getWorldMatrix(); }
                 return this._scale;
             },
 
@@ -225,7 +214,44 @@ define([
             *   @returns {undefined}
             */
             getWorldMatrix: function() {
-                if (this.isDirty()) { this.update(); }
+                if (this.isDirty()) {
+                    var entity = this.getEntity();
+
+                    if (entity) {
+                        var parentEntity = entity.getParent();
+
+                        // Create a local transform matrix using the loacl position, rotation, and scale values
+                        this._localMatrix.compose(this.localPosition, this.localRotation, this.localScale);
+
+                        // If this entity has a parent entity
+                        var foundParentWithTransform = false;
+                        if (parentEntity) {
+                            var parentTransform = parentEntity.getComponent(Transform);
+
+                            // And that entity has a transform component
+                            if (parentTransform) {
+                                foundParentWithTransform = true;
+
+                                // Get the parent world transform matrix
+                                var parentMatrix = parentTransform.getWorldMatrix();
+
+                                // Apply the parent transformations to the local transforms
+                                Matrix4.multiply(parentMatrix, this._localMatrix, /*out*/ this._worldMatrix);
+                            }
+                        } 
+
+                        // Use the local transforms as the world transforms
+                        if (!foundParentWithTransform) {
+                            this._worldMatrix.setFrom(this._localMatrix);
+                        }
+
+                        // Set the world position, rotation, and scale (cached) values
+                        this._worldMatrix.decompose(this._position, this._rotation, this._scale);
+                    }
+
+                    this.setDirty(false);
+                }
+
                 return this._worldMatrix;
             },
 
@@ -236,7 +262,7 @@ define([
             *   @returns {undefined}
             */
             getLocalMatrix: function() {
-                if (this.isDirty()) { this.update(); }
+                if (this.isDirty()) { this.getWorldMatrix(); }
                 return this._localMatrix;
             }
         });

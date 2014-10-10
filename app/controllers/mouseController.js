@@ -218,7 +218,8 @@ define([
             */
             sortByDepth: (function() {
                 var _sortFunction = function(a, b) {
-                    return a.depth - b.depth || b.entity.id - a.entity.id;
+                    //return a.depth - b.depth || b.entity.id - a.entity.id;
+                    return a.entity.id - b.entity.id;
                 };
                 return function(list) {
                     // Sort the collision list by depth
@@ -286,8 +287,8 @@ define([
             */
             raycastEntity: function(entity, ray, collisionMap) {
                 // Raycast the BoxCollider associated with this entity
-                if (entity.hasComponent('BoxCollider')) {
-                    this.raycastBoxCollider(entity, ray, collisionMap);
+                if (entity.hasComponent('ColliderBox')) {
+                    this.raycastColliderBox(entity, ray, collisionMap);
                 }
 
                 // Raycast any child entities
@@ -302,14 +303,14 @@ define([
             *   This function applies the current render state and then draws
             *   an entity using the provided ray.
             *
-            *   @method handleInput
+            *   @method raycastColliderBox
             *   @param {entity}
             *   @param {ray}
             *   @returns {undefined}
             */
-            raycastBoxCollider: function(entity, ray, collisionMap) {
+            raycastColliderBox: function(entity, ray, collisionMap) {
                 var transform    = entity.getComponent('Transform');
-                var boxCollider  = entity.getComponent('BoxCollider');
+                var colliderBox  = entity.getComponent('ColliderBox');
 
                 // Transform the ray from world space into the mesh's model space
                 var modelMatrix    = transform.getWorldMatrix();
@@ -317,7 +318,7 @@ define([
                 var localRay       = ray.clone().transform(modelInvMatrix);
 
                 // Get the mesh bounding box
-                var boundingBox = boxCollider.getBoundingBox();
+                var boundingBox = colliderBox.getBoundingBox();
 
                 // Ray cast mouse position against mesh bounding box
                 var rayTestResult = localRay.intersectBox(boundingBox);

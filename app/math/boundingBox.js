@@ -27,6 +27,19 @@ define([
             constructor: BoundingBox,
 
             /**
+            *   This method sets this bounding box from the provided bounding
+            *   box.
+            *
+            *   @method setFrom
+            *   @param {boundingBox}
+            *   @returns {undefined}
+            */
+            setFrom: function(boundingBox) {
+                this.min.setFrom(boundingBox.min);
+                this.max.setFrom(boundingBox.max);
+            },
+
+            /**
             *   This method checks if the bounding box values are valid numbers
             *
             *   @method isValid
@@ -131,6 +144,36 @@ define([
                     return false;
                 }
                 return true;
+            },
+
+            /**
+            *   This method returns the width of this bounding box.
+            *
+            *   @method getWidth
+            *   @returns {undefined}
+            */
+            getWidth: function() {
+                return this.max.x - this.min.x;
+            },
+
+            /**
+            *   This method returns the height of this bounding box.
+            *
+            *   @method getHeight
+            *   @returns {undefined}
+            */
+            getHeight: function() {
+                return this.max.y - this.min.y;
+            },
+
+            /**
+            *   This method returns the depth of this bounding box.
+            *
+            *   @method getDepth
+            *   @returns {undefined}
+            */
+            getDepth: function() {
+                return this.max.z - this.min.z;
             },
 
             toString: function() {

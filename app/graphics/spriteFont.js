@@ -27,11 +27,12 @@ define([
             if (typeof device === 'undefined') {
                 throw 'SpriteFont: cannot create a sprite font without a graphics device';
             }
+
             this.device     = device;
             this.fontFamily = options.fontFamily;
             this.fontSize   = options.fontSize;
-            this.firstChar  = options.firstChar || 32;
-            this.lastChar   = options.lastChar || 126;
+            this.firstChar  = options._characterRangeFrom || 32;
+            this.lastChar   = options._characterRangeTo || 126;
 
             this.charString = '';
             for (var i = this.firstChar; i <= this.lastChar; i++) {
@@ -53,10 +54,10 @@ define([
             this._hasSpaceChar = !this.charString.match(/ /);
 
             // Webkit does not provide sub pixel anti-aliasing
-            this.subPixelAntiAliasingEnabled = typeof options.antiAlias === 'undefined' ? true : options.antiAlias;
+            this.subPixelAntiAliasingEnabled = typeof options._antiAlias === 'undefined' ? true : options._antiAlias;
             
             // Webkit is not very good at drawing white text on a black background inside a canvas
-            this.invertColorsEnabled         = typeof options.antiAlias === 'undefined' ? true : options.invertColors;
+            this.invertColorsEnabled         = typeof options._antiAlias === 'undefined' ? true : options._invertColors;
 
             this.init();
         };
