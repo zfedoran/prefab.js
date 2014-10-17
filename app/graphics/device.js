@@ -437,6 +437,23 @@ define([
 
                 gl.viewport(this.viewportX, this.viewportY, this.viewportWidth, this.viewportHeight);
             },
+
+            /**
+            *   This method sets the context viewport position and size.
+            *
+            *   OpenGL manages a rectangular viewport as part of its state
+            *   which defines the placement of the rendering results in the
+            *   drawing buffer. Upon creation of WebGL context context, the
+            *   viewport is initialized to a rectangle with origin at (0, 0)
+            *   and width and height equal to the canvas element.
+            *
+            *   @method setViewport
+            *   @param {rectangle}
+            *   @returns {undefined}
+            */
+            setViewportRect: function(rect) {
+                this.setViewport(rect.x, rect.y, rect.width, rect.height);
+            },
             
             /**
             *   This method sets the scissor test region.
@@ -459,7 +476,37 @@ define([
             setScissor: function(x, y, width, height) {
                 var gl = this.state.getContext();
 
+                this.state.setScissor(x, y, width, height);
                 gl.scissor(x, y, width, height);
+            },
+
+            /**
+            *   This method sets the scissor test region.
+            *
+            *   The scissor region defines a rectangle which constrains
+            *   drawing. When the scissor test is enabled only pixels that lie
+            *   within the scissor box can be modified by drawing commands.
+            *   When enabled drawing can only occur inside the intersection of
+            *   the viewport, canvas area and the scissor box. When the scissor
+            *   test is not enabled drawing can only occur inside the
+            *   intersection of the viewport and canvas area.
+            *
+            *   @method setScissorRect
+            *   @param {rect}
+            *   @returns {undefined}
+            */
+            setScissorRect: function(rect) {
+                this.setScissor(rect.x, rect.y, rect.width, rect.height);
+            },
+
+            /**
+            *   This method returns the current scissor rectangle.
+            *
+            *   @method getScissorRect
+            *   @returns {undefined}
+            */
+            getScissorRect: function() {
+                return this.state.getScissor();
             },
             
             /**
@@ -473,11 +520,23 @@ define([
             enableScissorTest: function(enable) {
                 var gl = this.state.getContext();
 
+                this.state.setScissorEnabled(enable);
+
                 if (enable) {
                     gl.enable(gl.SCISSOR_TEST); 
                 } else {
                     gl.disable(gl.SCISSOR_TEST);
                 }
+            },
+
+            /**
+            *   This method gets the current scissor test state.
+            *
+            *   @method isScissorEnabled
+            *   @returns {undefined}
+            */
+            isScissorEnabled: function() {
+                return this.state.getScissorEnabled();
             },
             
             /**

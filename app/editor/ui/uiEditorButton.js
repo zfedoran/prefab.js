@@ -11,6 +11,8 @@ define([
         var UIEditorButton = function(context) {
             UIElementStyle.call(this, context);
 
+            this.setAutoWidth(true);
+            this.setAutoHeight(true);
             this.setFontFamily('arial');
             this.setFontSize(9);
             this.setFontColor(1, 1, 1, 1);

@@ -89,19 +89,23 @@ define([
             */
             renderEntity: function(entity, camera) {
                 var meshRenderer = entity.getComponent('MeshRenderer');
+                var scissorTest  = entity.getComponent('ScissorTest');
+
+                // If this entity has a ScissorTest component and it is enabled
+                var isScissorEnabled = scissorTest && scissorTest.isEnabled();
+                if (isScissorEnabled) {
+                    this.applyScissorState(scissorTest);
+                }
 
                 // If this entity has a MeshRenderer and it is enabled
-                if (meshRenderer) {
-                    if (meshRenderer.isEnabled()) {
+                if (meshRenderer && meshRenderer.isEnabled()) {
+                    // Update or create the shader required to render this entity
+                    this.updateRenderer(entity);
 
-                        // Update or create the shader required to render this entity
-                        this.updateRenderer(entity);
-
-                        // Render the mesh associated with this entity
-                        if (entity.hasComponent('MeshFilter')) {
-                            this.renderMesh(entity, camera);
-                        }
-                    } 
+                    // Render the mesh associated with this entity
+                    if (entity.hasComponent('MeshFilter')) {
+                        this.renderMesh(entity, camera);
+                    }
                 }
 
                 // Render any child entities
@@ -110,6 +114,30 @@ define([
                         this.renderEntity(entity.children[i], camera);
                     }
                 }
+
+                // Restore the old scissor state (if it changed)
+                if (isScissorEnabled) {
+                    this.restoreScissorState();
+                }
+            },
+
+            applyScissorState: function(scissorTest) {
+                this.prevScissorState = this.device.isScissorEnabled();
+                this.prevScissorRect  = this.device.getScissorRect();
+
+                var clippedScissor = scissorTest.getRectangle()
+                                                .clip(this.prevScissorRect);
+
+                this.device.enableScissorTest(scissorTest.isEnabled());
+                this.device.setScissorRect(clippedScissor);
+            },
+
+            restoreScissorState: function() {
+                this.device.enableScissorTest(this.prevScissorState);
+                this.device.setScissorRect(this.prevScissorRect);
+
+                this.prevScissorRect  = null;
+                this.prevScissorState = null;
             },
 
             /**
@@ -198,11 +226,7 @@ define([
                     if (anchor) {
                         // TODO: we probably need to take the hierarchy into account (parent anchor)
                         var boundingBox;
-                        if (bounds) {
-                            boundingBox = bounds.getLocalBoundingBox();
-                        } else {
                             boundingBox = mesh.getBoundingBox();
-                        }
 
                         var anchorPoint = anchor.getAnchorPoint();
                         var width       = boundingBox.max.x - boundingBox.min.x;
@@ -226,15 +250,6 @@ define([
                                             camera.viewRect.y, 
                                             camera.viewRect.width, 
                                             camera.viewRect.height);
-
-                    // Handle scissor rectangle
-                    this.device.enableScissorTest(meshRenderer.scissorEnabled);
-                    if (meshRenderer.scissorEnabled) {
-                        this.device.setScissor(meshRenderer.scissorRect.x, 
-                                               meshRenderer.scissorRect.y, 
-                                               meshRenderer.scissorRect.width, 
-                                               meshRenderer.scissorRect.height);
-                    } 
 
                     // Draw the clipped mesh, if one exists
                     if (meshFilter.hasClippedMesh()) {

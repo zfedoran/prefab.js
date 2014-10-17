@@ -19,7 +19,7 @@ define([
         var UIButton = function(text, uiElementStyle) {
             UIElement.call(this, uiElementStyle);
 
-            this.uiTextComponent = null;
+            this.uiLabelComponent = null;
             this.uiRectComponent = null;
         };
 
@@ -91,26 +91,26 @@ define([
             },
 
             /**
-            *   This method sets the UIText component used by this button
+            *   This method sets the UILabel component used by this button
             *   entity.
             *
-            *   @method setUITextComponent
-            *   @param {uiText}
+            *   @method setUILabelComponent
+            *   @param {uiLabel}
             *   @returns {undefined}
             */
-            setUITextComponent: function(uiText) {
-                this.uiTextComponent = uiText;
+            setUILabelComponent: function(uiLabel) {
+                this.uiLabelComponent = uiLabel;
                 this.setDirty(true);
             },
 
             /**
-            *   This method returns the UIText component used by this button.
+            *   This method returns the UILabel component used by this button.
             *
-            *   @method getUITextComponent
+            *   @method getUILabelComponent
             *   @returns {undefined}
             */
-            getUITextComponent: function() {
-                return this.uiTextComponent;
+            getUILabelComponent: function() {
+                return this.uiLabelComponent;
             },
 
             /**
@@ -121,7 +121,7 @@ define([
             *   @returns {undefined}
             */
             setText: function(text) {
-                this.uiTextComponent.setText(text);
+                this.uiLabelComponent.setText(text);
                 this.setDirty(true);
             },
 
@@ -136,7 +136,7 @@ define([
             setState: function(state) {
                 if (this.state !== state) {
                     this.state = state;
-                    this.uiTextComponent.setState(state);
+                    this.uiLabelComponent.setState(state);
                     this.uiRectComponent.setState(state);
                     this.setDirty(true);
                 }

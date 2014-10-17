@@ -1,11 +1,13 @@
 define([
         'lodash',
         'core/component',
+        'math/vector3',
         'math/boundingBox'
     ],
     function(
         _,
         Component,
+        Vector3,
         BoundingBox
     ) {
         'use strict';
@@ -21,6 +23,9 @@ define([
 
             // Local bounding box
             this.localBoundingBox = new BoundingBox();
+
+            // World bounding box
+            this._boundingBox = new BoundingBox();
         };
 
         Bounds.__name__ = 'Bounds';
@@ -66,6 +71,45 @@ define([
 
                 return this.localBoundingBox;
             },
+
+            getWorldBoundingBox: (function() {
+                var boundingBoxCoords = [
+                    new Vector3(), new Vector3(), new Vector3(), new Vector3(),
+                    new Vector3(), new Vector3(), new Vector3(), new Vector3()
+                ];
+
+                return function() {
+                    var transform = this.getComponent('Transform');
+                    if (transform) {
+                        if (this.isDirty()) {
+                            this.update();
+                        }
+
+                        this._boundingBox.makeEmpty();
+
+                        var hw = this.localBoundingBox.getWidth() * 0.5;
+                        var hh = this.localBoundingBox.getHeight() * 0.5;
+                        var hd = this.localBoundingBox.getDepth() * 0.5;
+                        
+                        boundingBoxCoords[0].set(-hw, -hh,  hd);
+                        boundingBoxCoords[1].set( hw, -hh,  hd);
+                        boundingBoxCoords[2].set(-hw, -hh, -hd);
+                        boundingBoxCoords[3].set( hw, -hh, -hd);
+                        boundingBoxCoords[4].set(-hw,  hh,  hd);
+                        boundingBoxCoords[5].set( hw,  hh,  hd);
+                        boundingBoxCoords[6].set(-hw,  hh, -hd);
+                        boundingBoxCoords[7].set( hw,  hh, -hd);
+
+                        var matrix = transform.getAnchorAdjustedWorldMatrix();
+                        for (var i = 0; i < 8; i++) {
+                            var vector = boundingBoxCoords[i];
+                            vector.transform(matrix);
+                            this._boundingBox.expandByVector(vector);
+                        }
+                    }
+                    return this._boundingBox;
+                };
+            })(),
 
             /**
             *   This method sets the local bounding box for this entity.

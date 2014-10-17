@@ -264,7 +264,37 @@ define([
             getLocalMatrix: function() {
                 if (this.isDirty()) { this.getWorldMatrix(); }
                 return this._localMatrix;
-            }
+            },
+
+            getAnchorAdjustedWorldMatrix: (function() {
+                var matrix = new Matrix4();
+
+                return function(result) {
+                    if (typeof result === 'undefined') {
+                        result = new Matrix4();
+                    }
+                    
+                    result.setFrom(this.getWorldMatrix());
+
+                    var anchor     = this.getComponent('Anchor');
+                    var dimensions = this.getComponent('Dimensions');
+
+                    if (anchor && dimensions) {
+                        var anchorPoint = anchor.getAnchorPoint();
+                        var width       = dimensions.getWidth();
+                        var height      = dimensions.getHeight();
+                        var depth       = dimensions.getDepth();
+
+                        Matrix4.createTranslation(anchorPoint.x * width * 0.5, 
+                                                  anchorPoint.y * height * 0.5, 
+                                                  anchorPoint.z * depth * 0.5,
+                                                 /*out*/ matrix);
+                        Matrix4.multiply(matrix, result, /*out*/ result);
+                    }
+
+                    return result;
+                };
+            })(),
         });
 
         return Transform;

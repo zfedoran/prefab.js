@@ -96,13 +96,13 @@ define([
 
                         // Calculate frames per second average
                         elapsedList.push(elapsed);
-                        if (elapsedList.length >= 15) {
+                        if (elapsedList.length >= 3) {
                             var i, avg = 0;
                             for (i = 0; i<elapsedList.length; i++) {
                                 avg += elapsedList[i];
                             }
 
-                            self.fps = (1000 / (avg / 15));
+                            self.fps = (1000 / (avg / 3));
                             elapsedList.length = 0;
                         }
 

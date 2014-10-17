@@ -89,7 +89,7 @@ define([
                     'controllers/colliderController',
                     'controllers/mouseController',
                     'controllers/clipController',
-                    'ui/controllers/uiTextController',
+                    'ui/controllers/uiLabelController',
                     'ui/controllers/uiRectController',
                     'ui/controllers/uiTextBoxController',
                     'ui/controllers/uiButtonController',

@@ -111,7 +111,7 @@ define([
                             this.shiftKey = !this.shiftKey;
                         }
 
-                        console.log('keydown ' + this.currentKey + ' => ' + this.currentChar);
+                        //console.log('keydown ' + this.currentKey + ' => ' + this.currentChar);
                         this.trigger('keydown', this);
                     }
                 }
@@ -160,7 +160,7 @@ define([
                         // The keyup event does not recieve the same key events as keypress
                         this._keyMappingPairs[this._keydown] = keyCode;
 
-                        console.log('keypress ' + this.currentKey + ' => ' + this.currentChar);
+                        //console.log('keypress ' + this.currentKey + ' => ' + this.currentChar);
 
                         this.trigger('keydown', this);
                     }
@@ -200,7 +200,7 @@ define([
                             this.shiftKey = !this.shiftKey;
                         }
 
-                        console.log('keyup ' + this.currentKey + ' => ' + this.currentChar);
+                        //console.log('keyup ' + this.currentKey + ' => ' + this.currentChar);
                         this.trigger('keyup', this);
                     }
                 };

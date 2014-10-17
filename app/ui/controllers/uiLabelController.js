@@ -7,7 +7,7 @@ define([
         'graphics/mesh',
         'graphics/spriteFont',
         'ui/uiStyle',
-        'ui/components/uiText'
+        'ui/components/uiLabel'
     ], 
     function(
         _,
@@ -18,41 +18,41 @@ define([
         Mesh,
         SpriteFont,
         UIStyle,
-        UIText
+        UILabel
     ) {
         'use strict';
 
         /**
         *   This class updates the mesh associated with entities which have a
-        *   UIText component.
+        *   UILabel component.
         *
         *   @class 
         *   @param {context}
         *   @constructor
         */
-        var UITextController = function(context) {
+        var UILabelController = function(context) {
             Controller.call(this, context);
 
             this.meshFactory = new MeshFactory(this.device);
             this.fontCache   = {};
         };
 
-        UITextController.prototype = _.create(Controller.prototype, {
-            constructor: UITextController,
+        UILabelController.prototype = _.create(Controller.prototype, {
+            constructor: UILabelController,
 
             /**
-            *   Update all entities which contain the UIText and MeshFilter
+            *   Update all entities which contain the UILabel and MeshFilter
             *   components.
             *
             *   @method update
             *   @returns {undefined}
             */
             update: function() {
-                this.filterBy(['Transform', 'Dimensions', 'UIText', 'MeshFilter', 'MeshRenderer'], function(entity) {
-                    var uiText     = entity.getComponent('UIText');
+                this.filterBy(['Transform', 'Dimensions', 'UILabel', 'MeshFilter', 'MeshRenderer'], function(entity) {
+                    var uiLabel     = entity.getComponent('UILabel');
                     var dimensions = entity.getComponent('Dimensions');
 
-                    if (uiText.isDirty() || dimensions.isDirty()) {
+                    if (uiLabel.isDirty() || dimensions.isDirty()) {
                         var meshRenderer = entity.getComponent('MeshRenderer');
                         var meshFilter   = entity.getComponent('MeshFilter');
                         var mesh         = meshFilter.getMesh();
@@ -63,7 +63,7 @@ define([
                             mesh = new Mesh(this.device, Mesh.TRIANGLES);
                         }
 
-                        var uiStyle    = uiText.getCurrentStyle();
+                        var uiStyle    = uiLabel.getCurrentStyle();
                         var spriteFont = uiStyle.getSpriteFont();
 
                         // Check if a SpriteFont exists
@@ -81,12 +81,12 @@ define([
                                 spriteFont = cachedFont;
                             }
 
-                            // Update the uiText with the cached spriteFont
+                            // Update the uiLabel with the cached spriteFont
                             uiStyle.setSpriteFont(spriteFont);
                         }
 
-                        // Generate the new uiText mesh
-                        this.generateTextMesh(entity, mesh);
+                        // Generate the new uiLabel mesh
+                        this.generateLabelMesh(entity, mesh);
 
                         // Set the mesh
                         meshFilter.setMesh(mesh);
@@ -95,28 +95,28 @@ define([
                         meshRenderer.material.diffuseMap = spriteFont._texture;
                         meshRenderer.material.diffuse    = uiStyle.fontColor;
 
-                        uiText.setDirty(false);
+                        uiLabel.setDirty(false);
                     }
                 }, this);
             },
 
             /**
-            *   This method splits uiText text into a series of lines according
-            *   to the uiText width.
+            *   This method splits uiLabel text into a series of lines according
+            *   to the uiLabel width.
             *
             *   @method generateParagraphLines
-            *   @param {uiText}
+            *   @param {uiLabel}
             *   @param {maxWidth}
             *   @returns {lines} An array of strings
             */
-            generateParagraphLines: function(uiText, maxWidth) {
-                var uiStyle     = uiText.getCurrentStyle();
+            generateParagraphLines: function(uiLabel, maxWidth) {
+                var uiStyle     = uiLabel.getCurrentStyle();
                 var spriteFont  = uiStyle.getSpriteFont(),
-                    text        = uiText.text,
+                    text        = uiLabel.text,
                     lines       = [],
                     currentLine = '';
 
-                // Go through all characters in the uiText text
+                // Go through all characters in the uiLabel text
                 var dx = 0, i, len = text.length;
                 for (i = 0; i < len; i++) {
                     var current      = text.charAt(i);
@@ -162,27 +162,27 @@ define([
             },
 
             /**
-            *   Generate the character quads for a uiText and return a mesh.
+            *   Generate the character quads for a uiLabel and return a mesh.
             *
-            *   @method generateTextMesh
+            *   @method generateLabelMesh
             *   @param {entity}
             *   @param {mesh}
             *   @returns {mesh}
             */
-            generateTextMesh: function(entity, mesh) {
-                var uiText     = entity.getComponent('UIText');
+            generateLabelMesh: function(entity, mesh) {
+                var uiLabel     = entity.getComponent('UILabel');
                 var dimensions = entity.getComponent('Dimensions');
-                var uiStyle    = uiText.getCurrentStyle();
+                var uiStyle    = uiLabel.getCurrentStyle();
                 var spriteFont = uiStyle.getSpriteFont();
 
                 // By definition, for a label to be multiline, it must have a dimension
                 var lines, maxWidth;
-                if (uiText.multiLine) {
+                if (uiLabel.multiLine) {
                     maxWidth = dimensions.getWidth();
-                    lines    = this.generateParagraphLines(uiText, maxWidth);
+                    lines    = this.generateParagraphLines(uiLabel, maxWidth);
                 } else {
-                    maxWidth = Math.max(dimensions.getWidth(), spriteFont.measureText(uiText.text));
-                    lines    = [uiText.text];
+                    maxWidth = spriteFont.measureText(uiLabel.text);
+                    lines    = [uiLabel.text];
                 }
 
                 this.meshFactory.begin(mesh);
@@ -191,8 +191,8 @@ define([
                 var charWidth  = spriteFont.getCharWidth();
                 var charHeight = spriteFont.getCharWidth();
 
-                // Calcualte the uiText height
-                var maxHeight = uiText.height || (lines.length * (uiText.lineHeight || charHeight));
+                // Calcualte the uiLabel height
+                var maxHeight = uiLabel.height || (lines.length * (uiLabel.lineHeight || charHeight));
 
                 // Go through each line
                 var dx, dy = 0;
@@ -211,7 +211,7 @@ define([
                     }
 
                     // Go to the next line
-                    dy -= uiText.lineHeight || charHeight;
+                    dy -= uiLabel.lineHeight || charHeight;
 
                     // Go through each character
                     for (var charIndex = 0; charIndex < currentLine.length; charIndex++) {
@@ -242,8 +242,7 @@ define([
 
                 // Set the width and height of the dimensions component
                 var boundingBox = mesh.getBoundingBox();
-                dimensions.setDimensions(Math.max(boundingBox.getWidth(), maxWidth), 
-                                         Math.max(boundingBox.getHeight(), maxHeight));
+                dimensions.setDimensions(dimensions.getWidth(),dimensions.getHeight());
 
                 return mesh;
             },
@@ -283,6 +282,6 @@ define([
             }
         });
 
-        return UITextController;
+        return UILabelController;
     }
 );

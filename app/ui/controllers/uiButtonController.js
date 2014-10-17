@@ -36,9 +36,9 @@ define([
                     var dimensions = entity.getComponent('Dimensions');
 
                     if (uiButton.isDirty() || dimensions.isDirty()) {
-                        var uiText = uiButton.getUITextComponent();
+                        var uiLabel = uiButton.getUILabelComponent();
 
-                        if (!uiText.isDirty()) {
+                        if (!uiLabel.isDirty()) {
                             this.updateButton(entity);
                         }
                     }
@@ -59,25 +59,29 @@ define([
                 var uiButtonCollider   = entity.getComponent('ColliderBox');
 
                 var uiStyle            = uiButton.getCurrentStyle();
-                var uiText             = uiButton.getUITextComponent();
+                var uiLabel            = uiButton.getUILabelComponent();
                 var uiRect             = uiButton.getUIRectComponent();
-                var uiTextDimensions   = uiText.getComponent('Dimensions');
+                var uiLabelDimensions  = uiLabel.getComponent('Dimensions');
                 var uiRectDimensions   = uiRect.getComponent('Dimensions');
 
-                uiText.getComponent('Transform').setPosition(uiStyle.paddingLeft, -uiStyle.paddingTop);
+                uiLabel.getComponent('Transform').setPosition(uiStyle.paddingLeft, -uiStyle.paddingTop);
 
                 var width, height;
-                switch (uiStyle.overflow) {
-                    case UIStyle.OVERFLOW_NONE:
-                        width  = Math.max(uiTextDimensions.getWidth(), uiButtonDimensions.getWidth());
-                        height = Math.max(uiTextDimensions.getHeight(), uiButtonDimensions.getHeight());
-                        break;
-                    case UIStyle.OVERFLOW_HIDDEN:
-                    case UIStyle.OVERFLOW_SCROLL:
-                        width  = uiButtonDimensions.getWidth();
-                        height = uiButtonDimensions.getHeight();
-                        break;
+                if (uiStyle.autoWidth) {
+                    width = Math.max(uiLabelDimensions.getWidth(), uiButtonDimensions.getWidth());
+                } else {
+                    width = uiButtonDimensions.getWidth();
                 }
+
+                if (uiStyle.autoHeight) {
+                    height = Math.max(uiLabelDimensions.getHeight(), uiButtonDimensions.getHeight());
+                } else {
+                    height = uiButtonDimensions.getHeight();
+                }
+
+                uiLabelDimensions.setWidth(width);
+                uiLabelDimensions.setHeight(height);
+                uiLabel.setDirty(true);
 
                 width  += uiStyle.paddingLeft + uiStyle.paddingRight;
                 height += uiStyle.paddingTop + uiStyle.paddingBottom;

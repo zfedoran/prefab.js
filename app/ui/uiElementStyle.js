@@ -106,6 +106,66 @@ define([
             },
 
             /**
+            *   This method sets the overflow property for all states of this
+            *   UI element style.
+            *
+            *   @method setOverflowHidden
+            *   @param {value}
+            *   @returns {undefined}
+            */
+            setOverflowHidden: function(value) {
+                this.normal.overflowHidden = value;
+                this.hover.overflowHidden  = value;
+                this.active.overflowHidden = value;
+                this.focus.overflowHidden  = value;
+            },
+
+            /**
+            *   This method sets the autoWidth property for all states of this
+            *   UI element style.
+            *
+            *   @method setAutoWidth
+            *   @param {value}
+            *   @returns {undefined}
+            */
+            setAutoWidth: function(value) {
+                this.normal.autoWidth = value;
+                this.hover.autoWidth  = value;
+                this.active.autoWidth = value;
+                this.focus.autoWidth  = value;
+            },
+
+            /**
+            *   This method sets the autoHeight property for all states of this
+            *   UI element style.
+            *
+            *   @method setAutoHeight
+            *   @param {value}
+            *   @returns {undefined}
+            */
+            setAutoHeight: function(value) {
+                this.normal.autoHeight = value;
+                this.hover.autoHeight  = value;
+                this.active.autoHeight = value;
+                this.focus.autoHeight  = value;
+            },
+
+            /**
+            *   This method sets the text algin property for all states of this
+            *   UI element style.
+            *
+            *   @method setTextAlign
+            *   @param {textAlign}
+            *   @returns {undefined}
+            */
+            setTextAlign: function(textAlign) {
+                this.normal.textAlign = textAlign;
+                this.hover.textAlign  = textAlign;
+                this.active.textAlign = textAlign;
+                this.focus.textAlign  = textAlign;
+            },
+
+            /**
             *   Abstract method for loading the texture assets required for
             *   this theme.
             *

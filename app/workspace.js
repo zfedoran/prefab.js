@@ -9,12 +9,13 @@ define([
         'components/meshClip',
         'factories/blockFactory',
         'factories/cameraFactory',
-        'ui/factories/uiTextFactory',
+        'ui/factories/uiLabelFactory',
         'ui/factories/uiButtonFactory',
         'ui/factories/uiTextBoxFactory',
         'editor/factories/gridFactory',
         'editor/ui/uiEditorButton',
-        'editor/ui/uiEditorInput'
+        'editor/ui/uiEditorInput',
+        'editor/ui/uiEditorText'
     ],
     function(
         _,
@@ -27,12 +28,13 @@ define([
         MeshClip,
         BlockFactory,
         CameraFactory,
-        UITextFactory,
+        UILabelFactory,
         UIButtonFactory,
         UITextBoxFactory,
         GridFactory,
         UIEditorButton,
-        UIEditorInput
+        UIEditorInput,
+        UIEditorText
     ) {
         'use strict';
 
@@ -70,10 +72,10 @@ define([
             *   @returns {undefined}
             */
             initFactories: function() {
-                this.cameraFactory = new CameraFactory(this.context);
-                this.blockFactory  = new BlockFactory(this.context);
-                this.uiTextFactory = new UITextFactory(this.context);
-                this.gridFactory   = new GridFactory(this.context);
+                this.cameraFactory  = new CameraFactory(this.context);
+                this.blockFactory   = new BlockFactory(this.context);
+                this.uiLabelFactory = new UILabelFactory(this.context);
+                this.gridFactory    = new GridFactory(this.context);
             },
 
             /**
@@ -86,10 +88,10 @@ define([
                 this.root = this.context.createNewEntity('root');
                 this.root.addComponent(new Transform());
                 this.root.addComponent(MeshClip.createFromMinMax(new Vector3(-1, -1, -1), new Vector3(1,1,1)));
-                this.root.addToGroup('scene');
+                //this.root.addToGroup('scene');
 
                 var gridEntity = this.gridFactory.create('scene-grid', 20, 20, 20);
-                gridEntity.addToGroup('scene');
+                //gridEntity.addToGroup('scene');
 
                 var grid = gridEntity.getComponent('Grid');
                 grid.hasXYPlane = false;
@@ -114,6 +116,7 @@ define([
                 // Styles
                 this.uiEditorButton = new UIEditorButton(this.context);
                 this.uiEditorInput  = new UIEditorInput(this.context);
+                this.uiEditorText   = new UIEditorText(this.context);
 
                 // Entities
                 this.button = this.uiButtonFactory.create('apply-btn', 'apply', this.uiEditorButton);
@@ -130,31 +133,29 @@ define([
 
                 this.input = this.uiTextBoxFactory.create('x-textbox', '0.4200', this.uiEditorInput);
                 this.input.addToGroup('ui');
+                this.input.setDimensions(30, 14, 0);
 
                 transform = this.input.getComponent('Transform');
                 transform.setPosition(250, 100, -1);
 
                 this.input = this.uiTextBoxFactory.create('y-textbox', '0.2138', this.uiEditorInput);
                 this.input.addToGroup('ui');
+                this.input.setDimensions(30, 14, 0);
 
                 transform = this.input.getComponent('Transform');
                 transform.setPosition(310, 100, -1);
 
                 this.input = this.uiTextBoxFactory.create('z-textbox', '0.9034', this.uiEditorInput);
                 this.input.addToGroup('ui');
+                this.input.setDimensions(30, 14, 0);
 
                 transform = this.input.getComponent('Transform');
                 transform.setPosition(370, 100, -1);
 
-                this.uiTextFPS = this.uiTextFactory.create('fps-text', 'hello, world', this.uiEditorInput);
-                this.uiTextFPS.addToGroup('ui');
-                this.uiTextFPS.setDimensions(200, 0, 0);
+                this.fpsLabel = this.uiLabelFactory.create('fps-text', 'hello, world', this.uiEditorText);
+                this.fpsLabel.addToGroup('ui');
 
-                var meshRenderer = this.uiTextFPS.getComponent('MeshRenderer');
-                //meshRenderer.scissorEnabled = true;
-                //meshRenderer.scissorRect.set(50, 120, 30, 30);
-
-                transform = this.uiTextFPS.getComponent('Transform');
+                transform = this.fpsLabel.getComponent('Transform');
                 transform.setPosition(100, 150, -1);
             },
 
@@ -247,7 +248,7 @@ define([
 
                 this.camera.getComponent('Camera').target = this.root;
 
-                this.uiTextFPS.getComponent('UIText').setText(this.context.getFramesPerSecond());
+                this.fpsLabel.getComponent('UILabel').setText(this.context.getFramesPerSecond());
             }
 
         });

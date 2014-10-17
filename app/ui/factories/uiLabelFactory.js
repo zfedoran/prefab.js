@@ -5,7 +5,7 @@ define([
         'components/meshFilter',
         'components/meshRenderer',
         'ui/factories/uiElementFactory',
-        'ui/components/uiText'
+        'ui/components/uiLabel'
     ],
     function(
         _,
@@ -14,18 +14,18 @@ define([
         MeshFilter,
         MeshRenderer,
         UIElementFactory,
-        UIText
+        UILabel
     ) {
         'use strict';
     
-        var UITextFactory = function(context) {
+        var UILabelFactory = function(context) {
             Factory.call(this, context);
 
             this.uiElementFactory = new UIElementFactory(context);
         };
 
-        UITextFactory.prototype = _.create(Factory.prototype, {
-            construct: UITextFactory,
+        UILabelFactory.prototype = _.create(Factory.prototype, {
+            construct: UILabelFactory,
 
             create: function(name, text, uiElementStyle) {
                 var entity = this.uiElementFactory.create(name);
@@ -34,12 +34,12 @@ define([
 
                 entity.addComponent(new MeshFilter());
                 entity.addComponent(new MeshRenderer(material));
-                entity.addComponent(new UIText(text, uiElementStyle));
+                entity.addComponent(new UILabel(text, uiElementStyle));
 
                 return entity;
             }
         });
 
-        return UITextFactory;
+        return UILabelFactory;
     }
 );

@@ -11,9 +11,9 @@ define([
         'use strict';
 
         /**
-        *   UIText component class.
+        *   UILabel component class.
         *
-        *   Any entity with a UIText component will have its MeshFilter
+        *   Any entity with a UILabel component will have its MeshFilter
         *   automatically updated with a matching quad Mesh.
         *
         *   @class 
@@ -21,17 +21,17 @@ define([
         *   @param {uiElementStyle}
         *   @constructor
         */
-        var UIText = function(text, uiElementStyle) {
+        var UILabel = function(text, uiElementStyle) {
             UIElement.call(this, uiElementStyle);
 
             this.text         = text;
             this.multiLine    = false;
         };
 
-        UIText.__name__ = 'UIText';
+        UILabel.__name__ = 'UILabel';
 
-        UIText.prototype = _.create(UIElement.prototype, {
-            constructor: UIText,
+        UILabel.prototype = _.create(UIElement.prototype, {
+            constructor: UILabel,
 
             /**
             *   This method is called when this component is added to an entity.
@@ -79,6 +79,6 @@ define([
             }
         });
 
-        return UIText;
+        return UILabel;
     }
 );

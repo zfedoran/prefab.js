@@ -19,9 +19,6 @@ define([
 
             this.castShadows    = false;
             this.receiveShadows = false;
-
-            this.scissorRect    = new Rectangle();
-            this.scissorEnabled = false;
         };
 
         MeshRenderer.__name__ = 'MeshRenderer';

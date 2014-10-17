@@ -30,7 +30,13 @@ define([
             this.paddingRight  = 0;
             this.paddingLeft   = 0;
 
-            this.overflow      = UIStyle.OVERFLOW_NONE;
+            // The following properties define whether the dimensions are set to the size of the child content
+            this.autoWidth     = false;
+            this.autoHeight    = false;
+
+            // The following properties define whether the child UI elements should be masked if they extend past the bounds of this element
+            this.overflowHidden = false;
+            this.overflowScroll = false;
 
             // The following properties change how the dynamic spriteFont is generated
             this._spriteFont         = null;
@@ -107,10 +113,6 @@ define([
         UIStyle.TEXT_ALIGN_LEFT     = 'left';
         UIStyle.TEXT_ALIGN_RIGHT    = 'right';
         UIStyle.TEXT_ALIGN_CENTER   = 'center';
-
-        UIStyle.OVERFLOW_NONE       = 'none';
-        UIStyle.OVERFLOW_HIDDEN     = 'hidden';
-        UIStyle.OVERFLOW_SCROLL     = 'scroll';
 
         return UIStyle;
     }

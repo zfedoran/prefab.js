@@ -3,20 +3,22 @@ define([
         'core/factory',
         'factories/quadFactory',
         'ui/factories/uiElementFactory',
-        'ui/factories/uiTextFactory',
+        'ui/factories/uiLabelFactory',
         'ui/factories/uiRectFactory',
         'ui/components/uiElement',
-        'ui/components/uiTextBox'
+        'ui/components/uiTextBox',
+        'components/scissorTest'
     ],
     function(
         _,
         Factory,
         QuadFactory,
         UIElementFactory,
-        UITextFactory,
+        UILabelFactory,
         UIRectFactory,
         UIElement,
-        UITextBox
+        UITextBox,
+        ScissorTest
     ) {
         'use strict';
     
@@ -24,7 +26,7 @@ define([
             Factory.call(this, context);
 
             this.uiElementFactory = new UIElementFactory(context);
-            this.uiTextFactory    = new UITextFactory(context);
+            this.uiLabelFactory   = new UILabelFactory(context);
             this.uiRectFactory    = new UIRectFactory(context);
             this.quadFactory      = new QuadFactory(context);
         };
@@ -36,28 +38,24 @@ define([
                 var entity = this.uiElementFactory.create(name);
 
                 entity.addComponent(new UITextBox(text, uiElementStyle));
+                entity.addComponent(new ScissorTest(true));
 
                 var uiTextBox = entity.getComponent('UITextBox');
 
                 // Child Entities
-                var uiTextEntity   = this.uiTextFactory.create(name + '-text', text, uiElementStyle);
+                var uiLabelEntity  = this.uiLabelFactory.create(name + '-text', text, uiElementStyle);
                 var uiRectEntity   = this.uiRectFactory.create(name + '-background', uiElementStyle);
                 var cursorEntity   = this.quadFactory.create(name + '-cursor', null, 1, uiTextBox.getCurrentStyle().fontSize);
 
                 // Set child components
-                uiTextBox.setUITextComponent(uiTextEntity.getComponent('UIText'));
+                uiTextBox.setUILabelComponent(uiLabelEntity.getComponent('UILabel'));
                 uiTextBox.setUIRectComponent(uiRectEntity.getComponent('UIRect'));
                 uiTextBox.setCursorQuadComponent(cursorEntity.getComponent('Quad'));
                 
                 // Set the child hierarchy
                 entity.addChild(uiRectEntity);
-                entity.addChild(uiTextEntity);
+                entity.addChild(uiLabelEntity);
                 entity.addChild(cursorEntity);
-
-                // Tag entities to make them more easily accessible later
-                entity.tagEntity(uiTextEntity);
-                entity.tagEntity(uiRectEntity);
-                entity.tagEntity(cursorEntity);
 
                 return entity;
             }

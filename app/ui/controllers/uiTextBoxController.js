@@ -38,9 +38,9 @@ define([
                     var dimensions = entity.getComponent('Dimensions');
 
                     if (uiTextBox.isDirty() || dimensions.isDirty()) {
-                        var uiText = uiTextBox.getUITextComponent();
+                        var uiLabel = uiTextBox.getUILabelComponent();
 
-                        if (!uiText.isDirty()) {
+                        if (!uiLabel.isDirty()) {
                             this.updateTextBox(entity);
                         }
                     }
@@ -62,28 +62,30 @@ define([
                 var uiTextBoxDimensions = entity.getComponent('Dimensions');
                 var uiTextBoxCollider   = entity.getComponent('ColliderBox');
                 var uiTextBoxTransform  = entity.getComponent('Transform');
+                var uiTextBoxScissor    = entity.getComponent('ScissorTest');
 
                 var uiStyle             = uiTextBox.getCurrentStyle();
                 var cursorQuad          = uiTextBox.getCursorQuadComponent();
-                var uiText              = uiTextBox.getUITextComponent();
+                var uiLabel             = uiTextBox.getUILabelComponent();
                 var uiRect              = uiTextBox.getUIRectComponent();
-                var uiTextDimensions    = uiText.getComponent('Dimensions');
+                var uiLabelDimensions   = uiLabel.getComponent('Dimensions');
                 var uiRectDimensions    = uiRect.getComponent('Dimensions');
 
-                uiText.getComponent('Transform').setPosition(uiStyle.paddingLeft, -uiStyle.paddingTop);
+                uiLabel.getComponent('Transform').setPosition(uiStyle.paddingLeft, -uiStyle.paddingTop);
 
                 var width, height;
-                switch (uiStyle.overflow) {
-                    case UIStyle.OVERFLOW_NONE:
-                        width  = Math.max(uiTextDimensions.getWidth(), uiTextBoxDimensions.getWidth());
-                        height = Math.max(uiTextDimensions.getHeight(), uiTextBoxDimensions.getHeight());
-                        break;
-                    case UIStyle.OVERFLOW_HIDDEN:
-                    case UIStyle.OVERFLOW_SCROLL:
-                        width  = uiTextBoxDimensions.getWidth();
-                        height = uiTextBoxDimensions.getHeight();
-                        break;
+                if (uiStyle.autoWidth) {
+                    width = Math.max(uiLabelDimensions.getWidth(), uiTextBoxDimensions.getWidth());
+                } else {
+                    width = uiTextBoxDimensions.getWidth();
                 }
+
+                if (uiStyle.autoHeight) {
+                    height = Math.max(uiLabelDimensions.getHeight(), uiTextBoxDimensions.getHeight());
+                } else {
+                    height = uiTextBoxDimensions.getHeight();
+                }
+
 
                 // Update the cursor
                 if (uiTextBox.hasFocusState()) {
@@ -97,6 +99,10 @@ define([
                     cursorQuad.getComponent('Transform').setPosition(dx, -dy, 0);
                 }
 
+                uiLabelDimensions.setWidth(width);
+                uiLabelDimensions.setHeight(height);
+                uiLabel.setDirty(true);
+
                 width  += uiStyle.paddingLeft + uiStyle.paddingRight;
                 height += uiStyle.paddingTop + uiStyle.paddingBottom;
 
@@ -105,6 +111,12 @@ define([
                 uiRect.setDirty(true);
 
                 uiTextBoxCollider.setBoundingBox(uiRectDimensions.getComponent('Bounds').getLocalBoundingBox());
+
+                var boundingBox = uiRectDimensions.getComponent('Bounds').getWorldBoundingBox();
+                uiTextBoxScissor.setRectangle(boundingBox.min.x, 
+                                              boundingBox.min.y, 
+                                              boundingBox.getWidth(), 
+                                              boundingBox.getHeight());
 
                 uiTextBox.setDirty(false);
             },
