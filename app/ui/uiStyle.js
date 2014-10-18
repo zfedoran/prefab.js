@@ -34,10 +34,6 @@ define([
             this.autoWidth     = false;
             this.autoHeight    = false;
 
-            // The following properties define whether the child UI elements should be masked if they extend past the bounds of this element
-            this.overflowHidden = false;
-            this.overflowScroll = false;
-
             // The following properties change how the dynamic spriteFont is generated
             this._spriteFont         = null;
             this._characterRangeFrom = 32;

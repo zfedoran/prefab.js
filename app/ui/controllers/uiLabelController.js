@@ -49,7 +49,7 @@ define([
             */
             update: function() {
                 this.filterBy(['Transform', 'Dimensions', 'UILabel', 'MeshFilter', 'MeshRenderer'], function(entity) {
-                    var uiLabel     = entity.getComponent('UILabel');
+                    var uiLabel    = entity.getComponent('UILabel');
                     var dimensions = entity.getComponent('Dimensions');
 
                     if (uiLabel.isDirty() || dimensions.isDirty()) {
@@ -110,9 +110,13 @@ define([
             *   @returns {lines} An array of strings
             */
             generateParagraphLines: function(uiLabel, maxWidth) {
+                if (!uiLabel.multiLine) {
+                    return [uiLabel.getText()];
+                }
+
                 var uiStyle     = uiLabel.getCurrentStyle();
                 var spriteFont  = uiStyle.getSpriteFont(),
-                    text        = uiLabel.text,
+                    text        = uiLabel.getText(),
                     lines       = [],
                     currentLine = '';
 
@@ -170,20 +174,21 @@ define([
             *   @returns {mesh}
             */
             generateLabelMesh: function(entity, mesh) {
-                var uiLabel     = entity.getComponent('UILabel');
+                var uiLabel    = entity.getComponent('UILabel');
                 var dimensions = entity.getComponent('Dimensions');
+                var bounds     = entity.getComponent('Bounds');
                 var uiStyle    = uiLabel.getCurrentStyle();
                 var spriteFont = uiStyle.getSpriteFont();
 
                 // By definition, for a label to be multiline, it must have a dimension
-                var lines, maxWidth;
+                var maxWidth;
                 if (uiLabel.multiLine) {
                     maxWidth = dimensions.getWidth();
-                    lines    = this.generateParagraphLines(uiLabel, maxWidth);
                 } else {
                     maxWidth = spriteFont.measureText(uiLabel.text);
-                    lines    = [uiLabel.text];
                 }
+
+                var lines = this.generateParagraphLines(uiLabel, maxWidth);
 
                 this.meshFactory.begin(mesh);
 
@@ -240,9 +245,9 @@ define([
 
                 this.meshFactory.end();
 
-                // Set the width and height of the dimensions component
+                // Set the width and height of the bounds component
                 var boundingBox = mesh.getBoundingBox();
-                dimensions.setDimensions(dimensions.getWidth(),dimensions.getHeight());
+                bounds.setLocalDimensions(boundingBox.getWidth(), boundingBox.getHeight());
 
                 return mesh;
             },

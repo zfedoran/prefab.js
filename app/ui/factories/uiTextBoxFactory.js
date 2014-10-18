@@ -25,10 +25,10 @@ define([
         var UITextBoxFactory = function(context) {
             Factory.call(this, context);
 
-            this.uiElementFactory = new UIElementFactory(context);
-            this.uiLabelFactory   = new UILabelFactory(context);
-            this.uiRectFactory    = new UIRectFactory(context);
-            this.quadFactory      = new QuadFactory(context);
+            this.uiElementFactory   = new UIElementFactory(context);
+            this.uiLabelFactory     = new UILabelFactory(context);
+            this.uiRectFactory      = new UIRectFactory(context);
+            this.quadFactory        = new QuadFactory(context);
         };
 
         UITextBoxFactory.prototype = _.create(Factory.prototype, {
@@ -43,9 +43,9 @@ define([
                 var uiTextBox = entity.getComponent('UITextBox');
 
                 // Child Entities
-                var uiLabelEntity  = this.uiLabelFactory.create(name + '-text', text, uiElementStyle);
-                var uiRectEntity   = this.uiRectFactory.create(name + '-background', uiElementStyle);
-                var cursorEntity   = this.quadFactory.create(name + '-cursor', null, 1, uiTextBox.getCurrentStyle().fontSize);
+                var uiLabelEntity     = this.uiLabelFactory.create(name + '-text', text, uiElementStyle);
+                var uiRectEntity      = this.uiRectFactory.create(name + '-background', uiElementStyle);
+                var cursorEntity      = this.quadFactory.create(name + '-cursor', null, 1, uiTextBox.getCurrentStyle().fontSize);
 
                 // Set child components
                 uiTextBox.setUILabelComponent(uiLabelEntity.getComponent('UILabel'));
@@ -54,8 +54,8 @@ define([
                 
                 // Set the child hierarchy
                 entity.addChild(uiRectEntity);
-                entity.addChild(uiLabelEntity);
                 entity.addChild(cursorEntity);
+                entity.addChild(uiLabelEntity);
 
                 return entity;
             }

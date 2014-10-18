@@ -106,21 +106,6 @@ define([
             },
 
             /**
-            *   This method sets the overflow property for all states of this
-            *   UI element style.
-            *
-            *   @method setOverflowHidden
-            *   @param {value}
-            *   @returns {undefined}
-            */
-            setOverflowHidden: function(value) {
-                this.normal.overflowHidden = value;
-                this.hover.overflowHidden  = value;
-                this.active.overflowHidden = value;
-                this.focus.overflowHidden  = value;
-            },
-
-            /**
             *   This method sets the autoWidth property for all states of this
             *   UI element style.
             *

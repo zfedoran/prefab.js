@@ -57,35 +57,37 @@ define([
             *   @returns {undefined}
             */
             updateTextBox: function(entity) {
-                var uiTextBox           = entity.getComponent('UITextBox');
-                var uiTextBoxBounds     = entity.getComponent('Bounds');
-                var uiTextBoxDimensions = entity.getComponent('Dimensions');
-                var uiTextBoxCollider   = entity.getComponent('ColliderBox');
-                var uiTextBoxTransform  = entity.getComponent('Transform');
-                var uiTextBoxScissor    = entity.getComponent('ScissorTest');
+                var uiTextBox             = entity.getComponent('UITextBox');
+                var uiTextBoxBounds       = entity.getComponent('Bounds');
+                var uiTextBoxDimensions   = entity.getComponent('Dimensions');
+                var uiTextBoxCollider     = entity.getComponent('ColliderBox');
+                var uiTextBoxTransform    = entity.getComponent('Transform');
+                var uiTextBoxScissor      = entity.getComponent('ScissorTest');
 
-                var uiStyle             = uiTextBox.getCurrentStyle();
-                var cursorQuad          = uiTextBox.getCursorQuadComponent();
-                var uiLabel             = uiTextBox.getUILabelComponent();
-                var uiRect              = uiTextBox.getUIRectComponent();
-                var uiLabelDimensions   = uiLabel.getComponent('Dimensions');
-                var uiRectDimensions    = uiRect.getComponent('Dimensions');
+                var uiStyle               = uiTextBox.getCurrentStyle();
+                var cursorQuad            = uiTextBox.getCursorQuadComponent();
+                var uiLabel               = uiTextBox.getUILabelComponent();
+                var uiRect                = uiTextBox.getUIRectComponent();
+                var uiLabelBounds         = uiLabel.getComponent('Bounds');
+                var uiRectDimensions      = uiRect.getComponent('Dimensions');
 
+                // Label position
                 uiLabel.getComponent('Transform').setPosition(uiStyle.paddingLeft, -uiStyle.paddingTop);
 
+                // TextBox width
                 var width, height;
                 if (uiStyle.autoWidth) {
-                    width = Math.max(uiLabelDimensions.getWidth(), uiTextBoxDimensions.getWidth());
+                    width = Math.max(uiLabelBounds.getWidth(), uiTextBoxDimensions.getWidth());
                 } else {
                     width = uiTextBoxDimensions.getWidth();
                 }
 
+                // TextBox height
                 if (uiStyle.autoHeight) {
-                    height = Math.max(uiLabelDimensions.getHeight(), uiTextBoxDimensions.getHeight());
+                    height = Math.max(uiLabelBounds.getHeight(), uiTextBoxDimensions.getHeight());
                 } else {
                     height = uiTextBoxDimensions.getHeight();
                 }
-
 
                 // Update the cursor
                 if (uiTextBox.hasFocusState()) {
@@ -94,14 +96,10 @@ define([
                     cursorMaterial.diffuse = uiStyle.fontColor;
 
                     // Update cursor position
-                    var dx = width + uiStyle.paddingLeft;
+                    var dx = uiTextBox.getCurrentCursorOffset() + uiStyle.paddingLeft;
                     var dy = height / 2;
                     cursorQuad.getComponent('Transform').setPosition(dx, -dy, 0);
                 }
-
-                uiLabelDimensions.setWidth(width);
-                uiLabelDimensions.setHeight(height);
-                uiLabel.setDirty(true);
 
                 width  += uiStyle.paddingLeft + uiStyle.paddingRight;
                 height += uiStyle.paddingTop + uiStyle.paddingBottom;

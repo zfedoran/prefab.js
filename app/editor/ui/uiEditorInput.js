@@ -11,7 +11,6 @@ define([
         var UIEditorInput = function(context) {
             UIElementStyle.call(this, context);
 
-            this.setOverflowHidden(true);
             this.setFontFamily('arial');
             this.setFontSize(9);
             this.setFontColor(0.8, 0.8, 0.8, 1);

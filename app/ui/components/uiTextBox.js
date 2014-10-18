@@ -19,10 +19,11 @@ define([
         var UITextBox = function(text, uiElementStyle) {
             UIElement.call(this, uiElementStyle);
 
-            this.uiLabelComponent    = null;
-            this.uiRectComponent     = null;
-            this.cursorQuadComponent = null;
+            this.uiLabelComponent     = null;
+            this.uiRectComponent      = null;
+            this.cursorQuadComponent  = null;
 
+            this._prevText         = '';
             this._cursorPosition   = 0;
             this._cursorBlinkTime  = 0;
             this._cursorBlinkDelay = 1;
@@ -264,6 +265,10 @@ define([
                 if (this.state === UIElement.STATE_HOVER) {
                     this.setState(UIElement.STATE_ACTIVE);
                     this._context.trigger('blur');
+
+                    var text = this.getText();
+                    this._prevText = text;
+                    this._cursorPosition = text.length;
                 } else {
                     this.isCursorPositionUpdate = true;
                 }
@@ -328,15 +333,58 @@ define([
                 if (this.state === UIElement.STATE_FOCUS) {
                     var text = this.getText();
 
-                    if (keyboardDevice.currentKey === keyboardDevice.keyCodes.Backspace) {
-                        text = text.slice(0, text.length - 1);
-                    } else {
-                        text += keyboardDevice.currentChar;
+                    switch (keyboardDevice.currentKey) {
+                        case keyboardDevice.keyCodes.Backspace:
+                            if (this._cursorPosition > 0) {
+                                this._cursorPosition--;
+                                text = text.slice(0, this._cursorPosition) + text.slice(this._cursorPosition+1, text.length);
+                            }
+                            break;
+                        case keyboardDevice.keyCodes.LeftArrow:
+                            if (this._cursorPosition > 0) {
+                                this._cursorPosition--;
+                            }
+                            break;
+                        case keyboardDevice.keyCodes.RightArrow:
+                            if (this._cursorPosition < text.length) {
+                                this._cursorPosition++;
+                            }
+                            break;
+                        case keyboardDevice.keyCodes.UpArrow:
+                            this._cursorPosition = 0;
+                            break;
+                        case keyboardDevice.keyCodes.DownArrow:
+                            this._cursorPosition = text.length;
+                            break;
+                        case keyboardDevice.keyCodes.Escape:
+                            this.setState(UIElement.STATE_NORMAL);
+                            text = this._prevText;
+                            break;
+                        default:
+                            text = text.slice(0, this._cursorPosition) + keyboardDevice.currentChar + text.slice(this._cursorPosition, text.length);
+                            this._cursorPosition++;
+                            break;
                     }
 
                     this.setText(text);
                     this.setDirty(true);
                 }
+            },
+
+            /**
+            *   This function returns the offset until the current cursor
+            *   position, taking into account the individual character widths.
+            *
+            *   @method getCurrentCursorOffset
+            *   @returns {undefined}
+            */
+            getCurrentCursorOffset: function() {
+                var uiStyle         = this.getCurrentStyle();
+                var spriteFont      = uiStyle.getSpriteFont();
+                var text            = this.getText();
+                var textUntilCursor = text.slice(0, this._cursorPosition);
+
+                return spriteFont.measureText(textUntilCursor);
             },
         });
 
